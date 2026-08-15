@@ -11,8 +11,8 @@
 #include <stdio.h>
 #include "allegro.h"
 #include "main.h"
-#include "hisc.h"
-#include "../assets/data.h"			    
+#include "../assets/data.h"		
+#include "../../platform.h"	    
 
 BITMAP *swap_screen;
 BITMAP *bg_screen;
@@ -60,6 +60,41 @@ void game_counter(void) {
 	game_count++;
 }
 END_OF_FUNCTION(game_counter);
+
+// platform specific memory allocation
+void * platform_memory_allocate(unsigned int size)
+{
+    return malloc(size);
+}
+
+void platform_copy_string(char * buffer, char * source)
+{
+    strcpy(buffer, source);
+}
+
+/* 
+ * Loads table from disk, returns 1 on success
+ */
+int platform_load_score_table(Thisc *table, char *fname) {
+	PACKFILE *fp;
+
+	fp = pack_fopen(fname, "rp");
+	if (!fp) return 0;
+	pack_fread(table, MAX_SCORES*sizeof(Thisc), fp);
+	pack_fclose(fp);
+	return 1;
+}
+
+/* 
+ * Saves table to disk
+ */
+void platform_save_score_table(Thisc *table, char *fname) {
+	PACKFILE *fp;
+
+	fp = pack_fopen(fname, "wp");
+	pack_fwrite(table, MAX_SCORES*sizeof(Thisc), fp);
+	pack_fclose(fp);
+}
 
 void myAlert(char *txt) {
 	alert("A L E X   I I", NULL, txt, "Cool", "Yeah", 'y', 27);
@@ -112,7 +147,7 @@ void saveSoundCFG() {
 	pack_fclose(fp);
 }
 
-void init() {
+void platform_initialize() {
 	allegro_init();
 
 	set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
@@ -1287,7 +1322,7 @@ void instructions() {
 int main(int argc, char *argv[]) {
 	int playGame = 1;
 
-	init();
+	platform_initialize();
 	intro();
 	while (playGame) {
 		playGame = title();

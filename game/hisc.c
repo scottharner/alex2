@@ -3,8 +3,8 @@
  * 2001 (c) Johan Peitz 
  */
 
-#include "allegro.h"
 #include "hisc.h"
+#include "../platform/platform.h"
 
 /*
  *  Creates a table to work with
@@ -12,7 +12,7 @@
 Thisc* makeTable() {
 	Thisc *tmp;
 
-	tmp = malloc(MAX_SCORES*sizeof(Thisc));
+	tmp = platform_memory_allocate(MAX_SCORES*sizeof(Thisc));
 	if (!tmp) return NULL;
 
 	return tmp;
@@ -74,7 +74,7 @@ void resetTable(Thisc *table, char *name, int hi, int lo) {
 	int acc = hi;
 
 	for (i=0;i<MAX_SCORES;i++) {
-		strcpy(table[i].name, name);
+		platform_copy_string(table[i].name, name);
 		table[i].score = acc;
 		acc-=d;
 	}
@@ -84,23 +84,13 @@ void resetTable(Thisc *table, char *name, int hi, int lo) {
  * Loads table from disk, returns 1 on success
  */
 int loadTable(Thisc *table, char *fname) {
-	PACKFILE *fp;
-
-	fp = pack_fopen(fname, "rp");
-	if (!fp) return 0;
-	pack_fread(table, MAX_SCORES*sizeof(Thisc), fp);
-	pack_fclose(fp);
-	return 1;
+	return platform_load_score_table(table, fname);
 }
 
 /* 
  * Saves table to disk
  */
 void saveTable(Thisc *table, char *fname) {
-	PACKFILE *fp;
-
-	fp = pack_fopen(fname, "wp");
-	pack_fwrite(table, MAX_SCORES*sizeof(Thisc), fp);
-	pack_fclose(fp);
+	platform_save_score_table(table, fname);
 }
 
