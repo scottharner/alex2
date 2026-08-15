@@ -1,0 +1,24 @@
+windows
+-------
+- had to use allegro tools grabber.exe to extract files from alex2.dat
+	- could no longer find a build of these tools so had to search by filename in internet time machine
+- building now with allegro-mingw-4.2.2
+- found original source at https://sourceforge.net/projects/allegator/files/Alex2/
+
+saturn
+------
+
+genesis
+-------
+
+general
+-------
+- we have one make file per platform now, so to make we need to
+  - cd into the platform specific build directory
+  - run make clean (optional)
+  - run make
+- we will use a consistent naming convention: snake_case everything except MACRO and ENUMERATION_CONSTANTS	
+
+todo
+----
+
