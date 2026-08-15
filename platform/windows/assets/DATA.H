@@ -1,0 +1,59 @@
+/* Allegro datafile object indexes, produced by grabber v3.11 */
+/* Datafile: c:\program\micros~3\myproj~1\alex2\data\alex2.dat */
+/* Date: Mon Jan 29 01:07:03 2001 */
+/* Do not hand edit! */
+
+#define AA2                              0        /* RLE  */
+#define AALOGO                           1        /* RLE  */
+#define ARROW1                           2        /* BMP  */
+#define ARROW2                           3        /* BMP  */
+#define ARROW3                           4        /* BMP  */
+#define ARROW4                           5        /* BMP  */
+#define DONKEY1                          6        /* BMP  */
+#define DONKEY2                          7        /* BMP  */
+#define DONKEY3                          8        /* BMP  */
+#define DONKEY4                          9        /* BMP  */
+#define DUST000                          10       /* BMP  */
+#define DUST001                          11       /* BMP  */
+#define DUST002                          12       /* BMP  */
+#define DUST003                          13       /* BMP  */
+#define DUST004                          14       /* BMP  */
+#define GAMEPAL                          15       /* PAL  */
+#define INSTRUCTIONS                     16       /* DATA */
+#define MYFONT                           17       /* FONT */
+#define MYFONT2                          18       /* FONT */
+#define PLACE1                           19       /* SAMP */
+#define PLACE2                           20       /* SAMP */
+#define PLACE3                           21       /* SAMP */
+#define PLAYER11                         22       /* BMP  */
+#define PLAYER12                         23       /* BMP  */
+#define PLAYER13                         24       /* BMP  */
+#define PLAYER14                         25       /* BMP  */
+#define PLAYER21                         26       /* BMP  */
+#define PLAYER22                         27       /* BMP  */
+#define PLAYER23                         28       /* BMP  */
+#define PLAYER24                         29       /* BMP  */
+#define POINTER                          30       /* BMP  */
+#define POINTER1                         31       /* BMP  */
+#define POINTER2                         32       /* BMP  */
+#define REMOVE                           33       /* SAMP */
+#define ROTATE                           34       /* SAMP */
+#define SHLOGO                           35       /* BMP  */
+#define SHPAL                            36       /* PAL  */
+#define SONG1                            37       /* MIDI */
+#define SONG2                            38       /* MIDI */
+#define SONG3                            39       /* MIDI */
+#define SONG4                            40       /* MIDI */
+#define TITLE                            41       /* BMP  */
+#define TITLESONG                        42       /* MIDI */
+#define TOKEN000                         43       /* BMP  */
+#define TOKEN001                         44       /* BMP  */
+#define TOKEN002                         45       /* BMP  */
+#define TOKEN003                         46       /* BMP  */
+#define TOKEN004                         47       /* BMP  */
+#define TOKEN005                         48       /* BMP  */
+#define TOKEN006                         49       /* BMP  */
+#define VOL1                             50       /* BMP  */
+#define VOL2                             51       /* BMP  */
+#define VOL3                             52       /* BMP  */
+
