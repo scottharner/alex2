@@ -51,4 +51,4 @@ prepare_cd:
 #	cp ../assets/sfx/*.PCM cd/
 #	cp -r ../assets/tex/* cd/tex/
 	cp -r ../drivers/* cd/
-#	cp ../assets/bgm/*.wav .
+	cp ../assets/bgm/*.wav .

@@ -26,6 +26,14 @@
 ** SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <jo/jo.h>
+// #include <stdio.h>
+// #include "allegro.h"
+#include "main.h"
+// #include "hisc.h"
+// #include "../assets/data.h"	
+#include "pcmsys.h"
+
 /*
  *  Alex the Allegator 2
  *
@@ -36,14 +44,9 @@
  *  http://www.dtek.chalmers.se/~fld/
  */
 
-#include <jo/jo.h>
-// #include <stdio.h>
-// #include "allegro.h"
-// #include "main.h"
-// #include "hisc.h"
-// #include "../assets/data.h"			    
+#define TITLE_TRACKID 2
 
-// BITMAP *swap_screen;
+ // BITMAP *swap_screen;
 // BITMAP *bg_screen;
 // BITMAP *scroller = NULL;
 // DATAFILE *data;
@@ -78,6 +81,9 @@
 // volatile int frame_count;
 // volatile int fps;
 // volatile int game_count;
+
+static mode game_mode;
+static mode previous_game_mode;
 
 // void fps_counter(void) {
 // 	fps=frame_count;
@@ -141,9 +147,19 @@
 // 	pack_fclose(fp);
 // }
 
+void reset_game()
+{
+	game_mode = MODE_INTRO;
+}
+
 void init() 
 {
 	jo_core_init(JO_COLOR_Black);
+	previous_game_mode = MODE_NONE;
+
+	// initialize sound
+	load_drv(ADX_MASTER_2304);
+	CDDA_SetVolume(4);
 // 	allegro_init();
 
 // 	set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
@@ -186,6 +202,8 @@ void init()
 // 	if (!loadTable(hisc,"hiscores.sav")) resetScores(hisc);
 // 	loadSoundCFG();
 // 	set_volume(soundvol,musicvol);
+
+	reset_game();
 }
 
 // void etchedBox(int x1, int y1, int x2, int y2, int up) {
@@ -1211,8 +1229,14 @@ void init()
 // 	return i;
 // }
 
-// void intro() {
-// 	int i;
+void intro() 
+{
+	if (game_mode != previous_game_mode)
+	{
+		previous_game_mode = MODE_INTRO;
+		CDDA_PlaySingle(TITLE_TRACKID, true);
+	}
+	// 	int i;
 
 // 	play_midi(data[TITLESONG].dat,1);
 // 	playingMidi=1;
@@ -1235,7 +1259,8 @@ void init()
 // 	if (fadeText("ALEX",750)) return;
 // 	if (fadeText("THE ALLEGATOR",750)) return;
 // 	if (fadeText("in",500)) return;
-// }
+	jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Intro");
+}
 
 // void outro() {
 // 	fade_out(4);
@@ -1315,7 +1340,7 @@ void init()
 // 	clear(screen);
 // }
 
-void game_update()
+void update_game()
 {
 	// intro();
 	// while (playGame) {
@@ -1327,7 +1352,16 @@ void game_update()
 	// outro();
 	// shutdown();
 
-	jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Hello world!");
+	switch (game_mode)
+	{
+		case MODE_INTRO:
+			intro();
+			break;
+
+		default:
+			jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Hello world!");
+			break;
+	}
 }
 
 void jo_main(void) 
@@ -1335,7 +1369,8 @@ void jo_main(void)
 	int playGame = 1;
 
 	init();
-	jo_core_add_callback(game_update);
+	jo_core_add_vblank_callback(sdrv_vblank_rq);
+	jo_core_add_callback(update_game);
 	jo_core_run();
 }
 

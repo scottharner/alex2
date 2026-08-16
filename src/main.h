@@ -2,7 +2,13 @@
  *   Alex the Allegator 2
  */
 
+ #ifndef MAIN_H
+ #define MAIN_H
+
+ #include <stdint.h>
+ 
 typedef unsigned char byte;
+typedef int32_t fixed;
 
 typedef struct {
 	int score;
@@ -35,10 +41,15 @@ typedef struct {
 	byte flag;		// used for lots of stuff
 } Ttoken;
 
+typedef enum
+{
+	MODE_NONE = 0, MODE_INTRO
+}mode;
+
 Ttoken emptySquare = { 0,		  	  0, 0 };
 Ttoken greenToken  = { GREENTOKEN,   10, 0 };
 Ttoken blueToken   = { BLUETOKEN,	 10, 0 };
 Ttoken multiToken  = { MULTITOKEN,   50, 0 };
 Ttoken deadToken  =  { DEADTOKEN,   100, 0 };
 
-
+#endif
