@@ -3,8 +3,7 @@ TARGET = alex2.exe
 
 # 2. List the C files you want to include (add new ones here separated by spaces or backslashes)
 SRCS = ../src/main.c \
-       ../../../game/hisc.c \
-       ../../../game/game.c
+       ../../../game/hisc.c 
 
 # 3. Compiler and flags (including Allegro paths and inline rule)
 CC = gcc
