@@ -141,7 +141,9 @@
 // 	pack_fclose(fp);
 // }
 
-// void init() {
+void init() 
+{
+	jo_core_init(JO_COLOR_Black);
 // 	allegro_init();
 
 // 	set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
@@ -184,7 +186,7 @@
 // 	if (!loadTable(hisc,"hiscores.sav")) resetScores(hisc);
 // 	loadSoundCFG();
 // 	set_volume(soundvol,musicvol);
-// }
+}
 
 // void etchedBox(int x1, int y1, int x2, int y2, int up) {
 // 	line(bg_screen, x1-2, y1-1, x2, y1-1, (up?38:40));
@@ -1313,14 +1315,8 @@
 // 	clear(screen);
 // }
 
-void jo_main(void) 
+void game_update()
 {
-	jo_core_init(JO_COLOR_Black);
-	jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Hello world!");
-	jo_core_run();
-	// int playGame = 1;
-
-	// init();
 	// intro();
 	// while (playGame) {
 	// 	playGame = title();
@@ -1331,7 +1327,16 @@ void jo_main(void)
 	// outro();
 	// shutdown();
 
-	// return 0;
+	jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Hello world!");
+}
+
+void jo_main(void) 
+{
+	int playGame = 1;
+
+	init();
+	jo_core_add_callback(game_update);
+	jo_core_run();
 }
 
 /*
