@@ -86,6 +86,7 @@
 static mode game_mode;
 static mode previous_game_mode;
 static int shlogo_sprite_id;
+static int action_counter;
 
 // void fps_counter(void) {
 // 	fps=frame_count;
@@ -152,6 +153,7 @@ static int shlogo_sprite_id;
 void reset_game()
 {
 	game_mode = MODE_INTRO;
+	action_counter = 0;
 }
 
 void init() 
@@ -1260,12 +1262,6 @@ void intro()
 // 	playingMidi=1;
 
 
-// 	for(i=0;i<121;i++) {
-// 		game_count=0;
-// 		stretch_blit(data[SHLOGO].dat, screen, 0, 0, 320,240, 0, 119-i, 320, i<<1);
-// 		while(!game_count);
-// 		if (key[KEY_ESC]) return;
-// 	}
 // 	if (myRest(2000)) return;
 // 	fade_out(4);
 // 	if (fadeText("Johan Peitz",1000)) return;
@@ -1275,8 +1271,23 @@ void intro()
 // 	if (fadeText("THE ALLEGATOR",750)) return;
 // 	if (fadeText("in",500)) return;
 
-	draw_tile(0, 0, shlogo_sprite_id, BACKGROUND_ZINDEX, 0);
-	//jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Intro");
+	// vertically stretch speedhack logo over time
+	if (action_counter < 119)
+	{
+		float scale_y = (float)(action_counter << 1)/240.0f;
+		jo_sprite_change_sprite_scale_xy(1.0f, scale_y);
+		 // it seems that draw3d2 uses centered coords only when scaling is applied!
+		jo_sprite_draw3D2(shlogo_sprite_id, 0, 0 - (action_counter/20), BACKGROUND_ZINDEX);
+		jo_sprite_restore_sprite_scale();
+#if JO_DEBUG		
+		jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Counter %d", action_counter);
+		jo_printf_with_color(0, 1, JO_COLOR_INDEX_White, "scale %d%%", (int)(scale_y * 100.0f));
+#endif
+	}
+	else
+	{
+		jo_sprite_draw3D2(shlogo_sprite_id, 0, 0, BACKGROUND_ZINDEX);
+	}
 }
 
 // void outro() {
@@ -1368,14 +1379,19 @@ void update_game()
 	// outro();
 	// shutdown();
 
+	action_counter++;
 	switch (game_mode)
 	{
 		case MODE_INTRO:
+			if (action_counter > 119)
+				action_counter = 119;
+
 			intro();
 			break;
 
 		default:
 			jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Hello world!");
+			action_counter = 0; // always reset as we are not timing anything
 			break;
 	}
 }
