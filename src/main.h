@@ -5,10 +5,9 @@
  #ifndef MAIN_H
  #define MAIN_H
 
- #include <stdint.h>
+ #include <jo/jo.h>
  
 typedef unsigned char byte;
-typedef int32_t fixed;
 
 typedef struct {
 	int score;
@@ -21,10 +20,10 @@ typedef struct {
 Tplayer resetPlayer = {0,0,0,0,0};
 
 typedef struct {
-	fixed x;
-	fixed y;
-	fixed dx;
-	fixed dy;
+	jo_fixed x;
+	jo_fixed y;
+	jo_fixed dx;
+	jo_fixed dy;
 	byte image;
 	byte exist;
 } Tparticle;

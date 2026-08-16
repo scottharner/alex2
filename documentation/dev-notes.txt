@@ -11,6 +11,11 @@ saturn
   - i read that saturn can deal with seq/ton which you can convert to from midi but i dont know how ponesound deals with that
   - i am instead converting from midi to wav and will play with cd audio
   - had to use audacity to add 2.5 sec of silence so beginning of song is heard properly
+- i ran into some palette issues loading some of these graphics and had to do the following
+  - load graphic in mtpaint
+  - load palette in mtpaint
+  - change the graphic to rgb mode
+  - save the graphic as tga
 
 general
 -------

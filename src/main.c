@@ -45,6 +45,7 @@
  */
 
 #define TITLE_TRACKID 2
+#define BACKGROUND_ZINDEX 500
 
  // BITMAP *swap_screen;
 // BITMAP *bg_screen;
@@ -84,6 +85,7 @@
 
 static mode game_mode;
 static mode previous_game_mode;
+static int shlogo_sprite_id;
 
 // void fps_counter(void) {
 // 	fps=frame_count;
@@ -160,6 +162,10 @@ void init()
 	// initialize sound
 	load_drv(ADX_MASTER_2304);
 	CDDA_SetVolume(4);
+
+	// initialize graphics
+	shlogo_sprite_id = jo_sprite_add_tga("TEX", "SHLOGO.TGA", JO_COLOR_Transparent);
+
 // 	allegro_init();
 
 // 	set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
@@ -1229,6 +1235,19 @@ void init()
 // 	return i;
 // }
 
+static void draw_tile(int x, int y, int sprite_id, int z, int angle)
+{
+    if (angle == 0)
+        jo_sprite_draw3D2(sprite_id, x, y, z);
+    else
+        jo_sprite_draw3D_and_rotate2(sprite_id, x, y, z, angle);
+
+#if JO_DEBUG
+    jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "tile x: %d", x);
+    jo_printf_with_color(0, 1, JO_COLOR_INDEX_White, "tile y: %d", y);
+#endif
+}
+
 void intro() 
 {
 	if (game_mode != previous_game_mode)
@@ -1238,12 +1257,8 @@ void intro()
 	}
 	// 	int i;
 
-// 	play_midi(data[TITLESONG].dat,1);
 // 	playingMidi=1;
-// 	myRest(2000); // wait for music to catch up
 
-// 	clear(screen);
-// 	set_palette(data[SHPAL].dat);
 
 // 	for(i=0;i<121;i++) {
 // 		game_count=0;
@@ -1259,7 +1274,9 @@ void intro()
 // 	if (fadeText("ALEX",750)) return;
 // 	if (fadeText("THE ALLEGATOR",750)) return;
 // 	if (fadeText("in",500)) return;
-	jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Intro");
+
+	draw_tile(0, 0, shlogo_sprite_id, BACKGROUND_ZINDEX, 0);
+	//jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Intro");
 }
 
 // void outro() {
@@ -1342,7 +1359,6 @@ void intro()
 
 void update_game()
 {
-	// intro();
 	// while (playGame) {
 	// 	playGame = title();
 	// 	if (playGame==3) play();

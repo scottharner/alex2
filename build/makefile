@@ -49,6 +49,6 @@ prepare_cd:
 	touch cd/0.bin
 	mkdir -p cd/TEX
 #	cp ../assets/sfx/*.PCM cd/
-#	cp -r ../assets/tex/* cd/tex/
+	cp -r ../assets/tex/* cd/tex/
 	cp -r ../drivers/* cd/
 	cp ../assets/bgm/*.wav .
