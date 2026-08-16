@@ -83,14 +83,28 @@ void resetTable(Thisc *table, char *name, int hi, int lo) {
 /* 
  * Loads table from disk, returns 1 on success
  */
-int loadTable(Thisc *table, char *fname) {
-	return platform_load_score_table(table, fname);
+int loadTable(Thisc *table) {
+	return platform_load_score_table(table);
 }
 
 /* 
  * Saves table to disk
  */
-void saveTable(Thisc *table, char *fname) {
-	platform_save_score_table(table, fname);
+void saveTable(Thisc *table) {
+	platform_save_score_table(table);
+}
+
+void resetScores(Thisc *table) {
+	resetTable(table,"Johan Peitz",1000,0);
+	platform_copy_string(table[0].name, "Alex the Allegator");
+	platform_copy_string(table[1].name, "Aaron the Allegator");
+	platform_copy_string(table[2].name, "Johan Peitz");
+	platform_copy_string(table[3].name, "- - -");
+	platform_copy_string(table[4].name, "Have you tried");
+	platform_copy_string(table[5].name, "our donkey spam?");
+	platform_copy_string(table[6].name, "It's the best!");
+	platform_copy_string(table[7].name, "Order now at:");
+	platform_copy_string(table[8].name, "1-800-SPAM-R-US");
+	platform_copy_string(table[9].name, "We take VISA.");
 }
 

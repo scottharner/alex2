@@ -14,11 +14,13 @@
 #include "../assets/data.h"		
 #include "../../platform.h"	    
 
+#define SOUND_CONFIG_FILENAME "sound.sav"
+#define HIGH_SCORE_FILENAME "hiscores.sav"
+
 BITMAP *swap_screen;
 BITMAP *bg_screen;
 BITMAP *scroller = NULL;
 DATAFILE *data;
-Thisc *hisc;						// a hiscore table
 Ttoken board[8][8];					// the board
 Tparticle dust[MAX_PARTICLES];		// particles for the particle engine
 Tplayer ply[3];						// 2 players, ignore ply[0]
@@ -39,7 +41,6 @@ int scrollX, scrollY;	// scrolling offset
 int placeing, placeType, placeX, placeY;	// placeToken stuff
 byte player;			// current player
 int winner;				// who won? 3=draw
-byte soundvol, musicvol;
 int playingMidi = 0;
 int lockedRow, lockedCol; // current locked row/col
 int hint, hintX, hintY;   // hint stuff
@@ -75,10 +76,10 @@ void platform_copy_string(char * buffer, char * source)
 /* 
  * Loads table from disk, returns 1 on success
  */
-int platform_load_score_table(Thisc *table, char *fname) {
+int platform_load_score_table(Thisc *table) {
 	PACKFILE *fp;
 
-	fp = pack_fopen(fname, "rp");
+	fp = pack_fopen(HIGH_SCORE_FILENAME, "rp");
 	if (!fp) return 0;
 	pack_fread(table, MAX_SCORES*sizeof(Thisc), fp);
 	pack_fclose(fp);
@@ -88,30 +89,16 @@ int platform_load_score_table(Thisc *table, char *fname) {
 /* 
  * Saves table to disk
  */
-void platform_save_score_table(Thisc *table, char *fname) {
+void platform_save_score_table(Thisc *table) {
 	PACKFILE *fp;
 
-	fp = pack_fopen(fname, "wp");
+	fp = pack_fopen(HIGH_SCORE_FILENAME, "wp");
 	pack_fwrite(table, MAX_SCORES*sizeof(Thisc), fp);
 	pack_fclose(fp);
 }
 
 void myAlert(char *txt) {
 	alert("A L E X   I I", NULL, txt, "Cool", "Yeah", 'y', 27);
-}
-
-void resetScores(Thisc *table) {
-	resetTable(table,"Johan Peitz",1000,0);
-	strcpy(table[0].name, "Alex the Allegator");
-	strcpy(table[1].name, "Aaron the Allegator");
-	strcpy(table[2].name, "Johan Peitz");
-	strcpy(table[3].name, "- - -");
-	strcpy(table[4].name, "Have you tried");
-	strcpy(table[5].name, "our donkey spam?");
-	strcpy(table[6].name, "It's the best!");
-	strcpy(table[7].name, "Order now at:");
-	strcpy(table[8].name, "1-800-SPAM-R-US");
-	strcpy(table[9].name, "We take VISA.");
 }
 
 int loadData() {
@@ -123,27 +110,26 @@ int loadData() {
 	return ok;
 }
 
-void loadSoundCFG() {
+void platform_load_sound_config(int *sound_vol, int *music_vol) {
 	PACKFILE *fp;
-
 	fp = pack_fopen("sound.sav", "rp");
 	if (!fp) {
-		soundvol=200;
-		musicvol=100;
+		*sound_vol=200;
+		*music_vol=100;
 	} 
 	else {
-		pack_fread(&soundvol, 1, fp);
-		pack_fread(&musicvol, 1, fp);
+		pack_fread(sound_vol, 1, fp);
+		pack_fread(music_vol, 1, fp);
 		pack_fclose(fp);
 	}	
 }
 
-void saveSoundCFG() {
+void saveSoundCFG(int *sound_vol, int *music_vol) {
 	PACKFILE *fp;
 
 	fp = pack_fopen("sound.sav", "wp");
-	pack_fwrite(&soundvol, 1, fp);
-	pack_fwrite(&musicvol, 1, fp);
+	pack_fwrite(sound_vol, 1, fp);
+	pack_fwrite(music_vol, 1, fp);
 	pack_fclose(fp);
 }
 
@@ -182,14 +168,11 @@ void platform_initialize() {
 	create_light_table(&dark_table, data[GAMEPAL].dat, 0, 0, 0, NULL);
 	create_light_table(&light_table, data[GAMEPAL].dat, 63, 63, 63, NULL);
 	create_trans_table(&trans_table, data[GAMEPAL].dat, 0, 64, 0, NULL);
+}
 
-	soundvol=200;
-	musicvol=200;
-
-	hisc = makeTable();
-	if (!loadTable(hisc,"hiscores.sav")) resetScores(hisc);
-	loadSoundCFG();
-	set_volume(soundvol,musicvol);
+void platform_configure_sound(int sound_vol, int music_vol)
+{
+	set_volume(sound_vol, music_vol);
 }
 
 void etchedBox(int x1, int y1, int x2, int y2, int up) {
@@ -354,7 +337,7 @@ void resetParticles() {
 		dust[i].exist = 0;
 }
 
-void drawTitle(BITMAP *bmp, int x, int y, int m, int mx, int my) {
+void drawTitle(BITMAP *bmp, int x, int y, int m, int mx, int my, int sound_vol, int music_vol) {
 	draw_character(bmp,data[TITLE].dat,8,21,1);
 	draw_sprite(bmp,data[TITLE].dat,7,20);
 	draw_rle_sprite(bmp,data[AA2].dat,x,y);
@@ -379,8 +362,8 @@ void drawTitle(BITMAP *bmp, int x, int y, int m, int mx, int my) {
 
 	draw_sprite(bmp,data[VOL3].dat,280,150);
 	draw_sprite(bmp,data[VOL3].dat,300,150);
-	draw_sprite(bmp,data[VOL1].dat,275,195-soundvol/5);
-	draw_sprite(bmp,data[VOL2].dat,295,195-musicvol/5);
+	draw_sprite(bmp,data[VOL1].dat,275,195-sound_vol/5);
+	draw_sprite(bmp,data[VOL2].dat,295,195-music_vol/5);
 }
 
 void drawDonkeys() {
@@ -411,7 +394,7 @@ void createDonkey(int x,int y,int im) {
    dust[i].exist = 1;
 }
 
-int title() {
+int platform_title(int *sound_vol, int *music_vol) {
 	int x=320, y=10;
 	int mx,my,clicked;
 	int menuX=-200, menuY=140;
@@ -426,7 +409,7 @@ int title() {
 	resetParticles();
 	set_palette(black_palette);
 	clear_to_color(screen,34);
-	drawTitle(screen,x,y,mode,menuX,menuY);
+	drawTitle(screen,x,y,mode,menuX,menuY, *sound_vol, *music_vol);
 	fade_in(data[GAMEPAL].dat,4);
 
 	while(!done) {
@@ -435,7 +418,7 @@ int title() {
 		if (x != 250) x-=2;
 		clear_to_color(swap_screen,34);
 		drawDonkeys();
-		drawTitle(swap_screen,x,y,mode,menuX,menuY);
+		drawTitle(swap_screen,x,y,mode,menuX,menuY, *sound_vol, *music_vol);
 		draw_sprite(swap_screen,data[POINTER].dat, mx-1,my-1);
 		blitScreen();
 
@@ -446,19 +429,19 @@ int title() {
 		if (!mouse_b) clicked=0;
 		// check sound setup
 		if (mouse_b) {
-			int sv=soundvol, mv=musicvol;
-			if (mx>275 && mx<290 && my>149 && my<201) soundvol=250 - (my-150)*5;	// fx
-			if (mx>295 && mx<310 && my>149 && my<201) musicvol=250 - (my-150)*5;	// music
-			if (mv!=musicvol || soundvol!=sv) {
-				set_volume(-1,musicvol);
-				if (sv!=soundvol) play_sample(data[PLACE1].dat,soundvol,128,800+rand()%400,0);
+			int sv=*sound_vol, mv=*music_vol;
+			if (mx>275 && mx<290 && my>149 && my<201) *sound_vol=250 - (my-150)*5;	// fx
+			if (mx>295 && mx<310 && my>149 && my<201) *music_vol=250 - (my-150)*5;	// music
+			if (mv!=*music_vol || *sound_vol!=sv) {
+				set_volume(-1,*music_vol);
+				if (sv!=*sound_vol) play_sample(data[PLACE1].dat,*sound_vol,128,800+rand()%400,0);
 			}
 		}
 		if (mouse_b==1 && !mode && !clicked) {   // check menu
 			if (mx>40 && mx<166 && my>149 && my<165) { 		// start game
 				mode = 1;	// switch to game selection
 				menuX=-200; 
-				play_sample(data[PLACE1].dat,soundvol,128,800+rand()%400,0);
+				play_sample(data[PLACE1].dat,*sound_vol,128,800+rand()%400,0);
 			}
 			if (mx>40 && mx<166 && my>169 && my<185) done = 3;						// high scores
 			if (mx>40 && mx<166 && my>189 && my<205) done = 2;						// instructions
@@ -471,7 +454,7 @@ int title() {
 			if (mx>40 && mx<166 && my>209 && my<225) { done = 4; cpu = 0; }		// hvh
 		}
 	}
-	play_sample(data[PLACE1].dat,soundvol,128,800+rand()%400,0);
+	play_sample(data[PLACE1].dat,*sound_vol,128,800+rand()%400,0);
 	fade_out(4);
 	while(mouse_b);		// wait out mouse
 
@@ -523,7 +506,7 @@ int rotateRow(int row, int goLeft) {
 	return 1;
 }
 
-int animRotateRow(int row, int goLeft) {
+int animRotateRow(int row, int goLeft, int sound_vol) {
 	// setup scrolling area
 	if (scroller != NULL) destroy_bitmap(scroller);
 	scroller = create_bitmap(194,23);
@@ -538,7 +521,7 @@ int animRotateRow(int row, int goLeft) {
 	rotateRow(row,goLeft);
 		
 	playing = 0;
-	play_sample(data[ROTATE].dat,soundvol,128,800+rand()%400,0);
+	play_sample(data[ROTATE].dat,sound_vol,128,800+rand()%400,0);
 	lockedRow = row;
 	lockedCol = -1;
 
@@ -564,7 +547,7 @@ int rotateColumn(int col, int goUp) {
 	return 1;
 }
 
-int animRotateColumn(int col, int goUp) {
+int animRotateColumn(int col, int goUp, int sound_vol) {
 	// setup scrolling area
 	if (scroller != NULL) destroy_bitmap(scroller);
 	scroller = create_bitmap(23,194);
@@ -581,7 +564,7 @@ int animRotateColumn(int col, int goUp) {
 	playing=0;
 	lockedCol = col;
 	lockedRow = -1;
-	play_sample(data[ROTATE].dat,soundvol,128,800+rand()%400,0);
+	play_sample(data[ROTATE].dat,sound_vol,128,800+rand()%400,0);
 
 	return 1;
 }
@@ -597,10 +580,10 @@ int placeToken(int x, int y, int type) {
 	return 1;
 }
 
-int animPlaceToken(int x, int y, int type) {
+int animPlaceToken(int x, int y, int type, int sound_vol) {
 	if (!placeToken(x,y,type)) return 0;
 
-	play_sample(data[(type<3 ? PLACE1 : (type==3 ? PLACE2 : PLACE3))].dat,soundvol,128,800+rand()%400,0);
+	play_sample(data[(type<3 ? PLACE1 : (type==3 ? PLACE2 : PLACE3))].dat,sound_vol,128,800+rand()%400,0);
 
 	placeX = x;
 	placeY = y;
@@ -683,7 +666,7 @@ int checkEnd() {
 	return 0;
 }
 
-void checkBoard(byte player) {
+void checkBoard(byte player, int sound_vol) {
 	int x,y;
 	int me,i;
 	int accScore;
@@ -707,7 +690,7 @@ void checkBoard(byte player) {
 			}
 
 	if (me) {
-		play_sample(data[REMOVE].dat,soundvol,128,800+rand()%400,0);
+		play_sample(data[REMOVE].dat,sound_vol,128,800+rand()%400,0);
 		ply[player].anim=100;
 		ply[player].animOffset=0;
 		if (me>4) {
@@ -728,7 +711,7 @@ void checkBoard(byte player) {
 	if (!p1 || !p2) winner=1;
 }
 
-void drawHiScores() {
+void drawHiScores(Thisc *hisc) {
 	int i;
 
 	// draw header
@@ -748,17 +731,17 @@ void drawHiScores() {
 	}	
 }
 
-void showHighscores() {
+void platform_show_high_scores(Thisc *hisc) {
 	resetParticles();
 	clear_to_color(swap_screen,37);
-	drawHiScores();
+	drawHiScores(hisc);
 	blitScreen();
 	fade_in(data[GAMEPAL].dat,4);
 
 	while(!key[KEY_ESC] && !key[KEY_ENTER] && !key[KEY_SPACE] && !mouse_b) {
 		clear_to_color(swap_screen,37);
 		drawDonkeys();
-		drawHiScores();
+		drawHiScores(hisc);
 		blitScreen();
 		if (rand()%500<5) createDonkey(-40,rand()%220+20,rand()%4);
 	}
@@ -767,7 +750,7 @@ void showHighscores() {
 	clear(screen);
 }
 
-void enterHof(Thisc post, int p) {
+void enterHof(Thisc post, int p, int sound_vol, Thisc *hisc) {
 	int i,kp;
 
 	fade_out(4);
@@ -795,7 +778,7 @@ void enterHof(Thisc post, int p) {
 	i=0; clear_keybuf();
 	do {
 		if (keypressed()) {
-			play_sample(data[PLACE1].dat,soundvol,128,1000+rand()%800,0);
+			play_sample(data[PLACE1].dat,sound_vol,128,1000+rand()%800,0);
 			kp=readkey();
 			post.name[i]=(kp & 0xff);
 			if (kp>>8==KEY_BACKSPACE) { post.name[i]='\0'; i--; }
@@ -811,7 +794,7 @@ void enterHof(Thisc post, int p) {
 		textprintf_centre(screen,data[MYFONT].dat,161,131,1,"%s",post.name);
 		textprintf_centre(screen,data[MYFONT].dat,160,130,-1,"%s",post.name);
 	} while((kp>>8)!=KEY_ENTER);
-	play_sample(data[REMOVE].dat,soundvol,128,1000,0);
+	play_sample(data[REMOVE].dat,sound_vol,128,1000,0);
 	post.name[i]='\0';
 
 	enterTable(hisc,post);
@@ -1003,7 +986,7 @@ int getHint(int player, int recurse) {
 	return bestScore;
 }
 
-int play() {
+int platform_play(Thisc *hisc, int sound_vol) {
 	int done = 0;
 	int x,y;
 	int mx,my;
@@ -1034,7 +1017,7 @@ int play() {
 
 		if (scrolling) if (--scrolling==0) {
 			playing=1;
-			checkBoard(player);
+			checkBoard(player, sound_vol);
 			player = (player==1?2:1); // next player
 		}
 
@@ -1042,13 +1025,13 @@ int play() {
 			placeing -= 2;
 			if (placeing==0) {
 				playing=1;
-				checkBoard(player);
+				checkBoard(player, sound_vol);
 				player = (player==1?2:1); // next player
 				tokenCount++;
 				if (tokenCount==10) {
 					tokenCount=0;
 					if (stoneCount<10) {
-						if (!animPlaceToken(rand()%8,rand()%8,4)) {  // can't place stone, try next time
+						if (!animPlaceToken(rand()%8,rand()%8,4, sound_vol)) {  // can't place stone, try next time
 							tokenCount = 9;
 						} 
 						else  {// stone placed
@@ -1066,17 +1049,17 @@ int play() {
 			thinking=0;
 			getHint(player,3);
 			if (hintX>7 || hintY>7 || hintX<0 || hintY<0) { // slide
-				if (hintX<0) animRotateRow(hintY, 1);
-				if (hintX>7) animRotateRow(hintY, 0);
-				if (hintY<0) animRotateColumn(hintX, 1);
-				if (hintY>7) animRotateColumn(hintX, 0);
+				if (hintX<0) animRotateRow(hintY, 1, sound_vol);
+				if (hintX>7) animRotateRow(hintY, 0, sound_vol);
+				if (hintY<0) animRotateColumn(hintX, 1, sound_vol);
+				if (hintY>7) animRotateColumn(hintX, 0, sound_vol);
 			}
 			else { // place
 				if (ply[player].multi) {  // use multi if available
 					ply[player].multi--;
 					ply[player].carry++;
 				}
-				animPlaceToken(hintX,hintY,(ply[player].carry?3:player));
+				animPlaceToken(hintX,hintY,(ply[player].carry?3:player), sound_vol);
 				lockedCol = lockedRow = -1;
 				ply[player].carry = 0;
 			}
@@ -1093,7 +1076,7 @@ int play() {
 				for(x=0;x<8;x++)
 					for(y=0;y<8;y++)
 						if (mx>21+x*24 && mx<44+x*24 && my>21+y*24 && my<44+y*24) {
-							if (animPlaceToken(x,y,(ply[player].carry?3:player))) {
+							if (animPlaceToken(x,y,(ply[player].carry?3:player), sound_vol)) {
 								lockedCol = lockedRow = -1;
 								ply[player].carry = 0;
 							}
@@ -1103,10 +1086,10 @@ int play() {
 				if (!ply[player].carry) 
 					for(x=0;x<8;x++) {
 						int moved = 0;
-						if (mx>27+x*24 && mx<37+x*24 && my>6 && my<16 && lockedCol!=x) moved = animRotateColumn(x, 1);
-						if (mx>27+x*24 && mx<37+x*24 && my>216 && my<226 && lockedCol!=x) moved = animRotateColumn(x, 0);
-						if (mx>6 && mx<16 && my>27+x*24 && my<37+x*24 && lockedRow!=x) moved = animRotateRow(x, 1);
-						if (mx>216 && mx<226 && my>27+x*24 && my<37+x*24 && lockedRow!=x) moved = animRotateRow(x, 0);
+						if (mx>27+x*24 && mx<37+x*24 && my>6 && my<16 && lockedCol!=x) moved = animRotateColumn(x, 1, sound_vol);
+						if (mx>27+x*24 && mx<37+x*24 && my>216 && my<226 && lockedCol!=x) moved = animRotateColumn(x, 0, sound_vol);
+						if (mx>6 && mx<16 && my>27+x*24 && my<37+x*24 && lockedRow!=x) moved = animRotateRow(x, 1, sound_vol);
+						if (mx>216 && mx<226 && my>27+x*24 && my<37+x*24 && lockedRow!=x) moved = animRotateRow(x, 0, sound_vol);
 					}
 				
 				// check other (multi)
@@ -1175,17 +1158,17 @@ int play() {
 		fade_out(4);
 		if (ply[1].score>=ply[2].score) {
 			tmp.score = ply[1].score;
-			if (qualifyTable(hisc, tmp) && cpu!=1) enterHof(tmp,1);
+			if (qualifyTable(hisc, tmp) && cpu!=1) enterHof(tmp,1, sound_vol, hisc);
 			tmp.score = ply[2].score;
-			if (qualifyTable(hisc, tmp) && cpu!=2) enterHof(tmp,2);
+			if (qualifyTable(hisc, tmp) && cpu!=2) enterHof(tmp,2, sound_vol, hisc);
 		}
 		else {
 			tmp.score = ply[2].score;
-			if (qualifyTable(hisc, tmp) && cpu!=2) enterHof(tmp,2);
+			if (qualifyTable(hisc, tmp) && cpu!=2) enterHof(tmp,2, sound_vol, hisc);
 			tmp.score = ply[1].score;
-			if (qualifyTable(hisc, tmp) && cpu!=1) enterHof(tmp,1);
+			if (qualifyTable(hisc, tmp) && cpu!=1) enterHof(tmp,1, sound_vol, hisc);
 		}
-		showHighscores();
+		game_show_high_scores();
 	}
 
 	fade_out(4);
@@ -1249,9 +1232,8 @@ void outro() {
 	myRest(1000);
 }
 
-void shutdown() {
-	saveTable(hisc,"hiscores.sav");
-	saveSoundCFG();
+void platform_shutdown(int *sound_vol, int *music_vol) {
+	saveSoundCFG(sound_vol, music_vol);
 	allegro_exit();
 }
 
@@ -1322,16 +1304,18 @@ void instructions() {
 int main(int argc, char *argv[]) {
 	int playGame = 1;
 
-	platform_initialize();
+	game_initialize();
+	game_configure_sound();
+
 	intro();
 	while (playGame) {
-		playGame = title();
-		if (playGame==3) play();
-		if (playGame==2) showHighscores();
+		playGame = game_title();
+		if (playGame==3) game_play();
+		if (playGame==2) game_show_high_scores();
 		if (playGame==1) instructions();
 	}
 	outro();
-	shutdown();
+	game_shutdown();
 
 	return 0;
 } END_OF_MAIN();

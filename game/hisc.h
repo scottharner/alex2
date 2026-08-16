@@ -18,7 +18,8 @@ int qualifyTable(Thisc *table, Thisc post);
 void sortTable(Thisc *table);
 void enterTable(Thisc *table, Thisc post);
 void resetTable(Thisc *table, char *name, int hi, int lo);
-int loadTable(Thisc *table, char *fname);
-void saveTable(Thisc *table, char *fname);
+int loadTable(Thisc *table);
+void saveTable(Thisc *table);
+void resetScores(Thisc *table);
 
 #endif
