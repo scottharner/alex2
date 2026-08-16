@@ -27,7 +27,6 @@
 *.so
 *.so.*
 *.dylib
-!platform/windows/build/alleg42.dll
 
 # Executables
 *.exe
@@ -54,6 +53,13 @@ dkms.conf
 
 # debug information files
 *.dwo
+game.cue
+game.iso
+game.raw
 
-# user testing files
-*.sav
+# cd build files
+/build/cd/tex/
+/build/cd/*.PCM
+/build/cd/*.bin
+!/build/cd/sdrv.bin
+/build/*.wav
