@@ -3,9 +3,6 @@
  * 2001 (c) Johan Peitz 
  */
 
-#ifndef HISC_H
-#define HISC_H
-
 #define MAX_SCORES      10
 
 typedef struct {
@@ -20,5 +17,3 @@ void enterTable(Thisc *table, Thisc post);
 void resetTable(Thisc *table, char *name, int hi, int lo);
 int loadTable(Thisc *table, char *fname);
 void saveTable(Thisc *table, char *fname);
-
-#endif
