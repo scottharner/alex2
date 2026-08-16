@@ -46,6 +46,9 @@
 
 #define TITLE_TRACKID 2
 #define BACKGROUND_ZINDEX 500
+#define INTRO_DONE_SCALING 120
+#define INTRO_DONE_STILL 240
+#define INTRO_DONE_FADING 360
 
  // BITMAP *swap_screen;
 // BITMAP *bg_screen;
@@ -87,6 +90,7 @@ static mode game_mode;
 static mode previous_game_mode;
 static int shlogo_sprite_id;
 static int action_counter;
+static int fade_counter;
 
 // void fps_counter(void) {
 // 	fps=frame_count;
@@ -1257,13 +1261,10 @@ void intro()
 		previous_game_mode = MODE_INTRO;
 		CDDA_PlaySingle(TITLE_TRACKID, true);
 	}
-	// 	int i;
 
 // 	playingMidi=1;
 
 
-// 	if (myRest(2000)) return;
-// 	fade_out(4);
 // 	if (fadeText("Johan Peitz",1000)) return;
 // 	if (fadeText("presents",500)) return;
 // 	if (fadeText("the Return of",1000)) return;
@@ -1272,7 +1273,7 @@ void intro()
 // 	if (fadeText("in",500)) return;
 
 	// vertically stretch speedhack logo over time
-	if (action_counter < 119)
+	if (action_counter < INTRO_DONE_SCALING)
 	{
 		float scale_y = (float)(action_counter << 1)/240.0f;
 		jo_sprite_change_sprite_scale_xy(1.0f, scale_y);
@@ -1284,9 +1285,28 @@ void intro()
 		jo_printf_with_color(0, 1, JO_COLOR_INDEX_White, "scale %d%%", (int)(scale_y * 100.0f));
 #endif
 	}
-	else
-	{
+	else if (action_counter < INTRO_DONE_STILL)
 		jo_sprite_draw3D2(shlogo_sprite_id, 0, 0, BACKGROUND_ZINDEX);
+	else if (action_counter < INTRO_DONE_FADING)
+	{
+		if (action_counter == INTRO_DONE_STILL)
+		{
+			fade_counter = JO_DEFAULT_BRIGHTNESS;
+		}
+		else if (action_counter % 4 == 0 && fade_counter >= 0)
+			fade_counter--;
+
+		if (fade_counter >= 0)
+		{
+			jo_sprite_enable_gouraud_shading();
+			jo_set_gouraud_shading_brightness(fade_counter);
+			jo_sprite_draw3D2(shlogo_sprite_id, 0, 0, BACKGROUND_ZINDEX);
+			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
+			jo_sprite_disable_gouraud_shading();
+#if JO_DEBUG
+			jo_printf_with_color(0, 2, JO_COLOR_INDEX_White, "fade %d", fade_counter);
+#endif
+		}
 	}
 }
 
@@ -1383,8 +1403,8 @@ void update_game()
 	switch (game_mode)
 	{
 		case MODE_INTRO:
-			if (action_counter > 119)
-				action_counter = 119;
+			if (action_counter > INTRO_DONE_FADING)
+				action_counter = INTRO_DONE_FADING;
 
 			intro();
 			break;
