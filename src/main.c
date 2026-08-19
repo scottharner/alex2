@@ -49,6 +49,9 @@
 #define INTRO_DONE_SCALING 120
 #define INTRO_DONE_STILL 240
 #define INTRO_DONE_FADING 360
+#define JOHAN_DONE_FADING_IN 420
+#define JOHAN_DONE_STILL 480
+#define JOHAN_DONE_FADING_OUT 540
 #define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
 
  // BITMAP *swap_screen;
@@ -1312,9 +1315,51 @@ void intro()
 #endif
 		}
 	}
-	else
+	else if (action_counter < JOHAN_DONE_FADING_IN)
+	{
+		if (action_counter == INTRO_DONE_FADING)
+		{
+			fade_counter = 0;
+		}
+		else if (action_counter % 4 == 0 && fade_counter <= JO_DEFAULT_BRIGHTNESS)
+			fade_counter++;
+
+		if (fade_counter <= JO_DEFAULT_BRIGHTNESS)
+		{
+			jo_sprite_enable_gouraud_shading();
+			jo_set_gouraud_shading_brightness(fade_counter);
+			jo_font_print_centered(game_font, 0, 0, 1.0f, "JOHAN PEITZ");
+			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
+			jo_sprite_disable_gouraud_shading();
+#if JO_DEBUG
+			jo_printf_with_color(0, 2, JO_COLOR_INDEX_White, "fade %d", fade_counter);
+#endif
+		}
+	}
+	else if (action_counter < JOHAN_DONE_STILL)
 	{
 		jo_font_print_centered(game_font, 0, 0, 1.0f, "JOHAN PEITZ");
+	}
+	else if (action_counter < JOHAN_DONE_FADING_OUT)
+	{
+		if (action_counter == JOHAN_DONE_STILL)
+		{
+			fade_counter = JO_DEFAULT_BRIGHTNESS;
+		}
+		else if (action_counter % 4 == 0 && fade_counter >= 0)
+			fade_counter--;
+
+		if (fade_counter >= 0)
+		{
+			jo_sprite_enable_gouraud_shading();
+			jo_set_gouraud_shading_brightness(fade_counter);
+			jo_font_print_centered(game_font, 0, 0, 1.0f, "JOHAN PEITZ");
+			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
+			jo_sprite_disable_gouraud_shading();
+#if JO_DEBUG
+			jo_printf_with_color(0, 2, JO_COLOR_INDEX_White, "fade %d", fade_counter);
+#endif
+		}
 	}
 }
 
@@ -1410,8 +1455,8 @@ void update_game()
 	switch (game_mode)
 	{
 		case MODE_INTRO:
-			if (action_counter > INTRO_DONE_FADING)
-				action_counter = INTRO_DONE_FADING;
+			if (action_counter > JOHAN_DONE_FADING_OUT)
+				action_counter = JOHAN_DONE_FADING_OUT;
 
 			intro();
 			break;
