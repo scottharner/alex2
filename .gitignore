@@ -59,6 +59,7 @@ game.raw
 
 # cd build files
 /build/cd/tex/
+/build/cd/fnt/
 /build/cd/*.PCM
 /build/cd/*.bin
 !/build/cd/sdrv.bin

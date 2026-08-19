@@ -27,4 +27,5 @@ general
 
 todo
 ----
-
+- make opening animation ending smoother
+- clean up font to look nicer

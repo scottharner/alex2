@@ -49,6 +49,7 @@
 #define INTRO_DONE_SCALING 120
 #define INTRO_DONE_STILL 240
 #define INTRO_DONE_FADING 360
+#define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
 
  // BITMAP *swap_screen;
 // BITMAP *bg_screen;
@@ -91,6 +92,7 @@ static mode previous_game_mode;
 static int shlogo_sprite_id;
 static int action_counter;
 static int fade_counter;
+static jo_font *game_font;
 
 // void fps_counter(void) {
 // 	fps=frame_count;
@@ -172,6 +174,8 @@ void init()
 	// initialize graphics
 	shlogo_sprite_id = jo_sprite_add_tga("TEX", "SHLOGO.TGA", JO_COLOR_Transparent);
 
+	// initialize fonts
+	game_font = jo_font_load("FNT", "GAMEFONT.TGA", JO_COLOR_Black,16, 32, 0, GAME_FONT_MAPPING);
 // 	allegro_init();
 
 // 	set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
@@ -1308,6 +1312,10 @@ void intro()
 #endif
 		}
 	}
+	else
+	{
+		jo_font_print_centered(game_font, 0, 0, 1.0f, "JOHAN PEITZ");
+	}
 }
 
 // void outro() {
@@ -1398,7 +1406,6 @@ void update_game()
 	// }
 	// outro();
 	// shutdown();
-
 	action_counter++;
 	switch (game_mode)
 	{
