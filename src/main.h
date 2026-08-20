@@ -42,7 +42,7 @@ typedef struct {
 
 typedef enum
 {
-	MODE_NONE = 0, MODE_INTRO
+	MODE_NONE = 0, MODE_INTRO, MODE_TITLE
 }mode;
 
 Ttoken emptySquare = { 0,		  	  0, 0 };

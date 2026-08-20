@@ -46,12 +46,13 @@
 
 #define TITLE_TRACKID 2
 #define BACKGROUND_ZINDEX 500
-#define INTRO_DONE_SCALING 120
-#define INTRO_DONE_STILL 240
-#define INTRO_DONE_FADING 360
-#define JOHAN_DONE_FADING_IN 420
-#define JOHAN_DONE_STILL 480
-#define JOHAN_DONE_FADING_OUT 540
+#define INTRO_SCALE_GRAPHIC_TIME 120
+#define INTRO_STILL_GRAPHIC_TIME 120
+#define INTRO_FADE_GRAPHIC_TIME 120
+#define INTRO_FADE_TEXT_TIME 60
+#define INTRO_STILL_TEXT_TIME 60
+#define INTRO_BLANK_TEXT_TIME 60
+#define INTRO_TEXT_COUNT 6
 #define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
 
  // BITMAP *swap_screen;
@@ -96,6 +97,21 @@ static int shlogo_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_font;
+static int current_intro_text_index = 0;
+static bool intro_graphic_scaled = false;
+static bool intro_graphic_shown = false;
+static bool intro_graphic_faded = false;
+static bool intro_text_shown = false;
+
+static const char* intro_text[] =
+{
+	"JOHAN PEITZ",
+	"PRESENTS",
+	"THE RETURN OF",
+	"ALEX",
+	"THE ALLEGATOR",
+	"IN"
+};
 
 // void fps_counter(void) {
 // 	fps=frame_count;
@@ -1261,63 +1277,11 @@ static void draw_tile(int x, int y, int sprite_id, int z, int angle)
 #endif
 }
 
-void intro() 
+static void process_intro_text_display()
 {
-	if (game_mode != previous_game_mode)
+	if (action_counter < INTRO_FADE_TEXT_TIME)
 	{
-		previous_game_mode = MODE_INTRO;
-		CDDA_PlaySingle(TITLE_TRACKID, true);
-	}
-
-// 	playingMidi=1;
-
-
-// 	if (fadeText("Johan Peitz",1000)) return;
-// 	if (fadeText("presents",500)) return;
-// 	if (fadeText("the Return of",1000)) return;
-// 	if (fadeText("ALEX",750)) return;
-// 	if (fadeText("THE ALLEGATOR",750)) return;
-// 	if (fadeText("in",500)) return;
-
-	// vertically stretch speedhack logo over time
-	if (action_counter < INTRO_DONE_SCALING)
-	{
-		float scale_y = (float)(action_counter << 1)/240.0f;
-		jo_sprite_change_sprite_scale_xy(1.0f, scale_y);
-		 // it seems that draw3d2 uses centered coords only when scaling is applied!
-		jo_sprite_draw3D2(shlogo_sprite_id, 0, 0 - (action_counter/20), BACKGROUND_ZINDEX);
-		jo_sprite_restore_sprite_scale();
-#if JO_DEBUG		
-		jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Counter %d", action_counter);
-		jo_printf_with_color(0, 1, JO_COLOR_INDEX_White, "scale %d%%", (int)(scale_y * 100.0f));
-#endif
-	}
-	else if (action_counter < INTRO_DONE_STILL)
-		jo_sprite_draw3D2(shlogo_sprite_id, 0, 0, BACKGROUND_ZINDEX);
-	else if (action_counter < INTRO_DONE_FADING)
-	{
-		if (action_counter == INTRO_DONE_STILL)
-		{
-			fade_counter = JO_DEFAULT_BRIGHTNESS;
-		}
-		else if (action_counter % 4 == 0 && fade_counter >= 0)
-			fade_counter--;
-
-		if (fade_counter >= 0)
-		{
-			jo_sprite_enable_gouraud_shading();
-			jo_set_gouraud_shading_brightness(fade_counter);
-			jo_sprite_draw3D2(shlogo_sprite_id, 0, 0, BACKGROUND_ZINDEX);
-			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
-			jo_sprite_disable_gouraud_shading();
-#if JO_DEBUG
-			jo_printf_with_color(0, 2, JO_COLOR_INDEX_White, "fade %d", fade_counter);
-#endif
-		}
-	}
-	else if (action_counter < JOHAN_DONE_FADING_IN)
-	{
-		if (action_counter == INTRO_DONE_FADING)
+		if (action_counter == 1)
 		{
 			fade_counter = 0;
 		}
@@ -1328,7 +1292,7 @@ void intro()
 		{
 			jo_sprite_enable_gouraud_shading();
 			jo_set_gouraud_shading_brightness(fade_counter);
-			jo_font_print_centered(game_font, 0, 0, 1.0f, "JOHAN PEITZ");
+			jo_font_print_centered(game_font, 0, 0, 1.0f, intro_text[current_intro_text_index]);
 			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
 			jo_sprite_disable_gouraud_shading();
 #if JO_DEBUG
@@ -1336,13 +1300,13 @@ void intro()
 #endif
 		}
 	}
-	else if (action_counter < JOHAN_DONE_STILL)
+	else if (action_counter < (INTRO_FADE_TEXT_TIME + INTRO_STILL_TEXT_TIME))
 	{
-		jo_font_print_centered(game_font, 0, 0, 1.0f, "JOHAN PEITZ");
+		jo_font_print_centered(game_font, 0, 0, 1.0f, intro_text[current_intro_text_index]);
 	}
-	else if (action_counter < JOHAN_DONE_FADING_OUT)
+	else if (action_counter < (INTRO_FADE_TEXT_TIME + INTRO_STILL_TEXT_TIME + INTRO_FADE_TEXT_TIME))
 	{
-		if (action_counter == JOHAN_DONE_STILL)
+		if (action_counter == (INTRO_FADE_TEXT_TIME + INTRO_STILL_TEXT_TIME))
 		{
 			fade_counter = JO_DEFAULT_BRIGHTNESS;
 		}
@@ -1353,13 +1317,104 @@ void intro()
 		{
 			jo_sprite_enable_gouraud_shading();
 			jo_set_gouraud_shading_brightness(fade_counter);
-			jo_font_print_centered(game_font, 0, 0, 1.0f, "JOHAN PEITZ");
+			jo_font_print_centered(game_font, 0, 0, 1.0f, intro_text[current_intro_text_index]);
 			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
 			jo_sprite_disable_gouraud_shading();
 #if JO_DEBUG
 			jo_printf_with_color(0, 2, JO_COLOR_INDEX_White, "fade %d", fade_counter);
 #endif
 		}
+	}
+	else if (action_counter > (INTRO_FADE_TEXT_TIME + INTRO_STILL_TEXT_TIME + INTRO_FADE_TEXT_TIME + INTRO_BLANK_TEXT_TIME))
+	{
+		action_counter = 0;
+		current_intro_text_index++;
+		if (current_intro_text_index == INTRO_TEXT_COUNT)
+		{
+			intro_text_shown = true;
+			game_mode = MODE_TITLE;
+		}
+	}
+}
+
+static void process_intro_graphic_fade()
+{
+	if (action_counter == 1)
+	{
+		fade_counter = JO_DEFAULT_BRIGHTNESS;
+	}
+	else if (action_counter % 4 == 0 && fade_counter >= 0)
+		fade_counter--;
+
+	if (fade_counter >= 0)
+	{
+		jo_sprite_enable_gouraud_shading();
+		jo_set_gouraud_shading_brightness(fade_counter);
+		jo_sprite_draw3D2(shlogo_sprite_id, 0, 0, BACKGROUND_ZINDEX);
+		jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
+		jo_sprite_disable_gouraud_shading();
+#if JO_DEBUG
+		jo_printf_with_color(0, 2, JO_COLOR_INDEX_White, "fade %d", fade_counter);
+#endif
+	}
+
+	if (action_counter == INTRO_FADE_GRAPHIC_TIME)
+	{
+		action_counter = 0;
+		intro_graphic_faded = true;
+	}
+}
+
+static void process_intro_graphic_scale()
+{
+	float scale_y = (float)(action_counter << 1)/240.0f;
+	jo_sprite_change_sprite_scale_xy(1.0f, scale_y);
+	// it seems that draw3d2 uses centered coords only when scaling is applied!
+	jo_sprite_draw3D2(shlogo_sprite_id, 0, 0 - (action_counter/20), BACKGROUND_ZINDEX);
+	jo_sprite_restore_sprite_scale();
+
+	if (action_counter == INTRO_SCALE_GRAPHIC_TIME)
+	{
+		action_counter = 0;
+		intro_graphic_scaled = true;
+	}
+
+#if JO_DEBUG		
+	jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Counter %d", action_counter);
+	jo_printf_with_color(0, 1, JO_COLOR_INDEX_White, "scale %d%%", (int)(scale_y * 100.0f));
+#endif
+}
+
+void intro() 
+{
+	if (game_mode != previous_game_mode)
+	{
+		previous_game_mode = MODE_INTRO;
+		CDDA_PlaySingle(TITLE_TRACKID, true);
+	}
+
+	// vertically stretch speedhack logo over time
+	if (!intro_graphic_scaled)
+	{
+		process_intro_graphic_scale();
+	}
+	else if (!intro_graphic_shown)
+	{
+		jo_sprite_draw3D2(shlogo_sprite_id, 0, 0, BACKGROUND_ZINDEX);
+
+		if (action_counter == INTRO_STILL_GRAPHIC_TIME)
+		{
+			action_counter = 0;
+			intro_graphic_shown = true;
+		}
+	}
+	else if (!intro_graphic_faded)
+	{
+		process_intro_graphic_fade();
+	}
+	else if (!intro_text_shown)
+	{
+		process_intro_text_display();
 	}
 }
 
@@ -1455,10 +1510,12 @@ void update_game()
 	switch (game_mode)
 	{
 		case MODE_INTRO:
-			if (action_counter > JOHAN_DONE_FADING_OUT)
-				action_counter = JOHAN_DONE_FADING_OUT;
-
 			intro();
+			break;
+
+		case MODE_TITLE:
+			jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Title");
+			action_counter = 0; // always reset as we are not timing anything
 			break;
 
 		default:
