@@ -412,26 +412,27 @@ void reset_particles() {
 		dust[i].exist = 0;
 }
 
-void draw_title(int x, int y, int m, int mx, int my) {
+void draw_title(int x, int y, int m, int menu_x, int menu_y) {
 	if (action_counter <= 1)
 	{
 		aa2_x = JO_TV_WIDTH;
+		jo_set_default_background_color(JO_COLOR_RGB(73,97,40)); // light green
 	}
 	else if (aa2_x > AA2_FINAL_X)
 	{
 		aa2_x--;
 	}
 
-	jo_sprite_draw3D2(title_sprite_id, 0, 24, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
 	jo_sprite_enable_half_transparency();
-	jo_sprite_draw3D2(aa2_sprite_id, aa2_x, 16, 450);
+	jo_sprite_draw3D2(aa2_sprite_id, aa2_x, 8, 450);
 	jo_sprite_disable_half_transparency();
-	jo_sprite_draw3D2(aalogo_sprite_id, 64, 56, 400);
+	jo_sprite_draw3D2(aalogo_sprite_id, 64, 48, 400);
 
-// 	textout(bmp,data[MYFONT].dat,"START GAME",41,my+1,1);
-// 	textout(bmp,data[MYFONT].dat,"HIGH SCORES",41,my+21,1);
-// 	textout(bmp,data[MYFONT].dat,"INSTRUCTIONS",41,my+41,1);
-// 	textout(bmp,data[MYFONT].dat,"QUIT",41,my+61,1);
+	jo_font_print(game_font, 40, menu_y, 1.0f, "START GAME");
+	jo_font_print(game_font, 40, menu_y + 24, 1.0f, "HIGH SCORES");
+	jo_font_print(game_font, 40, menu_y + 48, 1.0f, "INSTRUCTIONS");
+	jo_font_print(game_font, 40, menu_y + 72, 1.0f, "QUIT");
 // 	textout(bmp,data[MYFONT].dat,"START GAME",40,my,-1);
 // 	textout(bmp,data[MYFONT].dat,"HIGH SCORES",40,my+20,-1);
 // 	textout(bmp,data[MYFONT].dat,"INSTRUCTIONS",40,my+40,-1);
@@ -480,7 +481,7 @@ void draw_title(int x, int y, int m, int mx, int my) {
 int title() {
 	int x=320, y=10;
 // 	int mx,my,clicked;
-	int menuX=-200, menuY=140;
+	int menu_x=-200, menu_y=128;
 // 	int done=0;
 	int mode=0;  // 0=menu, 1=player-menu
 
@@ -492,7 +493,7 @@ int title() {
 	reset_particles();
 // 	set_palette(black_palette);
 // 	clear_to_color(screen,34);
-	draw_title(x,y,mode,menuX,menuY);
+	draw_title(x,y,mode,menu_x,menu_y);
 // 	fade_in(data[GAMEPAL].dat,4);
 
 // 	while(!done) {
