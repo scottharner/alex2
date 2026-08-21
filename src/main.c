@@ -98,6 +98,7 @@ static mode previous_game_mode;
 static int shlogo_sprite_id;
 static int title_sprite_id;
 static int aa2_sprite_id;
+static int aalogo_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_font;
@@ -199,6 +200,7 @@ void init()
 	shlogo_sprite_id = jo_sprite_add_tga("TEX", "SHLOGO.TGA", JO_COLOR_Transparent);
 	title_sprite_id = jo_sprite_add_tga("TEX", "TITLE.TGA", JO_COLOR_RGB(255,0,255));
 	aa2_sprite_id = jo_sprite_add_tga("TEX", "AA2.TGA", JO_COLOR_Black);
+	aalogo_sprite_id = jo_sprite_add_tga("TEX", "AALOGO.TGA", JO_COLOR_RGB(255,0,255));
 
 	// initialize fonts
 	game_font = jo_font_load("FNT", "GAMEFONT.TGA", JO_COLOR_Black,16, 32, 0, GAME_FONT_MAPPING);
@@ -424,10 +426,7 @@ void draw_title(int x, int y, int m, int mx, int my) {
 	jo_sprite_enable_half_transparency();
 	jo_sprite_draw3D2(aa2_sprite_id, aa2_x, 16, 450);
 	jo_sprite_disable_half_transparency();
-// 	draw_rle_sprite(bmp,data[AA2].dat,x,y);
-// 	color_map = &trans_table;
-// 	draw_trans_sprite(bmp,data[TITLE].dat,7,20);
-// 	draw_rle_sprite(bmp,data[AALOGO].dat,62,60);
+	jo_sprite_draw3D2(aalogo_sprite_id, 64, 56, 400);
 
 // 	textout(bmp,data[MYFONT].dat,"START GAME",41,my+1,1);
 // 	textout(bmp,data[MYFONT].dat,"HIGH SCORES",41,my+21,1);
