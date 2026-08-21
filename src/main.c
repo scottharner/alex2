@@ -61,7 +61,7 @@
 // DATAFILE *data;
 // Thisc *hisc;						// a hiscore table
 // Ttoken board[8][8];					// the board
-// Tparticle dust[MAX_PARTICLES];		// particles for the particle engine
+Tparticle dust[MAX_PARTICLES];		// particles for the particle engine
 // Tplayer ply[3];						// 2 players, ignore ply[0]
 
 // // RGB -> color mapping table. Not needed, but speeds things up 
@@ -94,6 +94,8 @@
 static mode game_mode;
 static mode previous_game_mode;
 static int shlogo_sprite_id;
+static int title_sprite_id;
+static int aa2_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_font;
@@ -192,6 +194,8 @@ void init()
 
 	// initialize graphics
 	shlogo_sprite_id = jo_sprite_add_tga("TEX", "SHLOGO.TGA", JO_COLOR_Transparent);
+	title_sprite_id = jo_sprite_add_tga("TEX", "TITLE.TGA", JO_COLOR_RGB(255,0,255));
+	aa2_sprite_id = jo_sprite_add_tga("TEX", "AA2.TGA", JO_COLOR_Black);
 
 	// initialize fonts
 	game_font = jo_font_load("FNT", "GAMEFONT.TGA", JO_COLOR_Black,16, 32, 0, GAME_FONT_MAPPING);
@@ -397,15 +401,17 @@ void init()
 // 	blit(swap_screen,screen,0,0,0,0,320,240);
 // }
 
-// void resetParticles() {
-// 	int i;
-// 	for(i=0;i<MAX_PARTICLES;i++)
-// 		dust[i].exist = 0;
-// }
+void reset_particles() {
+	int i;
+	for(i=0;i<MAX_PARTICLES;i++)
+		dust[i].exist = 0;
+}
 
-// void drawTitle(BITMAP *bmp, int x, int y, int m, int mx, int my) {
-// 	draw_character(bmp,data[TITLE].dat,8,21,1);
-// 	draw_sprite(bmp,data[TITLE].dat,7,20);
+void draw_title(int x, int y, int m, int mx, int my) {
+	jo_sprite_draw3D2(title_sprite_id, 0, 24, BACKGROUND_ZINDEX);
+	jo_sprite_enable_half_transparency();
+	jo_sprite_draw3D2(aa2_sprite_id, 240, 16, 450);
+	jo_sprite_disable_half_transparency();
 // 	draw_rle_sprite(bmp,data[AA2].dat,x,y);
 // 	color_map = &trans_table;
 // 	draw_trans_sprite(bmp,data[TITLE].dat,7,20);
@@ -458,24 +464,24 @@ void init()
 //    dust[i].dy = itofix(rand()%2+1);
 //    dust[i].image = im;
 //    dust[i].exist = 1;
-// }
+}
 
-// int title() {
-// 	int x=320, y=10;
+int title() {
+	int x=320, y=10;
 // 	int mx,my,clicked;
-// 	int menuX=-200, menuY=140;
+	int menuX=-200, menuY=140;
 // 	int done=0;
-// 	int mode=0;  // 0=menu, 1=player-menu
+	int mode=0;  // 0=menu, 1=player-menu
 
 // 	if (!playingMidi) {
 // 		play_midi(data[TITLESONG].dat,1);
 // 		playingMidi=1;
 // 	}
 
-// 	resetParticles();
+	reset_particles();
 // 	set_palette(black_palette);
 // 	clear_to_color(screen,34);
-// 	drawTitle(screen,x,y,mode,menuX,menuY);
+	draw_title(x,y,mode,menuX,menuY);
 // 	fade_in(data[GAMEPAL].dat,4);
 
 // 	while(!done) {
@@ -484,7 +490,7 @@ void init()
 // 		if (x != 250) x-=2;
 // 		clear_to_color(swap_screen,34);
 // 		drawDonkeys();
-// 		drawTitle(swap_screen,x,y,mode,menuX,menuY);
+// 		draw_title(swap_screen,x,y,mode,menuX,menuY);
 // 		draw_sprite(swap_screen,data[POINTER].dat, mx-1,my-1);
 // 		blitScreen();
 
@@ -525,7 +531,7 @@ void init()
 // 	while(mouse_b);		// wait out mouse
 
 // 	return done-1;
-// }
+}
 
 // void startNewGame() {
 // 	int x,y;
@@ -550,7 +556,7 @@ void init()
 
 // 	ply[1] = ply[2] = resetPlayer;
 
-// 	resetParticles();
+// 	reset_particles();
 // }
 
 // int rotateRow(int row, int goLeft) {
@@ -798,7 +804,7 @@ void init()
 // }
 
 // void showHighscores() {
-// 	resetParticles();
+// 	reset_particles();
 // 	clear_to_color(swap_screen,37);
 // 	drawHiScores();
 // 	blitScreen();
@@ -1474,7 +1480,7 @@ void intro()
 // 	char *txt = data[INSTRUCTIONS].dat;
 // 	int pressed=0;
 
-// 	resetParticles();
+// 	reset_particles();
 
 // 	clear_to_color(swap_screen,40);
 // 	printPage(txt, currPage);
@@ -1514,8 +1520,7 @@ void update_game()
 			break;
 
 		case MODE_TITLE:
-			jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "Title");
-			action_counter = 0; // always reset as we are not timing anything
+			title();
 			break;
 
 		default:
