@@ -53,6 +53,8 @@
 #define INTRO_STILL_TEXT_TIME 60
 #define INTRO_BLANK_TEXT_TIME 60
 #define INTRO_TEXT_COUNT 6
+#define MAX_ACTION_CYCLES 10000
+#define AA2_FINAL_X 240
 #define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
 
  // BITMAP *swap_screen;
@@ -104,6 +106,7 @@ static bool intro_graphic_scaled = false;
 static bool intro_graphic_shown = false;
 static bool intro_graphic_faded = false;
 static bool intro_text_shown = false;
+static int aa2_x;
 
 static const char* intro_text[] =
 {
@@ -408,9 +411,18 @@ void reset_particles() {
 }
 
 void draw_title(int x, int y, int m, int mx, int my) {
+	if (action_counter <= 1)
+	{
+		aa2_x = JO_TV_WIDTH;
+	}
+	else if (aa2_x > AA2_FINAL_X)
+	{
+		aa2_x--;
+	}
+
 	jo_sprite_draw3D2(title_sprite_id, 0, 24, BACKGROUND_ZINDEX);
 	jo_sprite_enable_half_transparency();
-	jo_sprite_draw3D2(aa2_sprite_id, 240, 16, 450);
+	jo_sprite_draw3D2(aa2_sprite_id, aa2_x, 16, 450);
 	jo_sprite_disable_half_transparency();
 // 	draw_rle_sprite(bmp,data[AA2].dat,x,y);
 // 	color_map = &trans_table;
@@ -1287,7 +1299,7 @@ static void process_intro_text_display()
 {
 	if (action_counter < INTRO_FADE_TEXT_TIME)
 	{
-		if (action_counter == 1)
+		if (action_counter <= 1)
 		{
 			fade_counter = 0;
 		}
@@ -1345,7 +1357,7 @@ static void process_intro_text_display()
 
 static void process_intro_graphic_fade()
 {
-	if (action_counter == 1)
+	if (action_counter <= 1)
 	{
 		fade_counter = JO_DEFAULT_BRIGHTNESS;
 	}
@@ -1512,7 +1524,9 @@ void update_game()
 	// }
 	// outro();
 	// shutdown();
-	action_counter++;
+	if (action_counter < MAX_ACTION_CYCLES)
+		action_counter++;
+
 	switch (game_mode)
 	{
 		case MODE_INTRO:
