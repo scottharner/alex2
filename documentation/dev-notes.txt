@@ -18,6 +18,9 @@ saturn
   - save the graphic as tga
 - if your filename is longer than 8 chars, a font will appear with each character being only one pixel
 - when loading a font, the spacing parameter is for how much spacing is displayed between characters on output
+- there is a but with jo_font_print_centered that we need to work around to get good output quality
+  - need to set scaling to 0.99f instead of default 1.0f
+  - jo_font_print_centered(game_font, 0, 0, 0.99f, intro_text[current_intro_text_index]);
 
 general
 -------
@@ -31,3 +34,6 @@ todo
 ----
 - make opening animation ending smoother
 - clean up font to look nicer
+- credits
+  - Hassmaschine (font help)
+  - TrekkiesUnite118 (font help)
