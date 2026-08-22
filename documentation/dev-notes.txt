@@ -16,6 +16,8 @@ saturn
   - load palette in mtpaint
   - change the graphic to rgb mode
   - save the graphic as tga
+- if your filename is longer than 8 chars, a font will appear with each character being only one pixel
+- when loading a font, the spacing parameter is for how much spacing is displayed between characters on output
 
 general
 -------

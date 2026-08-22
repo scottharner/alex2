@@ -55,7 +55,7 @@
 #define INTRO_TEXT_COUNT 6
 #define MAX_ACTION_CYCLES 10000
 #define AA2_FINAL_X 240
-#define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
+#define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=%&',.()*+-/"
 
  // BITMAP *swap_screen;
 // BITMAP *bg_screen;
@@ -215,7 +215,7 @@ void init()
 	vol3_sprite_id = jo_sprite_add_tga("TEX", "VOL3.TGA", JO_COLOR_Black);
 
 	// initialize fonts
-	game_font = jo_font_load("FNT", "GAMEFONT.TGA", JO_COLOR_Black,16, 32, 0, GAME_FONT_MAPPING);
+	game_font = jo_font_load("FNT", "JOFONT.TGA", JO_COLOR_RGB(0,255,0),8, 8, 2, GAME_FONT_MAPPING);
 // 	allegro_init();
 
 // 	set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
@@ -442,9 +442,9 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y) {
 	jo_sprite_draw3D2(aalogo_sprite_id, 64, 48, 400);
 
 	jo_font_print(game_font, 40, menu_y, 1.0f, "START GAME");
-	jo_font_print(game_font, 40, menu_y + 24, 1.0f, "HIGH SCORES");
-	jo_font_print(game_font, 40, menu_y + 48, 1.0f, "INSTRUCTIONS");
-	jo_font_print(game_font, 40, menu_y + 72, 1.0f, "QUIT");
+	jo_font_print(game_font, 40, menu_y + 20, 1.0f, "HIGH SCORES");
+	jo_font_print(game_font, 40, menu_y + 40, 1.0f, "INSTRUCTIONS");
+	jo_font_print(game_font, 40, menu_y + 60, 1.0f, "QUIT");
 // 	textout(bmp,data[MYFONT].dat,"HUMAN VS AARON",mx+1,161,1);
 // 	textout(bmp,data[MYFONT].dat,"ALEX VS HUMAN",mx+1,181,1);
 // 	textout(bmp,data[MYFONT].dat,"HUMAN VS HUMAN",mx+1,201,1);
@@ -493,7 +493,7 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y) {
 int title() {
 	int x=320, y=10;
 // 	int mx,my,clicked;
-	int menu_x=-200, menu_y=128;
+	int menu_x=-200, menu_y=144;
 // 	int done=0;
 	int mode=0;  // 0=menu, 1=player-menu
 
@@ -1322,7 +1322,7 @@ static void process_intro_text_display()
 		{
 			jo_sprite_enable_gouraud_shading();
 			jo_set_gouraud_shading_brightness(fade_counter);
-			jo_font_print_centered(game_font, 0, 0, 1.0f, intro_text[current_intro_text_index]);
+			jo_font_print_centered(game_font, 0, 0, 2.0f, intro_text[current_intro_text_index]);
 			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
 			jo_sprite_disable_gouraud_shading();
 #if JO_DEBUG
@@ -1332,7 +1332,7 @@ static void process_intro_text_display()
 	}
 	else if (action_counter < (INTRO_FADE_TEXT_TIME + INTRO_STILL_TEXT_TIME))
 	{
-		jo_font_print_centered(game_font, 0, 0, 1.0f, intro_text[current_intro_text_index]);
+		jo_font_print_centered(game_font, 0, 0, 2.0f, intro_text[current_intro_text_index]);
 	}
 	else if (action_counter < (INTRO_FADE_TEXT_TIME + INTRO_STILL_TEXT_TIME + INTRO_FADE_TEXT_TIME))
 	{
@@ -1347,7 +1347,7 @@ static void process_intro_text_display()
 		{
 			jo_sprite_enable_gouraud_shading();
 			jo_set_gouraud_shading_brightness(fade_counter);
-			jo_font_print_centered(game_font, 0, 0, 1.0f, intro_text[current_intro_text_index]);
+			jo_font_print_centered(game_font, 0, 0, 2.0f, intro_text[current_intro_text_index]);
 			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
 			jo_sprite_disable_gouraud_shading();
 #if JO_DEBUG
