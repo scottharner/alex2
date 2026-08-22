@@ -82,7 +82,7 @@ Tparticle dust[MAX_PARTICLES];		// particles for the particle engine
 // int placeing, placeType, placeX, placeY;	// placeToken stuff
 // byte player;			// current player
 // int winner;				// who won? 3=draw
-// byte soundvol, musicvol;
+byte sound_vol, music_vol;
 // int playingMidi = 0;
 // int lockedRow, lockedCol; // current locked row/col
 // int hint, hintX, hintY;   // hint stuff
@@ -99,6 +99,9 @@ static int shlogo_sprite_id;
 static int title_sprite_id;
 static int aa2_sprite_id;
 static int aalogo_sprite_id;
+static int vol1_sprite_id;
+static int vol2_sprite_id;
+static int vol3_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_font;
@@ -157,20 +160,26 @@ static const char* intro_text[] =
 // 	return ok;
 // }
 
-// void loadSoundCFG() {
+void load_sound_config() 
+{
 // 	PACKFILE *fp;
 
 // 	fp = pack_fopen("sound.sav", "rp");
 // 	if (!fp) {
-// 		soundvol=200;
-// 		musicvol=100;
+ 		
+	// start sound at full volume and music at half volume
+	// sound and music are on a different scale with ponesound
+	// sound is 0-255
+	// music is 0-7
+	sound_vol=255;
+ 	music_vol=4;
 // 	} 
 // 	else {
 // 		pack_fread(&soundvol, 1, fp);
 // 		pack_fread(&musicvol, 1, fp);
 // 		pack_fclose(fp);
 // 	}	
-// }
+}
 
 // void saveSoundCFG() {
 // 	PACKFILE *fp;
@@ -201,6 +210,9 @@ void init()
 	title_sprite_id = jo_sprite_add_tga("TEX", "TITLE.TGA", JO_COLOR_RGB(255,0,255));
 	aa2_sprite_id = jo_sprite_add_tga("TEX", "AA2.TGA", JO_COLOR_Black);
 	aalogo_sprite_id = jo_sprite_add_tga("TEX", "AALOGO.TGA", JO_COLOR_RGB(255,0,255));
+	vol1_sprite_id = jo_sprite_add_tga("TEX", "VOL1.TGA", JO_COLOR_Black);
+	vol2_sprite_id = jo_sprite_add_tga("TEX", "VOL2.TGA", JO_COLOR_Black);
+	vol3_sprite_id = jo_sprite_add_tga("TEX", "VOL3.TGA", JO_COLOR_Black);
 
 	// initialize fonts
 	game_font = jo_font_load("FNT", "GAMEFONT.TGA", JO_COLOR_Black,16, 32, 0, GAME_FONT_MAPPING);
@@ -244,7 +256,7 @@ void init()
 
 // 	hisc = makeTable();
 // 	if (!loadTable(hisc,"hiscores.sav")) resetScores(hisc);
-// 	loadSoundCFG();
+	load_sound_config();
 // 	set_volume(soundvol,musicvol);
 
 	reset_game();
@@ -433,10 +445,6 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y) {
 	jo_font_print(game_font, 40, menu_y + 24, 1.0f, "HIGH SCORES");
 	jo_font_print(game_font, 40, menu_y + 48, 1.0f, "INSTRUCTIONS");
 	jo_font_print(game_font, 40, menu_y + 72, 1.0f, "QUIT");
-// 	textout(bmp,data[MYFONT].dat,"START GAME",40,my,-1);
-// 	textout(bmp,data[MYFONT].dat,"HIGH SCORES",40,my+20,-1);
-// 	textout(bmp,data[MYFONT].dat,"INSTRUCTIONS",40,my+40,-1);
-// 	textout(bmp,data[MYFONT].dat,"QUIT",40,my+60,-1);
 // 	textout(bmp,data[MYFONT].dat,"HUMAN VS AARON",mx+1,161,1);
 // 	textout(bmp,data[MYFONT].dat,"ALEX VS HUMAN",mx+1,181,1);
 // 	textout(bmp,data[MYFONT].dat,"HUMAN VS HUMAN",mx+1,201,1);
@@ -444,6 +452,10 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y) {
 // 	textout(bmp,data[MYFONT].dat,"ALEX VS HUMAN",mx,180,-1);
 // 	textout(bmp,data[MYFONT].dat,"HUMAN VS HUMAN",mx,200,-1);
 
+	jo_sprite_draw3D2(vol3_sprite_id, 280, 152, 500);
+	jo_sprite_draw3D2(vol3_sprite_id, 304, 152, 500);
+	jo_sprite_draw3D2(vol1_sprite_id, 276, 197-sound_vol/5, 500);
+	jo_sprite_draw3D2(vol2_sprite_id, 300, 197-(music_vol*7), 500);
 // 	draw_sprite(bmp,data[VOL3].dat,280,150);
 // 	draw_sprite(bmp,data[VOL3].dat,300,150);
 // 	draw_sprite(bmp,data[VOL1].dat,275,195-soundvol/5);
