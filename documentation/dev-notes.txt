@@ -33,7 +33,6 @@ general
 todo
 ----
 - make opening animation ending smoother
-- clean up font to look nicer
 - credits
   - Hassmaschine (font help)
   - TrekkiesUnite118 (font help)
