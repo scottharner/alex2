@@ -56,6 +56,8 @@
 #define INTRO_TEXT_COUNT 6
 #define MAX_ACTION_CYCLES 10000
 #define AA2_FINAL_X 240
+#define POINTER_WIDTH 16
+#define POINTER_HEIGHT 16
 #define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
 
  // BITMAP *swap_screen;
@@ -114,6 +116,8 @@ static bool intro_graphic_shown = false;
 static bool intro_graphic_faded = false;
 static bool intro_text_shown = false;
 static int aa2_x;
+static int pointer_x;
+static int pointer_y;
 bool is_showing_main_menu_options = false;
 bool is_showing_start_game_options = false;
 
@@ -226,7 +230,9 @@ void init()
 
 	// initialize fonts
 	game_white_font = jo_font_load("FNT", "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),16, 32, 0, GAME_FONT_MAPPING);
+	game_white_font->z_index = BACKGROUND_ZINDEX;
 	game_black_font = jo_font_load("FNT", "GAMEBLK.TGA", JO_COLOR_RGB(255,0,255),16, 32, 0, GAME_FONT_MAPPING);
+	game_black_font->z_index = BACKGROUND_ZINDEX;
 // 	allegro_init();
 
 // 	set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
@@ -327,10 +333,10 @@ input_type get_input_type(mode game_mode, bool current_input_states[INPUT_TYPE_C
             default:
 
                 if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;    
-                else if (input_pressed(INPUT_TYPE_DOWN)) current_input = INPUT_TYPE_DOWN;
-                else if (input_pressed(INPUT_TYPE_UP)) current_input = INPUT_TYPE_UP;
-                else if (input_pressed(INPUT_TYPE_LEFT)) current_input = INPUT_TYPE_LEFT;
-                else if (input_pressed(INPUT_TYPE_RIGHT)) current_input = INPUT_TYPE_RIGHT;
+                else if (jo_is_pad1_key_pressed(JO_KEY_DOWN)) current_input = INPUT_TYPE_DOWN;
+                else if (jo_is_pad1_key_pressed(JO_KEY_UP)) current_input = INPUT_TYPE_UP;
+                else if (jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_input = INPUT_TYPE_LEFT;
+                else if (jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_input = INPUT_TYPE_RIGHT;
 
                 break;
         }
@@ -585,10 +591,43 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y)
 
 int title() {
 	int x=320, y=10;
- 	int pointer_x=JO_TV_WIDTH_2, pointer_y=JO_TV_HEIGHT_2; //clicked;
 	int menu_x=-200, menu_y=144;
 // 	int done=0;
 	int mode=0;  // 0=menu, 1=player-menu
+
+	if (action_counter <= 1)
+	{
+	 	pointer_x=JO_TV_WIDTH_2;
+		pointer_y=JO_TV_HEIGHT_2; 
+		//clicked;
+	}
+
+	input_type current_input = get_input_type(game_mode, current_input_states);
+
+	if (current_input == INPUT_TYPE_LEFT)
+	{
+		pointer_x -= 2;
+		if (pointer_x < 0)
+			pointer_x = 0;
+	}
+	else if (current_input == INPUT_TYPE_RIGHT)
+	{
+		pointer_x += 2;
+		if (pointer_x > (JO_TV_WIDTH - 1 - POINTER_WIDTH))
+			pointer_x = JO_TV_WIDTH - 1 - POINTER_WIDTH;
+	}
+	else if (current_input == INPUT_TYPE_UP)
+	{
+		pointer_y -= 2;
+		if (pointer_y < 0)
+			pointer_y = 0;
+	}
+	else if (current_input == INPUT_TYPE_DOWN)
+	{
+		pointer_y += 2;
+		if (pointer_y > (JO_TV_HEIGHT - 1 - POINTER_HEIGHT))
+			pointer_y = JO_TV_HEIGHT - 1 - POINTER_HEIGHT;
+	}
 
 // 	if (!playingMidi) {
 // 		play_midi(data[TITLESONG].dat,1);
@@ -605,7 +644,7 @@ int title() {
 // 		clear_to_color(swap_screen,34);
 //	draw_donkeys();
 // 		draw_title(swap_screen,x,y,mode,menuX,menuY);
-	jo_sprite_draw3D2(pointer_sprite_id, JO_TV_WIDTH_2, JO_TV_HEIGHT_2, POINTER_ZINDEX);
+	jo_sprite_draw3D2(pointer_sprite_id, pointer_x, pointer_y, POINTER_ZINDEX);
 //	draw_sprite(swap_screen,data[POINTER].dat, mx-1,my-1);
 // 		blitScreen();
 
