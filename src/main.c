@@ -316,7 +316,7 @@ static void update_input_states(bool current_input_states[INPUT_TYPE_COUNT])
 }
 
 // retrieve the input type from the user
-input_type get_input_type(mode game_mode, bool current_input_states[INPUT_TYPE_COUNT])
+input_type get_input_types(mode game_mode, bool current_input_states[INPUT_TYPE_COUNT])
 {
     input_type current_input = INPUT_TYPE_NOTHING;
     if (jo_is_pad1_available())
@@ -333,7 +333,11 @@ input_type get_input_type(mode game_mode, bool current_input_states[INPUT_TYPE_C
             default:
 
                 if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;    
-                else if (jo_is_pad1_key_pressed(JO_KEY_DOWN)) current_input = INPUT_TYPE_DOWN;
+                else if (jo_is_pad1_key_pressed(JO_KEY_UP) && jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_input = INPUT_TYPE_UP_LEFT;
+                else if (jo_is_pad1_key_pressed(JO_KEY_UP) && jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_input = INPUT_TYPE_UP_RIGHT;
+                else if (jo_is_pad1_key_pressed(JO_KEY_DOWN) && jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_input = INPUT_TYPE_DOWN_LEFT;
+                else if (jo_is_pad1_key_pressed(JO_KEY_DOWN) && jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_input = INPUT_TYPE_DOWN_RIGHT;
+				else if (jo_is_pad1_key_pressed(JO_KEY_DOWN)) current_input = INPUT_TYPE_DOWN;
                 else if (jo_is_pad1_key_pressed(JO_KEY_UP)) current_input = INPUT_TYPE_UP;
                 else if (jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_input = INPUT_TYPE_LEFT;
                 else if (jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_input = INPUT_TYPE_RIGHT;
@@ -602,27 +606,30 @@ int title() {
 		//clicked;
 	}
 
-	input_type current_input = get_input_type(game_mode, current_input_states);
+	input_type current_input = get_input_types(game_mode, current_input_states);
 
-	if (current_input == INPUT_TYPE_LEFT)
+	if (current_input == INPUT_TYPE_LEFT || current_input == INPUT_TYPE_UP_LEFT || current_input == INPUT_TYPE_DOWN_LEFT)
 	{
 		pointer_x -= 2;
 		if (pointer_x < 0)
 			pointer_x = 0;
 	}
-	else if (current_input == INPUT_TYPE_RIGHT)
+	
+	if (current_input == INPUT_TYPE_RIGHT || current_input == INPUT_TYPE_UP_RIGHT || current_input == INPUT_TYPE_DOWN_RIGHT)
 	{
 		pointer_x += 2;
 		if (pointer_x > (JO_TV_WIDTH - 1 - POINTER_WIDTH))
 			pointer_x = JO_TV_WIDTH - 1 - POINTER_WIDTH;
 	}
-	else if (current_input == INPUT_TYPE_UP)
+	
+	if (current_input == INPUT_TYPE_UP || current_input == INPUT_TYPE_UP_LEFT || current_input == INPUT_TYPE_UP_RIGHT)
 	{
 		pointer_y -= 2;
 		if (pointer_y < 0)
 			pointer_y = 0;
 	}
-	else if (current_input == INPUT_TYPE_DOWN)
+
+	if (current_input == INPUT_TYPE_DOWN || current_input == INPUT_TYPE_DOWN_LEFT || current_input == INPUT_TYPE_DOWN_RIGHT)
 	{
 		pointer_y += 2;
 		if (pointer_y > (JO_TV_HEIGHT - 1 - POINTER_HEIGHT))
@@ -1553,7 +1560,7 @@ void intro()
 		CDDA_PlaySingle(TITLE_TRACKID, true);
 	}
 
-	input_type current_input = get_input_type(game_mode, current_input_states);
+	input_type current_input = get_input_types(game_mode, current_input_states);
 
 	if (current_input == INPUT_TYPE_START)
 	{
