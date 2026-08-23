@@ -45,6 +45,11 @@ typedef enum
 	MODE_NONE = 0, MODE_INTRO, MODE_TITLE
 }mode;
 
+typedef enum
+{
+	INPUT_TYPE_NOTHING = 0, INPUT_TYPE_LEFT, INPUT_TYPE_RIGHT, INPUT_TYPE_UP, INPUT_TYPE_DOWN, INPUT_TYPE_START, INPUT_TYPE_COUNT
+}input_type;
+
 Ttoken emptySquare = { 0,		  	  0, 0 };
 Ttoken greenToken  = { GREENTOKEN,   10, 0 };
 Ttoken blueToken   = { BLUETOKEN,	 10, 0 };

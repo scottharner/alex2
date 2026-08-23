@@ -46,6 +46,7 @@
 
 #define TITLE_TRACKID 2
 #define BACKGROUND_ZINDEX 500
+#define POINTER_ZINDEX 350
 #define INTRO_SCALE_GRAPHIC_TIME 120
 #define INTRO_STILL_GRAPHIC_TIME 120
 #define INTRO_FADE_GRAPHIC_TIME 120
@@ -102,6 +103,7 @@ static int aalogo_sprite_id;
 static int vol1_sprite_id;
 static int vol2_sprite_id;
 static int vol3_sprite_id;
+static int pointer_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_white_font;
@@ -112,6 +114,8 @@ static bool intro_graphic_shown = false;
 static bool intro_graphic_faded = false;
 static bool intro_text_shown = false;
 static int aa2_x;
+bool is_showing_main_menu_options = false;
+bool is_showing_start_game_options = false;
 
 static const char* intro_text[] =
 {
@@ -122,6 +126,10 @@ static const char* intro_text[] =
 	"THE ALLEGATOR",
 	"IN"
 };
+
+// track button changes for better title menu input handling
+static bool current_input_states[INPUT_TYPE_COUNT];
+static bool previous_input_states[INPUT_TYPE_COUNT];
 
 // void fps_counter(void) {
 // 	fps=frame_count;
@@ -214,6 +222,7 @@ void init()
 	vol1_sprite_id = jo_sprite_add_tga("TEX", "VOL1.TGA", JO_COLOR_Black);
 	vol2_sprite_id = jo_sprite_add_tga("TEX", "VOL2.TGA", JO_COLOR_Black);
 	vol3_sprite_id = jo_sprite_add_tga("TEX", "VOL3.TGA", JO_COLOR_Black);
+	pointer_sprite_id = jo_sprite_add_tga("TEX", "POINTER.TGA", JO_COLOR_Black);
 
 	// initialize fonts
 	game_white_font = jo_font_load("FNT", "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),16, 32, 0, GAME_FONT_MAPPING);
@@ -262,6 +271,76 @@ void init()
 // 	set_volume(soundvol,musicvol);
 
 	reset_game();
+}
+
+// check if input was newly pressed
+bool input_pressed(input_type candidate_input)
+{
+    return current_input_states[candidate_input] && !previous_input_states[candidate_input];
+}
+
+void reset_input_states()
+{
+    for (int i = 0; i < INPUT_TYPE_COUNT; i++)
+    {
+        previous_input_states[i] = false;
+        current_input_states[i] = false;
+    }
+
+}
+
+void save_previous_inputstates()
+{
+    // save previous state
+    for (int i = 0; i < INPUT_TYPE_COUNT; i++)
+        previous_input_states[i] = current_input_states[i];
+}
+
+// track all current and previous input states so we can check on input presses
+static void update_input_states(bool current_input_states[INPUT_TYPE_COUNT])
+{
+    save_previous_inputstates();
+
+    // read current state
+    current_input_states[INPUT_TYPE_UP] = jo_is_pad1_key_pressed(JO_KEY_UP);
+    current_input_states[INPUT_TYPE_DOWN] = jo_is_pad1_key_pressed(JO_KEY_DOWN);
+    current_input_states[INPUT_TYPE_LEFT] = jo_is_pad1_key_pressed(JO_KEY_LEFT);
+    current_input_states[INPUT_TYPE_RIGHT] = jo_is_pad1_key_pressed(JO_KEY_RIGHT);
+    current_input_states[INPUT_TYPE_START] = jo_is_pad1_key_pressed(JO_KEY_START);    
+}
+
+// retrieve the input type from the user
+input_type get_input_type(mode game_mode, bool current_input_states[INPUT_TYPE_COUNT])
+{
+    input_type current_input = INPUT_TYPE_NOTHING;
+    if (jo_is_pad1_available())
+    {
+        update_input_states(current_input_states);
+        switch(game_mode)
+        {
+            case MODE_INTRO:
+
+                if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;
+
+                break;
+
+            default:
+
+                if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;    
+                else if (input_pressed(INPUT_TYPE_DOWN)) current_input = INPUT_TYPE_DOWN;
+                else if (input_pressed(INPUT_TYPE_UP)) current_input = INPUT_TYPE_UP;
+                else if (input_pressed(INPUT_TYPE_LEFT)) current_input = INPUT_TYPE_LEFT;
+                else if (input_pressed(INPUT_TYPE_RIGHT)) current_input = INPUT_TYPE_RIGHT;
+
+                break;
+        }
+    }
+    else
+    {
+        reset_input_states();
+    }
+
+    return current_input;
 }
 
 // void etchedBox(int x1, int y1, int x2, int y2, int up) {
@@ -426,49 +505,57 @@ void reset_particles() {
 		dust[i].exist = 0;
 }
 
-void draw_title(int x, int y, int m, int menu_x, int menu_y) {
+void draw_title(int x, int y, int m, int menu_x, int menu_y) 
+{
 	if (action_counter <= 1)
 	{
 		aa2_x = JO_TV_WIDTH;
 		jo_set_default_background_color(JO_COLOR_RGB(73,97,40)); // light green
+		is_showing_main_menu_options = true;
+		is_showing_start_game_options = false;
 	}
 	else if (aa2_x > AA2_FINAL_X)
 	{
 		aa2_x--;
 	}
 
+	// title logos and text
 	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
 	jo_sprite_enable_half_transparency();
 	jo_sprite_draw3D2(aa2_sprite_id, aa2_x, 8, 450);
 	jo_sprite_disable_half_transparency();
 	jo_sprite_draw3D2(aalogo_sprite_id, 64, 48, 400);
 
-	jo_font_print(game_black_font, 39, menu_y + 1, 0.99f, "START GAME");
-	jo_font_print(game_white_font, 40, menu_y, 0.99f, "START GAME");
-	jo_font_print(game_black_font, 39, menu_y + 21, 0.99f, "HIGH SCORES");
-	jo_font_print(game_white_font, 40, menu_y + 20, 0.99f, "HIGH SCORES");
-	jo_font_print(game_black_font, 39, menu_y + 41, 0.99f, "INSTRUCTIONS");
-	jo_font_print(game_white_font, 40, menu_y + 40, 0.99f, "INSTRUCTIONS");
-	jo_font_print(game_black_font, 39, menu_y + 61, 0.99f, "QUIT");
-	jo_font_print(game_white_font, 40, menu_y + 60, 0.99f, "QUIT");
-// 	textout(bmp,data[MYFONT].dat,"HUMAN VS AARON",mx+1,161,1);
-// 	textout(bmp,data[MYFONT].dat,"ALEX VS HUMAN",mx+1,181,1);
-// 	textout(bmp,data[MYFONT].dat,"HUMAN VS HUMAN",mx+1,201,1);
-// 	textout(bmp,data[MYFONT].dat,"HUMAN VS AARON",mx,160,-1);
-// 	textout(bmp,data[MYFONT].dat,"ALEX VS HUMAN",mx,180,-1);
-// 	textout(bmp,data[MYFONT].dat,"HUMAN VS HUMAN",mx,200,-1);
+	// title menu options
+	if (is_showing_main_menu_options)
+	{
+		jo_font_print(game_black_font, 39, menu_y + 1, 0.99f, "START GAME");
+		jo_font_print(game_white_font, 40, menu_y, 0.99f, "START GAME");
+		jo_font_print(game_black_font, 39, menu_y + 21, 0.99f, "HIGH SCORES");
+		jo_font_print(game_white_font, 40, menu_y + 20, 0.99f, "HIGH SCORES");
+		jo_font_print(game_black_font, 39, menu_y + 41, 0.99f, "INSTRUCTIONS");
+		jo_font_print(game_white_font, 40, menu_y + 40, 0.99f, "INSTRUCTIONS");
+		jo_font_print(game_black_font, 39, menu_y + 61, 0.99f, "QUIT");
+		jo_font_print(game_white_font, 40, menu_y + 60, 0.99f, "QUIT");
+	}
+	else if (is_showing_start_game_options)
+	{
+		jo_font_print(game_black_font, menu_x-1, 144 + 1, 0.99f, "HUMAN VS AARON");
+		jo_font_print(game_black_font, menu_x-1, 164 + 1, 0.99f, "ALEX VS HUMAN");
+		jo_font_print(game_black_font, menu_x-1, 184 + 1, 0.99f, "HUMAN VS HUMAN");
+		jo_font_print(game_white_font, menu_x, 144, 0.99f, "HUMAN VS AARON");
+		jo_font_print(game_white_font, menu_x, 164, 0.99f, "ALEX VS HUMAN");
+		jo_font_print(game_white_font, menu_x, 184, 0.99f, "HUMAN VS HUMAN");
+	}
 
+	// volume controls
 	jo_sprite_draw3D2(vol3_sprite_id, 280, 152, 500);
 	jo_sprite_draw3D2(vol3_sprite_id, 304, 152, 500);
 	jo_sprite_draw3D2(vol1_sprite_id, 276, 197-sound_vol/5, 500);
 	jo_sprite_draw3D2(vol2_sprite_id, 300, 197-(music_vol*7), 500);
-// 	draw_sprite(bmp,data[VOL3].dat,280,150);
-// 	draw_sprite(bmp,data[VOL3].dat,300,150);
-// 	draw_sprite(bmp,data[VOL1].dat,275,195-soundvol/5);
-// 	draw_sprite(bmp,data[VOL2].dat,295,195-musicvol/5);
-// }
+}
 
-// void drawDonkeys() {
+// void draw_donkeys() {
 // 	int i,x;
 
 // 	for(i=0;i<MAX_PARTICLES;i++)
@@ -494,11 +581,11 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y) {
 //    dust[i].dy = itofix(rand()%2+1);
 //    dust[i].image = im;
 //    dust[i].exist = 1;
-}
+// }
 
 int title() {
 	int x=320, y=10;
-// 	int mx,my,clicked;
+ 	int pointer_x=JO_TV_WIDTH_2, pointer_y=JO_TV_HEIGHT_2; //clicked;
 	int menu_x=-200, menu_y=144;
 // 	int done=0;
 	int mode=0;  // 0=menu, 1=player-menu
@@ -509,19 +596,17 @@ int title() {
 // 	}
 
 	reset_particles();
-// 	set_palette(black_palette);
-// 	clear_to_color(screen,34);
 	draw_title(x,y,mode,menu_x,menu_y);
-// 	fade_in(data[GAMEPAL].dat,4);
 
 // 	while(!done) {
 // 		mx = mouse_x;
 // 		my = mouse_y;
 // 		if (x != 250) x-=2;
 // 		clear_to_color(swap_screen,34);
-// 		drawDonkeys();
+//	draw_donkeys();
 // 		draw_title(swap_screen,x,y,mode,menuX,menuY);
-// 		draw_sprite(swap_screen,data[POINTER].dat, mx-1,my-1);
+	jo_sprite_draw3D2(pointer_sprite_id, JO_TV_WIDTH_2, JO_TV_HEIGHT_2, POINTER_ZINDEX);
+//	draw_sprite(swap_screen,data[POINTER].dat, mx-1,my-1);
 // 		blitScreen();
 
 // 		if (rand()%500<5) createDonkey(-40,rand()%220+20,rand()%4);
@@ -842,7 +927,7 @@ int title() {
 
 // 	while(!key[KEY_ESC] && !key[KEY_ENTER] && !key[KEY_SPACE] && !mouse_b) {
 // 		clear_to_color(swap_screen,37);
-// 		drawDonkeys();
+// 		draw_donkeys();
 // 		drawHiScores();
 // 		blitScreen();
 // 		if (rand()%500<5) createDonkey(-40,rand()%220+20,rand()%4);
@@ -1429,6 +1514,16 @@ void intro()
 		CDDA_PlaySingle(TITLE_TRACKID, true);
 	}
 
+	input_type current_input = get_input_type(game_mode, current_input_states);
+
+	if (current_input == INPUT_TYPE_START)
+	{
+		// user wants to skip to title
+		action_counter = 0;
+		intro_text_shown = true;
+		game_mode = MODE_TITLE;
+	}
+
 	// vertically stretch speedhack logo over time
 	if (!intro_graphic_scaled)
 	{
@@ -1519,7 +1614,7 @@ void intro()
 // 	fade_in(data[GAMEPAL].dat,4);
 // 	while(!key[KEY_ESC]) {
 // 		clear_to_color(swap_screen,40);
-// 		drawDonkeys();
+// 		draw_donkeys();
 // 		printPage(txt, currPage);
 // 		blitScreen();
 // 		if (rand()%500<5) createDonkey(-40,rand()%220+20,rand()%4);

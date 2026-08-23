@@ -21,6 +21,7 @@ saturn
 - there is a but with jo_font_print_centered that we need to work around to get good output quality
   - need to set scaling to 0.99f instead of default 1.0f
   - jo_font_print_centered(game_font, 0, 0, 0.99f, intro_text[current_intro_text_index]);
+- if your sprite is showing up as garbage data, check that the dimensions are evenly divisible by 8
 
 general
 -------
@@ -38,3 +39,4 @@ todo
 - credits
   - Hassmaschine (font help)
   - TrekkiesUnite118 (font help)
+- put input methods into separate file
