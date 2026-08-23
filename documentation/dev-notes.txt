@@ -29,6 +29,8 @@ general
   - run make clean (optional)
   - run make
 - we will use a consistent naming convention: snake_case everything except MACRO and ENUMERATION_CONSTANTS	
+- use magic wand in paint.net with global flood to select background colors and do fills
+  - if we dont do this we have seen that the fill will influence nearby pixels by shading their value slightly
 
 todo
 ----
