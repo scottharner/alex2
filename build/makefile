@@ -49,7 +49,7 @@ prepare_cd:
 	touch cd/0.bin
 	mkdir -p cd/TEX
 	mkdir -p cd/FNT
-#	cp ../assets/sfx/*.PCM cd/
+	cp ../assets/sfx/*.PCM cd/
 	cp -r ../assets/tex/* cd/tex/
 	cp -r ../assets/fnt/* cd/fnt/
 	cp -r ../drivers/* cd/

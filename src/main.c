@@ -54,10 +54,14 @@
 #define INTRO_STILL_TEXT_TIME 60
 #define INTRO_BLANK_TEXT_TIME 60
 #define INTRO_TEXT_COUNT 6
+#define INSTRUCTIONS_PAGE_COUNT 9
+#define INSTRUCTIONS_LINE_COUNT 10
 #define MAX_ACTION_CYCLES 10000
 #define AA2_FINAL_X 240
 #define POINTER_WIDTH 16
 #define POINTER_HEIGHT 16
+#define GAME_FONT_WIDTH 16
+#define GAME_FONT_HEIGHT 32
 #define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
 
  // BITMAP *swap_screen;
@@ -111,6 +115,7 @@ static int fade_counter;
 static jo_font *game_white_font;
 static jo_font *game_black_font;
 static int current_intro_text_index = 0;
+static int current_instructions_page_index = 0;
 static bool intro_graphic_scaled = false;
 static bool intro_graphic_shown = false;
 static bool intro_graphic_faded = false;
@@ -120,6 +125,7 @@ static int pointer_x;
 static int pointer_y;
 bool is_showing_main_menu_options = false;
 bool is_showing_start_game_options = false;
+static short select_sound_id;
 
 static const char* intro_text[] =
 {
@@ -129,6 +135,131 @@ static const char* intro_text[] =
 	"ALEX",
 	"THE ALLEGATOR",
 	"IN"
+};
+
+static const char* instructions_titles[] = 
+{
+	"PLOT",
+	"RULES",
+	"MOVES",
+	"SPECIAL TOKENS",
+	"",
+	"SCORING",
+	"",
+	"WINNING",
+	""
+};
+
+static const char* instructions_lines[INSTRUCTIONS_PAGE_COUNT][INSTRUCTIONS_LINE_COUNT] = 
+{
+	{
+		"ONE DAY, ALEX AND HIS BROTHER AARON",
+		"DECIDED TO PLAY A GAME. THEY FOUND",
+		"A BOARD AND A HANDFUL OF TOKENS AND",
+		"SAT DOWN TO MAKE UP SOME RULES.",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"USE D-PAD TO BROWSE, START QUITS."
+	},
+	{
+		"EACH HAD AN UNLIMITED SET OF TOKENS",
+		"THAT COULD BE PLAYED ON THE BOARD.",
+		"WHEN A SQUARE OF 4 TOKENS OF THE",
+		"SAME COLOR WAS PLAYED, THEY WERE",
+		"ALL REMOVED. THE ONE WHO FIRST",
+		"REMOVED ALL HIS TOKENS FROM THE",
+		"BOARD WON THE GAME.",
+		"",
+		"",
+		""
+	},
+	{
+		"EVERY TURN THEY COULD EITHER PLACE",
+		"A TOKEN, OR THEY COULD SLIDE A ROW",
+		"OR COLUMN OF THE BOARD ONE SLOT. A",
+		"SLIDED ROW OR COLUMN COULD NOT BE",
+		"MOVED THE NEXT TURN BY THE OTHER",
+		"PLAYER.",
+		"",
+		"",
+		"",
+		""
+	},
+	{
+		"MORE TOKENS WERE ADDED. A YELLOW ONE",
+		"WAS USED AS A MULTI TOKEN. IT COULD",
+		"BE USED AS ANY COLOR BY ANY ONE. A",
+		"GRAY TOKEN WAS ALSO USED. TO REMOVE",
+		"A GRAY TOKEN YOU HAD TO SURROUND IT",
+		"WITH THREE YELLOW ONES.",
+		"",
+		"",
+		"",
+		""
+	},
+	{
+		"ABOUT EVERY TENTH TIME A TOKEN WAS",
+		"PLAYED ON THE BOARD, A GRAY TOKEN",
+		"APPEARED AT A RANDOM PLACE.",
+		"",
+		"IF ANYONE MANAGED TO REMOVE MORE",
+		"THEN 4 TOKENS IN ONE GO, HE WAS",
+		"REWAREDED WITH A MULTI TOKEN, THAT",
+		"HE COULD PLAY AT ANY TIME.",
+		"",
+		""
+	},
+	{
+		"TO MAKE THE GAME MORE INTERESTING",
+		"THEY ADDED A SCORING SYSTEM. NORMAL",
+		"TOKENS HAD A VALUE OF 10. MULTI ",
+		"TOKENS SCORES 50 AND THE GREY TOKENS",
+		"SCORED 100. YOU RECEIVED THE SCORE",
+		"WHEN THE TOKENS WHERE TAKEN OF THE",
+		"BOARD. YOU ALSO GOT SCORE FOR THE",
+		"NUMBER OF TOKENS YOU COULD REMOVE",
+		"IN ONE SWEEP. THE MORE TOKENS IN ONE",
+		"GO, THE HIGHER THE SCORE."
+	},
+	{
+		"LATER THEY FOUND OUT THAT IT WAS A", 
+		"LOT MORE FUN IF THE PLAYER WHO'S",
+		"TURN IT WAS, RECEIVED ALL SCORE, EVEN",
+		"THE SCORE FOR ANY QUADRUPLES OF THE",
+		"OTHER COLOR.",
+		"",
+		"",
+		"",
+		"",
+		""
+	},
+	{
+		"HAVING ADDED THE SCORING SYSTEM, THE",
+		"OBJECT WAS NO LONGER ONLY TO WIPE",
+		"THE BOARD. TO WIN YOU ALSO HAD TO",
+		"HAVE THE HIGHEST SCORE.",
+		"",
+		"",
+		"",
+		"",
+		"",
+		""
+	},
+	{
+		"NOW IT'S YOUR TURN TO HELP ALEX AND",
+		"AARON TO PLAY THEIR GAME.",
+		"",
+		"GOOD LUCK, AND MOST OF ALL",
+		"HAVE FUN!",
+		"",
+		"",
+		"",
+		"",
+		""
+	}
 };
 
 // track button changes for better title menu input handling
@@ -182,9 +313,9 @@ void load_sound_config()
  		
 	// start sound at full volume and music at half volume
 	// sound and music are on a different scale with ponesound
-	// sound is 0-255
+	// sound is 0-7
 	// music is 0-7
-	sound_vol=255;
+	sound_vol=6;
  	music_vol=4;
 // 	} 
 // 	else {
@@ -217,6 +348,7 @@ void init()
 	// initialize sound
 	load_drv(ADX_MASTER_2304);
 	CDDA_SetVolume(4);
+	select_sound_id = load_8bit_pcm((Sint8 *)"SELECT.PCM", 15360); // using ponesound due to issues with jo engine audio
 
 	// initialize graphics
 	shlogo_sprite_id = jo_sprite_add_tga("TEX", "SHLOGO.TGA", JO_COLOR_Transparent);
@@ -229,9 +361,9 @@ void init()
 	pointer_sprite_id = jo_sprite_add_tga("TEX", "POINTER.TGA", JO_COLOR_Black);
 
 	// initialize fonts
-	game_white_font = jo_font_load("FNT", "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),16, 32, 0, GAME_FONT_MAPPING);
+	game_white_font = jo_font_load("FNT", "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
 	game_white_font->z_index = BACKGROUND_ZINDEX;
-	game_black_font = jo_font_load("FNT", "GAMEBLK.TGA", JO_COLOR_RGB(255,0,255),16, 32, 0, GAME_FONT_MAPPING);
+	game_black_font = jo_font_load("FNT", "GAMEBLK.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
 	game_black_font->z_index = BACKGROUND_ZINDEX;
 // 	allegro_init();
 
@@ -313,6 +445,8 @@ static void update_input_states(bool current_input_states[INPUT_TYPE_COUNT])
     current_input_states[INPUT_TYPE_LEFT] = jo_is_pad1_key_pressed(JO_KEY_LEFT);
     current_input_states[INPUT_TYPE_RIGHT] = jo_is_pad1_key_pressed(JO_KEY_RIGHT);
     current_input_states[INPUT_TYPE_START] = jo_is_pad1_key_pressed(JO_KEY_START);    
+	current_input_states[INPUT_TYPE_A] = jo_is_pad1_key_pressed(JO_KEY_A);
+	current_input_states[INPUT_TYPE_C] = jo_is_pad1_key_pressed(JO_KEY_C);
 }
 
 // retrieve the input type from the user
@@ -327,12 +461,25 @@ input_type get_input_types(mode game_mode, bool current_input_states[INPUT_TYPE_
             case MODE_INTRO:
 
                 if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;
+				else if (input_pressed(INPUT_TYPE_A)) current_input = INPUT_TYPE_A;
+				else if (input_pressed(INPUT_TYPE_C)) current_input = INPUT_TYPE_C;
 
                 break;
 
-            default:
+            case MODE_INSTRUCTIONS:
+                if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;  
+				else if (input_pressed(INPUT_TYPE_A)) current_input = INPUT_TYPE_A;
+				else if (input_pressed(INPUT_TYPE_C)) current_input = INPUT_TYPE_C;
+				else if (input_pressed(INPUT_TYPE_LEFT)) current_input = INPUT_TYPE_LEFT;
+				else if (input_pressed(INPUT_TYPE_RIGHT)) current_input = INPUT_TYPE_RIGHT;
 
-                if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;    
+				break;
+
+			default:
+
+                if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;  
+				else if (input_pressed(INPUT_TYPE_A)) current_input = INPUT_TYPE_A;
+				else if (input_pressed(INPUT_TYPE_C)) current_input = INPUT_TYPE_C;
                 else if (jo_is_pad1_key_pressed(JO_KEY_UP) && jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_input = INPUT_TYPE_UP_LEFT;
                 else if (jo_is_pad1_key_pressed(JO_KEY_UP) && jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_input = INPUT_TYPE_UP_RIGHT;
                 else if (jo_is_pad1_key_pressed(JO_KEY_DOWN) && jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_input = INPUT_TYPE_DOWN_LEFT;
@@ -545,8 +692,8 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y)
 		jo_font_print(game_white_font, 40, menu_y + 20, 0.99f, "HIGH SCORES");
 		jo_font_print(game_black_font, 39, menu_y + 41, 0.99f, "INSTRUCTIONS");
 		jo_font_print(game_white_font, 40, menu_y + 40, 0.99f, "INSTRUCTIONS");
-		jo_font_print(game_black_font, 39, menu_y + 61, 0.99f, "QUIT");
-		jo_font_print(game_white_font, 40, menu_y + 60, 0.99f, "QUIT");
+		jo_font_print(game_black_font, 39, menu_y + 61, 0.99f, "CREDITS");
+		jo_font_print(game_white_font, 40, menu_y + 60, 0.99f, "CREDITS");
 	}
 	else if (is_showing_start_game_options)
 	{
@@ -561,7 +708,7 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y)
 	// volume controls
 	jo_sprite_draw3D2(vol3_sprite_id, 280, 152, 500);
 	jo_sprite_draw3D2(vol3_sprite_id, 304, 152, 500);
-	jo_sprite_draw3D2(vol1_sprite_id, 276, 197-sound_vol/5, 500);
+	jo_sprite_draw3D2(vol1_sprite_id, 276, 197-(sound_vol*7), 500);
 	jo_sprite_draw3D2(vol2_sprite_id, 300, 197-(music_vol*7), 500);
 }
 
@@ -593,7 +740,15 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y)
 //    dust[i].exist = 1;
 // }
 
-int title() {
+bool pointer_on_instructions_option(int menu_y)
+{
+	return (pointer_x >= 40 && 
+		pointer_x <= (40 + GAME_FONT_WIDTH * 11)) && // 12 chars but subtract one for going too far
+		(pointer_y >= (menu_y + 48) && 
+		pointer_y <= (menu_y + 40 + GAME_FONT_HEIGHT - 8));
+}
+
+void title() {
 	int x=320, y=10;
 	int menu_x=-200, menu_y=144;
 // 	int done=0;
@@ -692,6 +847,18 @@ int title() {
 // 	while(mouse_b);		// wait out mouse
 
 // 	return done-1;
+
+	// check if instructions was selected
+	// check if a, c, or start was pressed and the pointer is on instructions
+	if ((current_input == INPUT_TYPE_START || 
+		current_input == INPUT_TYPE_A || 
+		current_input == INPUT_TYPE_C) && 
+		pointer_on_instructions_option(menu_y))
+	{
+		pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+		action_counter = 0;
+		game_mode = MODE_INSTRUCTIONS;
+	}
 }
 
 // void startNewGame() {
@@ -1562,7 +1729,9 @@ void intro()
 
 	input_type current_input = get_input_types(game_mode, current_input_states);
 
-	if (current_input == INPUT_TYPE_START)
+	if (current_input == INPUT_TYPE_START || 
+		current_input == INPUT_TYPE_A || 
+		current_input == INPUT_TYPE_C)
 	{
 		// user wants to skip to title
 		action_counter = 0;
@@ -1646,8 +1815,56 @@ void intro()
 // 	}
 // }
 
-// void instructions() {
-// 	int currPage=0;
+void instructions() 
+{
+	if (action_counter <= 1)
+	{
+		jo_clear_screen();
+		jo_set_default_background_color(JO_COLOR_RGB(121,52,52)); // pink
+		current_instructions_page_index = 0;
+	}
+	
+	input_type current_input = get_input_types(game_mode, current_input_states);
+
+	if (current_input == INPUT_TYPE_START ||
+		current_input == INPUT_TYPE_A || 
+		current_input == INPUT_TYPE_C)
+	{
+		// user wants to return to title
+		action_counter = 0;
+		game_mode = MODE_TITLE;
+	}
+	else if (current_input == INPUT_TYPE_LEFT)
+	{
+		if (current_instructions_page_index > 0)
+			current_instructions_page_index--;
+	}
+	else if (current_input == INPUT_TYPE_RIGHT)
+	{
+		if (current_instructions_page_index < (INSTRUCTIONS_PAGE_COUNT-1))
+			current_instructions_page_index++;
+	}
+
+	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
+	jo_sprite_enable_half_transparency();
+	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, 450);
+	jo_sprite_disable_half_transparency();
+
+	int title_y = 50;
+	if (instructions_titles[current_instructions_page_index] != "")
+	{
+		jo_font_print(game_black_font, 5, title_y+1, 0.99f, instructions_titles[current_instructions_page_index]);
+		jo_font_print(game_white_font, 6, title_y, 0.99f, instructions_titles[current_instructions_page_index]);		
+	}
+
+	for (int i = 0; i < INSTRUCTIONS_LINE_COUNT; i++)
+	{
+		jo_font_print(game_black_font, 3, title_y+3+(16*(i+1)), 0.50f, instructions_lines[current_instructions_page_index][i]);
+		jo_font_print(game_white_font, 4, title_y+2+(16*(i+1)), 0.50f, instructions_lines[current_instructions_page_index][i]);		
+	}
+
+
+	// 	int currPage=0;
 // 	char *txt = data[INSTRUCTIONS].dat;
 // 	int pressed=0;
 
@@ -1671,7 +1888,7 @@ void intro()
 
 // 	fade_out(4);
 // 	clear(screen);
-// }
+}
 
 void update_game()
 {
@@ -1694,6 +1911,10 @@ void update_game()
 
 		case MODE_TITLE:
 			title();
+			break;
+
+		case MODE_INSTRUCTIONS:
+			instructions();
 			break;
 
 		default:
