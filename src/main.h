@@ -45,7 +45,8 @@ typedef enum
 	MODE_NONE = 0, 
 	MODE_INTRO, 
 	MODE_TITLE,
-	MODE_INSTRUCTIONS
+	MODE_INSTRUCTIONS,
+	MODE_CREDITS
 }mode;
 
 typedef enum

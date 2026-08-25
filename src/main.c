@@ -54,6 +54,7 @@
 #define INTRO_STILL_TEXT_TIME 60
 #define INTRO_BLANK_TEXT_TIME 60
 #define INTRO_TEXT_COUNT 6
+#define CREDITS_TEXT_COUNT 10
 #define INSTRUCTIONS_PAGE_COUNT 9
 #define INSTRUCTIONS_LINE_COUNT 10
 #define MAX_ACTION_CYCLES 10000
@@ -135,6 +136,20 @@ static const char* intro_text[] =
 	"ALEX",
 	"THE ALLEGATOR",
 	"IN"
+};
+
+static const char* credits_text[] = 
+{
+	"",
+	"GAME ENGINEER - JOHAN PEITZ",
+    "PORT ENGINEER - SCOTT HARNER",
+    "QA TESTER - EVAN HARNER",
+    "AUDIO DRIVER ENGINEER - PONUT64",
+    "ADVISOR - HASSMASCHINE",
+    "ADVISOR - TREKKIESUNITE118",
+    "",
+	"",
+	"POWERED BY - JO ENGINE"
 };
 
 static const char* instructions_titles[] = 
@@ -748,6 +763,14 @@ bool pointer_on_instructions_option(int menu_y)
 		pointer_y <= (menu_y + 40 + GAME_FONT_HEIGHT - 8));
 }
 
+bool pointer_on_credits_option(int menu_y)
+{
+	return (pointer_x >= 40 && 
+		pointer_x <= (40 + GAME_FONT_WIDTH * 7)) && // 7 chars
+		(pointer_y >= (menu_y + 68) && 
+		pointer_y <= (menu_y + 60 + GAME_FONT_HEIGHT - 8));
+}
+
 void title() {
 	int x=320, y=10;
 	int menu_x=-200, menu_y=144;
@@ -852,12 +875,20 @@ void title() {
 	// check if a, c, or start was pressed and the pointer is on instructions
 	if ((current_input == INPUT_TYPE_START || 
 		current_input == INPUT_TYPE_A || 
-		current_input == INPUT_TYPE_C) && 
-		pointer_on_instructions_option(menu_y))
+		current_input == INPUT_TYPE_C))
 	{
-		pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
-		action_counter = 0;
-		game_mode = MODE_INSTRUCTIONS;
+		if (pointer_on_instructions_option(menu_y))
+		{
+			pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+			action_counter = 0;
+			game_mode = MODE_INSTRUCTIONS;
+		}
+		else if (pointer_on_credits_option(menu_y))
+		{
+			pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+			action_counter = 0;
+			game_mode = MODE_CREDITS;
+		}
 	}
 }
 
@@ -1890,6 +1921,42 @@ void instructions()
 // 	clear(screen);
 }
 
+void credits() 
+{
+	if (action_counter <= 1)
+	{
+		jo_clear_screen();
+		jo_set_default_background_color(JO_COLOR_RGB(121,52,52)); // pink
+	}
+	
+	input_type current_input = get_input_types(game_mode, current_input_states);
+
+	if (current_input == INPUT_TYPE_START ||
+		current_input == INPUT_TYPE_A || 
+		current_input == INPUT_TYPE_C)
+	{
+		// user wants to return to title
+		action_counter = 0;
+		game_mode = MODE_TITLE;
+	}
+
+	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
+	jo_sprite_enable_half_transparency();
+	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, 450);
+	jo_sprite_disable_half_transparency();
+
+	int title_y = 50;
+	jo_font_print(game_black_font, 5, title_y+1, 0.99f, "CREDITS");
+	jo_font_print(game_white_font, 6, title_y, 0.99f, "CREDITS");	
+
+	for (int i = 0; i < CREDITS_TEXT_COUNT; i++)
+	{
+		jo_font_print(game_black_font, 3, title_y+3+(16*(i+1)), 0.50f, credits_text[i]);
+		jo_font_print(game_white_font, 4, title_y+2+(16*(i+1)), 0.50f, credits_text[i]);		
+	}
+
+}
+
 void update_game()
 {
 	// while (playGame) {
@@ -1915,6 +1982,10 @@ void update_game()
 
 		case MODE_INSTRUCTIONS:
 			instructions();
+			break;
+
+		case MODE_CREDITS:
+			credits();
 			break;
 
 		default:
