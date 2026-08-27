@@ -4,19 +4,20 @@
  */
 
 //#include "allegro.h"
-// #include "hisc.h"
+#include "hisc.h"
+#include <jo/jo.h>
 
 // /*
 //  *  Creates a table to work with
 //  */
-// Thisc* makeTable() {
-// 	Thisc *tmp;
+Thisc* make_table() {
+	Thisc *tmp;
 
-// 	tmp = malloc(MAX_SCORES*sizeof(Thisc));
-// 	if (!tmp) return NULL;
+	tmp = jo_malloc(MAX_SCORES*sizeof(Thisc));
+	if (!tmp) return NULL;
 
-// 	return tmp;
-// }
+	return tmp;
+}
 
 // /*
 //  *  Check if provided score is allowd to enter the table
@@ -68,17 +69,17 @@
 // /* 
 //  * Resets the table to the values specified
 //  */
-// void resetTable(Thisc *table, char *name, int hi, int lo) {
-// 	int i;
-// 	int d = (hi-lo)/MAX_SCORES;
-// 	int acc = hi;
+void reset_table(Thisc *table, char *name, int hi, int lo) {
+	int i;
+	int d = (hi-lo)/MAX_SCORES;
+	int acc = hi;
 
-// 	for (i=0;i<MAX_SCORES;i++) {
-// 		strcpy(table[i].name, name);
-// 		table[i].score = acc;
-// 		acc-=d;
-// 	}
-// }
+	for (i=0;i<MAX_SCORES;i++) {
+		strcpy(table[i].name, name);
+		table[i].score = acc;
+		acc-=d;
+	}
+}
 
 // /* 
 //  * Loads table from disk, returns 1 on success

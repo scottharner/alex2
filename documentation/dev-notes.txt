@@ -43,3 +43,5 @@ todo
 - screen fades
 - flying donkeys
 - move instructions text to separate file
+- cleanup hisc malloc table
+- do i need malloc for other string structures?

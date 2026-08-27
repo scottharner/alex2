@@ -30,7 +30,7 @@
 // #include <stdio.h>
 // #include "allegro.h"
 #include "main.h"
-// #include "hisc.h"
+#include "hisc.h"
 // #include "../assets/data.h"	
 #include "pcmsys.h"
 
@@ -69,7 +69,7 @@
 // BITMAP *bg_screen;
 // BITMAP *scroller = NULL;
 // DATAFILE *data;
-// Thisc *hisc;						// a hiscore table
+Thisc *hisc;						// a hiscore table
 // Ttoken board[8][8];					// the board
 Tparticle dust[MAX_PARTICLES];		// particles for the particle engine
 // Tplayer ply[3];						// 2 players, ignore ply[0]
@@ -140,7 +140,6 @@ static const char* intro_text[] =
 
 static const char* credits_text[] = 
 {
-	"",
 	"GAME ENGINEER - JOHAN PEITZ",
     "PORT ENGINEER - SCOTT HARNER",
     "QA TESTER - EVAN HARNER",
@@ -148,6 +147,7 @@ static const char* credits_text[] =
     "ADVISOR - HASSMASCHINE",
     "ADVISOR - TREKKIESUNITE118",
     "",
+	"",
 	"",
 	"POWERED BY - JO ENGINE"
 };
@@ -296,19 +296,19 @@ static bool previous_input_states[INPUT_TYPE_COUNT];
 // 	alert("A L E X   I I", NULL, txt, "Cool", "Yeah", 'y', 27);
 // }
 
-// void resetScores(Thisc *table) {
-// 	resetTable(table,"Johan Peitz",1000,0);
-// 	strcpy(table[0].name, "Alex the Allegator");
-// 	strcpy(table[1].name, "Aaron the Allegator");
-// 	strcpy(table[2].name, "Johan Peitz");
-// 	strcpy(table[3].name, "- - -");
-// 	strcpy(table[4].name, "Have you tried");
-// 	strcpy(table[5].name, "our donkey spam?");
-// 	strcpy(table[6].name, "It's the best!");
-// 	strcpy(table[7].name, "Order now at:");
-// 	strcpy(table[8].name, "1-800-SPAM-R-US");
-// 	strcpy(table[9].name, "We take VISA.");
-// }
+void reset_scores(Thisc *table) {
+	reset_table(table,"JOHAN PEITZ",1000,0);
+	strcpy(table[0].name, "ALEX THE ALLEGATOR");
+	strcpy(table[1].name, "AARON THE ALLEGATOR");
+	strcpy(table[2].name, "JOHAN PEITZ");
+	strcpy(table[3].name, "- - -");
+	strcpy(table[4].name, "HAVE YOU TRIED");
+	strcpy(table[5].name, "OUR DONKEY SPAM?");
+	strcpy(table[6].name, "IT'S THE BEST!");
+	strcpy(table[7].name, "ORDER NOW AT:");
+	strcpy(table[8].name, "1-800-SPAM-R-US");
+	strcpy(table[9].name, "WE TAKE VISA.");
+}
 
 // int loadData() {
 // 	int ok=1;
@@ -418,8 +418,9 @@ void init()
 // 	soundvol=200;
 // 	musicvol=200;
 
-// 	hisc = makeTable();
+	hisc = make_table();
 // 	if (!loadTable(hisc,"hiscores.sav")) resetScores(hisc);
+	reset_scores(hisc);
 	load_sound_config();
 // 	set_volume(soundvol,musicvol);
 
@@ -755,6 +756,14 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y)
 //    dust[i].exist = 1;
 // }
 
+bool pointer_on_high_scores_option(int menu_y)
+{
+	return (pointer_x >= 40 && 
+		pointer_x <= (40 + GAME_FONT_WIDTH * 11)) && // 11 chars but subtract one for going too far
+		(pointer_y >= (menu_y + 28) && 
+		pointer_y <= (menu_y + 20 + GAME_FONT_HEIGHT - 8));
+}
+
 bool pointer_on_instructions_option(int menu_y)
 {
 	return (pointer_x >= 40 && 
@@ -888,6 +897,12 @@ void title() {
 			pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
 			action_counter = 0;
 			game_mode = MODE_CREDITS;
+		}
+		else if (pointer_on_high_scores_option(menu_y))
+		{
+			pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+			action_counter = 0;
+			game_mode = MODE_HIGH_SCORES;
 		}
 	}
 }
@@ -1142,8 +1157,13 @@ void title() {
 // 	if (!p1 || !p2) winner=1;
 // }
 
-// void drawHiScores() {
-// 	int i;
+int get_right_aligned_x_coord(const jo_font *font, int right_x, float scale, char *text)
+{
+	return right_x - (strlen(text) * font->spacing * scale);
+}
+
+void draw_high_scores() {
+	int i;
 
 // 	// draw header
 // 	draw_character(swap_screen, data[TITLE].dat, 8, 21, 1);
@@ -1160,10 +1180,48 @@ void title() {
 // 		textprintf_right(swap_screen,data[MYFONT2].dat,281,81+i*12,1,"%5d",hisc[i].score);
 // 		textprintf_right(swap_screen,data[MYFONT2].dat,280,80+i*12,-1,"%5d",hisc[i].score);
 // 	}	
-// }
 
-// void showHighscores() {
-// 	reset_particles();
+	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
+	jo_sprite_enable_half_transparency();
+	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, 450);
+	jo_sprite_disable_half_transparency();
+
+	int title_y = -60;
+	jo_font_print_centered(game_black_font, -1, title_y+1, 0.99f, "ALL TIME HIGH");
+	jo_font_print_centered(game_white_font, 0, title_y, 0.99f, "ALL TIME HIGH");
+
+	char score_string[10];
+	for(i=0;i<MAX_SCORES;i++) {
+		jo_font_print(game_black_font, 3,66+i*16,0.5f, hisc[i].name);
+		jo_font_print(game_white_font, 4,65+i*16,0.5f, hisc[i].name);
+		sprintf(score_string, "%d", hisc[i].score);
+		int right_aligned_x = get_right_aligned_x_coord(game_white_font, 300, 0.5f, score_string);
+		jo_font_print(game_black_font, right_aligned_x-1,66+i*16,0.5f, score_string);
+		jo_font_print(game_white_font, right_aligned_x,65+i*16,0.5f, score_string);
+	}	
+}
+
+void high_scores() {
+	if (action_counter <= 1)
+	{
+		reset_particles();
+		jo_clear_screen();
+		jo_set_default_background_color(JO_COLOR_RGB(40,81,97)); // blue
+	}
+	
+	input_type current_input = get_input_types(game_mode, current_input_states);
+
+	if (current_input == INPUT_TYPE_START ||
+		current_input == INPUT_TYPE_A || 
+		current_input == INPUT_TYPE_C)
+	{
+		// user wants to return to title
+		action_counter = 0;
+		game_mode = MODE_TITLE;
+	}
+
+	draw_high_scores();
+
 // 	clear_to_color(swap_screen,37);
 // 	drawHiScores();
 // 	blitScreen();
@@ -1179,7 +1237,7 @@ void title() {
 
 // 	fade_out(4);
 // 	clear(screen);
-// }
+}
 
 // void enterHof(Thisc post, int p) {
 // 	int i,kp;
@@ -1926,7 +1984,7 @@ void credits()
 	if (action_counter <= 1)
 	{
 		jo_clear_screen();
-		jo_set_default_background_color(JO_COLOR_RGB(121,52,52)); // pink
+		jo_set_default_background_color(JO_COLOR_RGB(140,110,75)); // brown
 	}
 	
 	input_type current_input = get_input_types(game_mode, current_input_states);
@@ -1945,14 +2003,16 @@ void credits()
 	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, 450);
 	jo_sprite_disable_half_transparency();
 
-	int title_y = 50;
-	jo_font_print(game_black_font, 5, title_y+1, 0.99f, "CREDITS");
-	jo_font_print(game_white_font, 6, title_y, 0.99f, "CREDITS");	
+	int title_y = -60;
+	jo_font_print_centered(game_black_font, -1, title_y+1, 0.99f, "CREDITS");
+	jo_font_print_centered(game_white_font, 0, title_y, 0.99f, "CREDITS");
+
+	int credit_start_y = 65;
 
 	for (int i = 0; i < CREDITS_TEXT_COUNT; i++)
 	{
-		jo_font_print(game_black_font, 3, title_y+3+(16*(i+1)), 0.50f, credits_text[i]);
-		jo_font_print(game_white_font, 4, title_y+2+(16*(i+1)), 0.50f, credits_text[i]);		
+		jo_font_print(game_black_font, 3, credit_start_y+1+i*16, 0.50f, credits_text[i]);
+		jo_font_print(game_white_font, 4, credit_start_y+i*16, 0.50f, credits_text[i]);		
 	}
 
 }
@@ -1986,6 +2046,10 @@ void update_game()
 
 		case MODE_CREDITS:
 			credits();
+			break;
+
+		case MODE_HIGH_SCORES:
+			high_scores();
 			break;
 
 		default:

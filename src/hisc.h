@@ -10,10 +10,10 @@ typedef struct {
    unsigned int score;
 } Thisc;
 
-Thisc* makeTable();
+Thisc* make_table();
 int qualifyTable(Thisc *table, Thisc post);
 void sortTable(Thisc *table);
 void enterTable(Thisc *table, Thisc post);
-void resetTable(Thisc *table, char *name, int hi, int lo);
+void reset_table(Thisc *table, char *name, int hi, int lo);
 int loadTable(Thisc *table, char *fname);
 void saveTable(Thisc *table, char *fname);

@@ -46,7 +46,8 @@ typedef enum
 	MODE_INTRO, 
 	MODE_TITLE,
 	MODE_INSTRUCTIONS,
-	MODE_CREDITS
+	MODE_CREDITS,
+	MODE_HIGH_SCORES
 }mode;
 
 typedef enum
