@@ -36,9 +36,6 @@ general
 todo
 ----
 - make opening animation ending smoother
-- credits
-  - Hassmaschine (font help)
-  - TrekkiesUnite118 (font help)
 - put input methods into separate file
 - screen fades
 - flying donkeys

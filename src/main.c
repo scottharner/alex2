@@ -1549,7 +1549,7 @@ void high_scores() {
 // 	return bestScore;
 // }
 
-// int play() {
+int play() {
 // 	int done = 0;
 // 	int x,y;
 // 	int mx,my;
@@ -1558,7 +1558,18 @@ void high_scores() {
 // 	int stoneCount = 0;
 // 	int thinking = 0;
 
-// 	play_midi(data[SONG1+rand()%4].dat,1);
+	if (action_counter <= 1)
+	{
+		jo_clear_screen();
+		jo_set_default_background_color(JO_COLOR_INDEX_Black);
+		CDDA_Stop();
+	}
+	
+	char game_string[20];
+	sprintf(game_string, "YOU'RE PLAYING %d", current_game_type);
+	jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, game_string);
+
+	// 	play_midi(data[SONG1+rand()%4].dat,1);
 // 	playingMidi=1;
 
 // 	startNewGame();
@@ -1739,7 +1750,7 @@ void high_scores() {
 // 	playingMidi=0;
 
 // 	return 0;
-// }
+}
 
 // int myRest(int msecs) {
 // 	int gclick = msecs/15;
@@ -2053,19 +2064,6 @@ void instructions()
 // 	clear(screen);
 }
 
-void play_game() 
-{
-	if (action_counter <= 1)
-	{
-		jo_clear_screen();
-		jo_set_default_background_color(JO_COLOR_INDEX_Black);
-	}
-	
-	char game_string[20];
-	sprintf(game_string, "YOU'RE PLAYING %d", current_game_type);
-	jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, game_string);
-}
-
 void credits() 
 {
 	if (action_counter <= 1)
@@ -2140,7 +2138,7 @@ void update_game()
 			break;
 
 		case MODE_GAME:
-			play_game();
+			play();
 			break;
 
 		default:
