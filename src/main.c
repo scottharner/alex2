@@ -70,7 +70,7 @@
 // BITMAP *scroller = NULL;
 // DATAFILE *data;
 Thisc *hisc;						// a hiscore table
-// Ttoken board[8][8];					// the board
+Ttoken board[8][8];					// the board
 Tparticle dust[MAX_PARTICLES];		// particles for the particle engine
 // Tplayer ply[3];						// 2 players, ignore ply[0]
 
@@ -112,6 +112,11 @@ static int vol1_sprite_id;
 static int vol2_sprite_id;
 static int vol3_sprite_id;
 static int pointer_sprite_id;
+static int emptytkn_sprite_id;
+static int greentkn_sprite_id;
+static int bluetkn_sprite_id;
+static int multitkn_sprite_id;
+static int deadtkn_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_white_font;
@@ -279,6 +284,8 @@ static const char* instructions_lines[INSTRUCTIONS_PAGE_COUNT][INSTRUCTIONS_LINE
 	}
 };
 
+static int token_sprite_ids[5];
+
 // track button changes for better title menu input handling
 static bool current_input_states[INPUT_TYPE_COUNT];
 static bool previous_input_states[INPUT_TYPE_COUNT];
@@ -380,6 +387,17 @@ void init()
 	vol2_sprite_id = jo_sprite_add_tga("TEX", "VOL2.TGA", JO_COLOR_Black);
 	vol3_sprite_id = jo_sprite_add_tga("TEX", "VOL3.TGA", JO_COLOR_Black);
 	pointer_sprite_id = jo_sprite_add_tga("TEX", "POINTER.TGA", JO_COLOR_Black);
+	emptytkn_sprite_id = jo_sprite_add_tga("TEX", "EMPTYTKN.TGA", JO_COLOR_Black);
+	greentkn_sprite_id = jo_sprite_add_tga("TEX", "GREENTKN.TGA", JO_COLOR_Black);
+	bluetkn_sprite_id = jo_sprite_add_tga("TEX", "BLUETKN.TGA", JO_COLOR_Black);
+	multitkn_sprite_id = jo_sprite_add_tga("TEX", "MULTITKN.TGA", JO_COLOR_Black);
+	deadtkn_sprite_id = jo_sprite_add_tga("TEX", "DEADTKN.TGA", JO_COLOR_Black);
+
+	token_sprite_ids[0] = emptytkn_sprite_id;
+	token_sprite_ids[1] = greentkn_sprite_id;
+	token_sprite_ids[2] = bluetkn_sprite_id;
+	token_sprite_ids[3] = multitkn_sprite_id;
+	token_sprite_ids[4] = deadtkn_sprite_id; 
 
 	// initialize fonts
 	game_white_font = jo_font_load("FNT", "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
@@ -587,18 +605,20 @@ input_type get_input_types(mode game_mode, bool current_input_states[INPUT_TYPE_
 // 		}
 // }
 
-// void drawScreen(int showMouse) {
-// 	int x,y;
+void draw_game(int showMouse) {
+	int x,y;
 
 // 	// fps...
 // 	frame_count++;
 
 // 	blit(bg_screen, swap_screen, 0, 0, 0, 0, 320, 240);
 	
-// 	for(x=0;x<8;x++)
-// 		for(y=0;y<8;y++)
-// 			if (board[x][y].token)
-// 				draw_sprite(swap_screen, data[board[x][y].token + TOKEN000].dat, 21+x*24, 21+y*24);
+	for(x=0;x<8;x++)
+		for(y=0;y<8;y++)
+			if (board[x][y].token)
+			{
+				jo_sprite_draw3D2(token_sprite_ids[board[x][y].token], 21+x*24, 21+y*24, BACKGROUND_ZINDEX);
+			}
 
 // 	if (placeing) {
 // 		rectfill(swap_screen, 21+24*placeX, 21+24*placeY, 21+24*placeX+22, 21+24*placeY+22, 12);
@@ -671,7 +691,7 @@ input_type get_input_types(mode game_mode, bool current_input_states[INPUT_TYPE_
 // 		draw_sprite(swap_screen, data[POINTER].dat, mx-1, my-1);
 // 		draw_sprite(swap_screen, data[DUST000+player].dat, mx+9, my+11);
 // 	}
-// }
+}
 
 // void blitScreen() {
 // 	vsync();
@@ -981,31 +1001,31 @@ void title() {
 	}
 }
 
-// void startNewGame() {
-// 	int x,y;
+void start_new_game() {
+	int x,y;
 
-// 	for(x=0;x<8;x++)
-// 		for(y=0;y<8;y++)
-// 			board[x][y] = emptySquare;
+	for(x=0;x<8;x++)
+		for(y=0;y<8;y++)
+			board[x][y] = emptySquare;
 
-// 	board[3][3] = greenToken;
-// 	board[4][4] = greenToken;
-// 	board[3][4] = blueToken;
-// 	board[4][3] = blueToken;
+	board[3][3] = greenToken;
+	board[4][4] = greenToken;
+	board[3][4] = blueToken;
+	board[4][3] = blueToken;
 
-// 	makeBg();
+	// makeBg();
 
-// 	playing = 1;
-// 	player = 1;
-// 	scrolling = 0;
-// 	winner = 0;
-// 	lockedCol = lockedRow = -1;
-// 	hint = 0;
+	// playing = 1;
+	// player = 1;
+	// scrolling = 0;
+	// winner = 0;
+	// lockedCol = lockedRow = -1;
+	// hint = 0;
 
-// 	ply[1] = ply[2] = resetPlayer;
+	// ply[1] = ply[2] = resetPlayer;
 
-// 	reset_particles();
-// }
+	reset_particles();
+}
 
 // int rotateRow(int row, int goLeft) {
 // 	int i;
@@ -1032,7 +1052,7 @@ void title() {
 // 	scroller = create_bitmap(194,23);
 // 	scrollDir = (goLeft?4:2);
 
-// 	drawScreen(0);
+// 	draw_game(0);
 // 	blit(swap_screen, scroller, 20, 21+row*24, 0, 0, 194, 23);
 // 	scrollX = 20;
 // 	scrollY = 21+row*24;
@@ -1073,7 +1093,7 @@ void title() {
 // 	scroller = create_bitmap(23,194);
 // 	scrollDir = (goUp?1:3);
 
-// 	drawScreen(0);
+// 	draw_game(0);
 // 	blit(swap_screen, scroller, 21+col*24, 20, 0, 0, 23, 194);
 // 	scrollX = 21+col*24;
 // 	scrollY = 20;
@@ -1565,22 +1585,18 @@ int play() {
 		CDDA_Stop();
 	}
 	
-	char game_string[20];
-	sprintf(game_string, "YOU'RE PLAYING %d", current_game_type);
-	jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, game_string);
-
 	// 	play_midi(data[SONG1+rand()%4].dat,1);
 // 	playingMidi=1;
 
-// 	startNewGame();
-// 	drawScreen(1);
+	start_new_game();
+	draw_game(1);
 // 	blitScreen();
 // 	fade_in(data[GAMEPAL].dat,4);
 
 // 	while (!done && !winner) {
 // 		if (key[KEY_W]) set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
 // 		game_count=0;
-// 		drawScreen(1);
+// 		draw_game(1);
 // 		blitScreen();
 
 // 		if (ply[1].anim) ply[1].anim--;
@@ -1708,7 +1724,7 @@ int play() {
 
 // 		while(!done) {
 // 			game_count=0;
-// 			drawScreen(1);
+// 			draw_game(1);
 // 			if (x==0) {
 // 				textout_centre(swap_screen, data[MYFONT].dat, "Board cleared!", 161, 91, 1);
 // 				textout_centre(swap_screen, data[MYFONT].dat, "Board cleared!", 160, 90, -1);
