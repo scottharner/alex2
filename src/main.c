@@ -103,6 +103,7 @@ byte sound_vol, music_vol;
 
 static mode game_mode;
 static mode previous_game_mode;
+static game_type current_game_type;
 static int shlogo_sprite_id;
 static int title_sprite_id;
 static int aa2_sprite_id;
@@ -353,6 +354,7 @@ void load_sound_config()
 void reset_game()
 {
 	game_mode = MODE_INTRO;
+	current_game_type = GAME_TYPE_HVC;
 	action_counter = 0;
 
 	title_menu_x=-200, title_menu_y=144;
@@ -761,6 +763,30 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y)
 //    dust[i].exist = 1;
 // }
 
+bool pointer_on_hvc_game_option()
+{
+	return (pointer_x >= title_menu_x && 
+		pointer_x <= (title_menu_x + GAME_FONT_WIDTH * 14)) && // 14 chars
+		(pointer_y >= (144 + 8) && 
+		pointer_y <= (144 + GAME_FONT_HEIGHT - 8));
+}
+
+bool pointer_on_cvh_game_option()
+{
+	return (pointer_x >= title_menu_x && 
+		pointer_x <= (title_menu_x + GAME_FONT_WIDTH * 14)) && // 14 chars
+		(pointer_y >= (164 + 8) && 
+		pointer_y <= (164 + GAME_FONT_HEIGHT - 8));
+}
+
+bool pointer_on_hvh_game_option()
+{
+	return (pointer_x >= title_menu_x && 
+		pointer_x <= (title_menu_x + GAME_FONT_WIDTH * 14)) && // 14 chars
+		(pointer_y >= (184 + 8) && 
+		pointer_y <= (184 + GAME_FONT_HEIGHT - 8));
+}
+
 bool pointer_on_start_game_option(int menu_y)
 {
 	return (pointer_x >= 40 && 
@@ -901,29 +927,56 @@ void title() {
 		current_input == INPUT_TYPE_A || 
 		current_input == INPUT_TYPE_C))
 	{
-		if (pointer_on_start_game_option(title_menu_y))
+		if (is_showing_main_menu_options)
 		{
-			pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
-			is_showing_start_game_options = true;
-			is_showing_main_menu_options = false;
+			if (pointer_on_start_game_option(title_menu_y))
+			{
+				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+				is_showing_start_game_options = true;
+				is_showing_main_menu_options = false;
+			}
+			else if (pointer_on_instructions_option(title_menu_y))
+			{
+				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+				action_counter = 0;
+				game_mode = MODE_INSTRUCTIONS;
+			}
+			else if (pointer_on_credits_option(title_menu_y))
+			{
+				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+				action_counter = 0;
+				game_mode = MODE_CREDITS;
+			}
+			else if (pointer_on_high_scores_option(title_menu_y))
+			{
+				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+				action_counter = 0;
+				game_mode = MODE_HIGH_SCORES;
+			}
 		}
-		else if (pointer_on_instructions_option(title_menu_y))
+		else if (is_showing_start_game_options)
 		{
-			pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
-			action_counter = 0;
-			game_mode = MODE_INSTRUCTIONS;
-		}
-		else if (pointer_on_credits_option(title_menu_y))
-		{
-			pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
-			action_counter = 0;
-			game_mode = MODE_CREDITS;
-		}
-		else if (pointer_on_high_scores_option(title_menu_y))
-		{
-			pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
-			action_counter = 0;
-			game_mode = MODE_HIGH_SCORES;
+			if (pointer_on_hvc_game_option(title_menu_y))
+			{
+				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+				action_counter = 0;
+				game_mode = MODE_GAME;
+				current_game_type = GAME_TYPE_HVC;
+			}
+			else if (pointer_on_cvh_game_option(title_menu_y))
+			{
+				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+				action_counter = 0;
+				game_mode = MODE_GAME;
+				current_game_type = GAME_TYPE_CVH;
+			}
+			else if (pointer_on_hvh_game_option(title_menu_y))
+			{
+				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+				action_counter = 0;
+				game_mode = MODE_GAME;
+				current_game_type = GAME_TYPE_HVH;
+			}
 		}
 	}
 }
@@ -2000,6 +2053,19 @@ void instructions()
 // 	clear(screen);
 }
 
+void play_game() 
+{
+	if (action_counter <= 1)
+	{
+		jo_clear_screen();
+		jo_set_default_background_color(JO_COLOR_INDEX_Black);
+	}
+	
+	char game_string[20];
+	sprintf(game_string, "YOU'RE PLAYING %d", current_game_type);
+	jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, game_string);
+}
+
 void credits() 
 {
 	if (action_counter <= 1)
@@ -2071,6 +2137,10 @@ void update_game()
 
 		case MODE_HIGH_SCORES:
 			high_scores();
+			break;
+
+		case MODE_GAME:
+			play_game();
 			break;
 
 		default:
