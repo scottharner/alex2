@@ -44,7 +44,11 @@
  *  http://www.dtek.chalmers.se/~fld/
  */
 
-#define TITLE_TRACKID 2
+#define TITLE_TRACKID 6
+#define SONG1_TRACKID 2
+#define SONG2_TRACKID 3
+#define SONG3_TRACKID 4
+#define SONG4_TRACKID 5
 #define BACKGROUND_ZINDEX 500
 #define POINTER_ZINDEX 350
 #define INTRO_SCALE_GRAPHIC_TIME 120
@@ -130,8 +134,9 @@ static bool intro_text_shown = false;
 static int aa2_x;
 static int pointer_x;
 static int pointer_y;
-bool is_showing_main_menu_options = false;
-bool is_showing_start_game_options = false;
+static bool is_showing_main_menu_options = false;
+static bool is_showing_start_game_options = false;
+static bool title_did_set_seed = false;
 static short select_sound_id;
 static int title_menu_x, title_menu_y;
 
@@ -327,6 +332,12 @@ void reset_scores(Thisc *table) {
 
 // 	return ok;
 // }
+
+int get_random(int max)
+{
+    if (max <= 0) return 0;
+    return (jo_random(max)); // jo_random requires passing parm so we cant use modulo
+}
 
 void load_sound_config() 
 {
@@ -839,6 +850,22 @@ bool pointer_on_credits_option(int menu_y)
 		pointer_y <= (menu_y + 60 + GAME_FONT_HEIGHT - 8));
 }
 
+void process_game_option_select(game_type selected_game_type)
+{
+	pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+	
+	// only set seed once per game to maintain randomness
+	if (!title_did_set_seed)
+	{
+		jo_random_seed = action_counter;
+		title_did_set_seed = true;
+	}
+	
+	action_counter = 0;
+	game_mode = MODE_GAME;
+	current_game_type = selected_game_type;
+}
+
 void title() {
 	int x=320, y=10;
 // 	int done=0;
@@ -978,24 +1005,15 @@ void title() {
 		{
 			if (pointer_on_hvc_game_option(title_menu_y))
 			{
-				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
-				action_counter = 0;
-				game_mode = MODE_GAME;
-				current_game_type = GAME_TYPE_HVC;
+				process_game_option_select(GAME_TYPE_HVC);
 			}
 			else if (pointer_on_cvh_game_option(title_menu_y))
 			{
-				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
-				action_counter = 0;
-				game_mode = MODE_GAME;
-				current_game_type = GAME_TYPE_CVH;
+				process_game_option_select(GAME_TYPE_CVH);
 			}
 			else if (pointer_on_hvh_game_option(title_menu_y))
 			{
-				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
-				action_counter = 0;
-				game_mode = MODE_GAME;
-				current_game_type = GAME_TYPE_HVH;
+				process_game_option_select(GAME_TYPE_HVH);
 			}
 		}
 	}
@@ -1583,6 +1601,23 @@ int play() {
 		jo_clear_screen();
 		jo_set_default_background_color(JO_COLOR_INDEX_Black);
 		CDDA_Stop();
+		
+		int song_choice = get_random(4);
+		switch (song_choice)
+		{
+			case 1:
+				CDDA_PlaySingle(SONG1_TRACKID, true);
+				break;
+			case 2:
+				CDDA_PlaySingle(SONG2_TRACKID, true);
+				break;
+			case 3:
+				CDDA_PlaySingle(SONG3_TRACKID, true);
+				break;
+			default:
+				CDDA_PlaySingle(SONG4_TRACKID, true);
+				break;
+		}
 	}
 	
 	// 	play_midi(data[SONG1+rand()%4].dat,1);
