@@ -121,6 +121,7 @@ static int greentkn_sprite_id;
 static int bluetkn_sprite_id;
 static int multitkn_sprite_id;
 static int deadtkn_sprite_id;
+static int board_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_white_font;
@@ -399,10 +400,11 @@ void init()
 	vol3_sprite_id = jo_sprite_add_tga("TEX", "VOL3.TGA", JO_COLOR_Black);
 	pointer_sprite_id = jo_sprite_add_tga("TEX", "POINTER.TGA", JO_COLOR_Black);
 	emptytkn_sprite_id = jo_sprite_add_tga("TEX", "EMPTYTKN.TGA", JO_COLOR_Black);
-	greentkn_sprite_id = jo_sprite_add_tga("TEX", "GREENTKN.TGA", JO_COLOR_Black);
-	bluetkn_sprite_id = jo_sprite_add_tga("TEX", "BLUETKN.TGA", JO_COLOR_Black);
+	greentkn_sprite_id = jo_sprite_add_tga("TEX", "GREENTKN.TGA", JO_COLOR_Transparent);
+	bluetkn_sprite_id = jo_sprite_add_tga("TEX", "BLUETKN.TGA", JO_COLOR_Transparent);
 	multitkn_sprite_id = jo_sprite_add_tga("TEX", "MULTITKN.TGA", JO_COLOR_Black);
 	deadtkn_sprite_id = jo_sprite_add_tga("TEX", "DEADTKN.TGA", JO_COLOR_Black);
+	board_sprite_id = jo_sprite_add_tga("TEX", "BOARD.TGA", JO_COLOR_Transparent);
 
 	token_sprite_ids[0] = emptytkn_sprite_id;
 	token_sprite_ids[1] = greentkn_sprite_id;
@@ -562,13 +564,15 @@ input_type get_input_types(mode game_mode, bool current_input_states[INPUT_TYPE_
 // 	line(bg_screen, x2+2, y2+2, x2+2, y1-1, (up?40:38));
 // }
 
-// void makeBg() {
-// 	int x;
+void make_bg() {
+	int x;
 
-// 	// draw game board
+	// draw game board
+	jo_set_default_background_color(JO_COLOR_RGB(199,125,125)); // pink
 // 	clear_to_color(bg_screen,39);
+	jo_sprite_draw3D2(board_sprite_id, 17, 17, BACKGROUND_ZINDEX);
 // 	rect(bg_screen, 19, 19, 213, 213, 0);
-// 	rectfill(bg_screen, 20, 20, 212, 212, 12);
+// 	rectfill(bg_screen, 20, 20, 212, 212, 12); // 190, 190, 190 (gray)
 // 	etchedBox(19,19,213,213,0);
 // 	etchedBox(240,19,310,100,0);
 // 	etchedBox(240,121,310,212,0);
@@ -587,7 +591,7 @@ input_type get_input_types(mode game_mode, bool current_input_states[INPUT_TYPE_
 // 		line(bg_screen, 20+x*24, 20, 20+x*24, 212, 10);
 // 		line(bg_screen, 20, 20+x*24, 212, 20+x*24, 10);
 // 	}
-// }
+}
 
 // void createParticle(int x,int y,int im) {
 //    int i=0;
@@ -1031,7 +1035,7 @@ void start_new_game() {
 	board[3][4] = blueToken;
 	board[4][3] = blueToken;
 
-	// makeBg();
+	make_bg();
 
 	// playing = 1;
 	// player = 1;
