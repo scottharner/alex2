@@ -122,6 +122,8 @@ static int bluetkn_sprite_id;
 static int multitkn_sprite_id;
 static int deadtkn_sprite_id;
 static int board_sprite_id;
+static int p1status_sprite_id;
+static int p2status_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_white_font;
@@ -405,6 +407,8 @@ void init()
 	multitkn_sprite_id = jo_sprite_add_tga("TEX", "MULTITKN.TGA", JO_COLOR_Black);
 	deadtkn_sprite_id = jo_sprite_add_tga("TEX", "DEADTKN.TGA", JO_COLOR_Black);
 	board_sprite_id = jo_sprite_add_tga("TEX", "BOARD.TGA", JO_COLOR_Transparent);
+	p1status_sprite_id = jo_sprite_add_tga("TEX", "P1STATUS.TGA", JO_COLOR_Transparent);
+	p2status_sprite_id = jo_sprite_add_tga("TEX", "P2STATUS.TGA", JO_COLOR_Transparent);
 
 	token_sprite_ids[0] = emptytkn_sprite_id;
 	token_sprite_ids[1] = greentkn_sprite_id;
@@ -571,6 +575,8 @@ void make_bg() {
 	jo_set_default_background_color(JO_COLOR_RGB(199,125,125)); // pink
 // 	clear_to_color(bg_screen,39);
 	jo_sprite_draw3D2(board_sprite_id, 17, 17, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(p1status_sprite_id, 240, 17, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(p2status_sprite_id, 240, 121, BACKGROUND_ZINDEX);
 // 	rect(bg_screen, 19, 19, 213, 213, 0);
 // 	rectfill(bg_screen, 20, 20, 212, 212, 12); // 190, 190, 190 (gray)
 // 	etchedBox(19,19,213,213,0);
