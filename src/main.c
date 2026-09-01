@@ -124,6 +124,10 @@ static int deadtkn_sprite_id;
 static int board_sprite_id;
 static int p1status_sprite_id;
 static int p2status_sprite_id;
+static int arrow1_sprite_id;
+static int arrow2_sprite_id;
+static int arrow3_sprite_id;
+static int arrow4_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_white_font;
@@ -409,6 +413,10 @@ void init()
 	board_sprite_id = jo_sprite_add_tga("TEX", "BOARD.TGA", JO_COLOR_Transparent);
 	p1status_sprite_id = jo_sprite_add_tga("TEX", "P1STATUS.TGA", JO_COLOR_Transparent);
 	p2status_sprite_id = jo_sprite_add_tga("TEX", "P2STATUS.TGA", JO_COLOR_Transparent);
+	arrow1_sprite_id = jo_sprite_add_tga("TEX", "ARROW1.TGA", JO_COLOR_Black);
+	arrow2_sprite_id = jo_sprite_add_tga("TEX", "ARROW2.TGA", JO_COLOR_Black);
+	arrow3_sprite_id = jo_sprite_add_tga("TEX", "ARROW3.TGA", JO_COLOR_Black);
+	arrow4_sprite_id = jo_sprite_add_tga("TEX", "ARROW4.TGA", JO_COLOR_Black);
 
 	token_sprite_ids[0] = emptytkn_sprite_id;
 	token_sprite_ids[1] = greentkn_sprite_id;
@@ -573,30 +581,17 @@ void make_bg() {
 
 	// draw game board
 	jo_set_default_background_color(JO_COLOR_RGB(199,125,125)); // pink
-// 	clear_to_color(bg_screen,39);
 	jo_sprite_draw3D2(board_sprite_id, 17, 17, BACKGROUND_ZINDEX);
 	jo_sprite_draw3D2(p1status_sprite_id, 240, 17, BACKGROUND_ZINDEX);
 	jo_sprite_draw3D2(p2status_sprite_id, 240, 121, BACKGROUND_ZINDEX);
-// 	rect(bg_screen, 19, 19, 213, 213, 0);
-// 	rectfill(bg_screen, 20, 20, 212, 212, 12); // 190, 190, 190 (gray)
-// 	etchedBox(19,19,213,213,0);
-// 	etchedBox(240,19,310,100,0);
-// 	etchedBox(240,121,310,212,0);
 
-// 	// draw arrows
-// 	color_map = &dark_table;
-// 	for(x=0;x<8;x++) {
-// 		draw_lit_sprite(bg_screen, data[ARROW1].dat, 27+x*24, 6, 150);
-// 		draw_lit_sprite(bg_screen, data[ARROW3].dat, 27+x*24, 216, 150);
-// 		draw_lit_sprite(bg_screen, data[ARROW2].dat, 216, 27+x*24, 150);
-// 		draw_lit_sprite(bg_screen, data[ARROW4].dat, 6, 27+x*24, 150);
-// 	}
-
-// 	// draw squares
-// 	for(x=0;x<9;x++) {
-// 		line(bg_screen, 20+x*24, 20, 20+x*24, 212, 10);
-// 		line(bg_screen, 20, 20+x*24, 212, 20+x*24, 10);
-// 	}
+	// draw arrows
+	for(x=0;x<8;x++) {
+		jo_sprite_draw3D2(arrow1_sprite_id, 26+x*24, 6, BACKGROUND_ZINDEX);
+		jo_sprite_draw3D2(arrow3_sprite_id, 26+x*24, 213, BACKGROUND_ZINDEX);
+		jo_sprite_draw3D2(arrow2_sprite_id, 213, 26+x*24, BACKGROUND_ZINDEX);
+		jo_sprite_draw3D2(arrow4_sprite_id, 6, 26+x*24, BACKGROUND_ZINDEX);
+	}
 }
 
 // void createParticle(int x,int y,int im) {
