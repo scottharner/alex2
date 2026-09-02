@@ -45,3 +45,4 @@ todo
 - output to bin/cue format
 - build up ss utils file
 - improve load times?
+- animate alligators

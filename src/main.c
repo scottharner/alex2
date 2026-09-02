@@ -128,6 +128,9 @@ static int arrow1_sprite_id;
 static int arrow2_sprite_id;
 static int arrow3_sprite_id;
 static int arrow4_sprite_id;
+static int player11_sprite_id;
+static int player21_sprite_id;
+static int notkn_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_white_font;
@@ -417,6 +420,9 @@ void init()
 	arrow2_sprite_id = jo_sprite_add_tga("TEX", "ARROW2.TGA", JO_COLOR_Black);
 	arrow3_sprite_id = jo_sprite_add_tga("TEX", "ARROW3.TGA", JO_COLOR_Black);
 	arrow4_sprite_id = jo_sprite_add_tga("TEX", "ARROW4.TGA", JO_COLOR_Black);
+	player11_sprite_id = jo_sprite_add_tga("TEX", "PLAYER11.TGA", JO_COLOR_Black);
+	player21_sprite_id = jo_sprite_add_tga("TEX", "PLAYER21.TGA", JO_COLOR_Black);
+	notkn_sprite_id = jo_sprite_add_tga("TEX", "NOTKN.TGA", JO_COLOR_Black);
 
 	token_sprite_ids[0] = emptytkn_sprite_id;
 	token_sprite_ids[1] = greentkn_sprite_id;
@@ -693,20 +699,18 @@ void draw_game(int show_mouse) {
 	jo_font_print(game_black_font, right_aligned_x-1,122,0.99f, score_string);
 	jo_font_print(game_white_font, right_aligned_x,121,0.99f, score_string);
 
-// 	textprintf(swap_screen,data[MYFONT].dat,246,20,1,"%5d",ply[1].score);
-// 	textprintf(swap_screen,data[MYFONT].dat,246,122,1,"%5d",ply[2].score);
-// 	textprintf(swap_screen,data[MYFONT].dat,245,19,-1,"%5d",ply[1].score);
-// 	textprintf(swap_screen,data[MYFONT].dat,245,121,-1,"%5d",ply[2].score);
-
-
-// 	// draw characters
+	// draw characters
+	jo_sprite_draw3D2(player11_sprite_id, 280, 68, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(player21_sprite_id, 280, 180, BACKGROUND_ZINDEX);
 // 	if (ply[1].anim) draw_sprite(swap_screen,data[PLAYER11+ply[1].animOffset+(ply[1].anim&8?1:0)].dat,280,68);
 // 	else draw_sprite(swap_screen,data[PLAYER11].dat,280,68);
 // 	if (ply[2].anim) draw_sprite(swap_screen,data[PLAYER21+ply[2].animOffset+(ply[2].anim&8?0:1)].dat,280,180);
 // 	else draw_sprite(swap_screen,data[PLAYER21].dat,280,180);
 
-// 	// draw avail. multi tokens
-// 	draw_sprite(swap_screen,data[(ply[1].multi?TOKEN003:TOKEN005)].dat,245,73);
+	// draw avail. multi tokens
+	jo_sprite_draw3D2((ply[1].multi?multitkn_sprite_id:notkn_sprite_id),245,73, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2((ply[2].multi?multitkn_sprite_id:notkn_sprite_id),245,185, BACKGROUND_ZINDEX);
+	// 	draw_sprite(swap_screen,data[(ply[1].multi?TOKEN003:TOKEN005)].dat,245,73);
 // 	if (ply[1].multi>1) textprintf(swap_screen,data[MYFONT2].dat,245,76,-1,"%d",ply[1].multi);
 // 	draw_sprite(swap_screen,data[(ply[2].multi?TOKEN003:TOKEN005)].dat,245,185);
 // 	if (ply[2].multi>1) textprintf(swap_screen,data[MYFONT2].dat,245,188,-1,"%d",ply[2].multi);
