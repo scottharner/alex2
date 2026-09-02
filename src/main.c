@@ -76,7 +76,7 @@
 Thisc *hisc;						// a hiscore table
 Ttoken board[8][8];					// the board
 Tparticle dust[MAX_PARTICLES];		// particles for the particle engine
-// Tplayer ply[3];						// 2 players, ignore ply[0]
+Tplayer ply[3];						// 2 players, ignore ply[0]
 
 // // RGB -> color mapping table. Not needed, but speeds things up 
 // RGB_MAP rgb_table;
@@ -621,7 +621,12 @@ void make_bg() {
 // 		}
 // }
 
-void draw_game(int showMouse) {
+int get_right_aligned_x_coord(const jo_font *font, int right_x, float scale, char *text)
+{
+	return right_x - (strlen(text) * font->spacing * scale);
+}
+
+void draw_game(int show_mouse) {
 	int x,y;
 
 // 	// fps...
@@ -678,7 +683,16 @@ void draw_game(int showMouse) {
 // 		draw_sprite(swap_screen, data[TOKEN006].dat, 21+hintX*24, 21+hintY*24);
 // 	}
 
-// 	// draw scores
+	// draw scores
+	char score_string[10];
+	sprintf(score_string, "%d", ply[1].score);
+	int right_aligned_x = get_right_aligned_x_coord(game_white_font, 314, 0.99f, score_string);
+	jo_font_print(game_black_font, right_aligned_x-1,20,0.99f, score_string);
+	jo_font_print(game_white_font, right_aligned_x,19,0.99f, score_string);
+	sprintf(score_string, "%d", ply[2].score);
+	jo_font_print(game_black_font, right_aligned_x-1,122,0.99f, score_string);
+	jo_font_print(game_white_font, right_aligned_x,121,0.99f, score_string);
+
 // 	textprintf(swap_screen,data[MYFONT].dat,246,20,1,"%5d",ply[1].score);
 // 	textprintf(swap_screen,data[MYFONT].dat,246,122,1,"%5d",ply[2].score);
 // 	textprintf(swap_screen,data[MYFONT].dat,245,19,-1,"%5d",ply[1].score);
@@ -697,9 +711,9 @@ void draw_game(int showMouse) {
 // 	draw_sprite(swap_screen,data[(ply[2].multi?TOKEN003:TOKEN005)].dat,245,185);
 // 	if (ply[2].multi>1) textprintf(swap_screen,data[MYFONT2].dat,245,188,-1,"%d",ply[2].multi);
 
-// 	if (showMouse) drawParticles();
+// 	if (show_mouse) drawParticles();
 
-// 	if (showMouse) {
+// 	if (show_mouse) {
 // 		int mx = mouse_x;
 // 		int my = mouse_y;
 // 		if (ply[1].carry || ply[2].carry)
@@ -1045,7 +1059,7 @@ void start_new_game() {
 	// lockedCol = lockedRow = -1;
 	// hint = 0;
 
-	// ply[1] = ply[2] = resetPlayer;
+	ply[1] = ply[2] = reset_player;
 
 	reset_particles();
 }
@@ -1273,11 +1287,6 @@ void start_new_game() {
 
 // 	if (!p1 || !p2) winner=1;
 // }
-
-int get_right_aligned_x_coord(const jo_font *font, int right_x, float scale, char *text)
-{
-	return right_x - (strlen(text) * font->spacing * scale);
-}
 
 void draw_high_scores() {
 	int i;
