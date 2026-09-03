@@ -710,10 +710,18 @@ void draw_game(int show_mouse) {
 	// draw avail. multi tokens
 	jo_sprite_draw3D2((ply[1].multi?multitkn_sprite_id:notkn_sprite_id),245,73, BACKGROUND_ZINDEX);
 	jo_sprite_draw3D2((ply[2].multi?multitkn_sprite_id:notkn_sprite_id),245,185, BACKGROUND_ZINDEX);
-	// 	draw_sprite(swap_screen,data[(ply[1].multi?TOKEN003:TOKEN005)].dat,245,73);
-// 	if (ply[1].multi>1) textprintf(swap_screen,data[MYFONT2].dat,245,76,-1,"%d",ply[1].multi);
-// 	draw_sprite(swap_screen,data[(ply[2].multi?TOKEN003:TOKEN005)].dat,245,185);
-// 	if (ply[2].multi>1) textprintf(swap_screen,data[MYFONT2].dat,245,188,-1,"%d",ply[2].multi);
+	
+	if (ply[1].multi>1)
+	{
+		sprintf(score_string, "%d", ply[1].multi);
+		jo_font_print(game_white_font, 245, 76, 0.5f, score_string);
+	}
+
+	if (ply[2].multi>1)
+	{
+		sprintf(score_string, "%d", ply[2].multi);
+		jo_font_print(game_white_font, 245, 188, 0.5f, score_string);
+	}
 
 // 	if (show_mouse) drawParticles();
 
