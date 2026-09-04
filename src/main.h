@@ -17,7 +17,7 @@ typedef struct {
 	int animOffset;
 } Tplayer;
 
-Tplayer reset_player = {0,0,2,0,0};
+Tplayer reset_player = {0,0,0,0,0};
 
 typedef struct {
 	jo_fixed x;
