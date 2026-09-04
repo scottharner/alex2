@@ -92,7 +92,7 @@ Tplayer ply[3];						// 2 players, ignore ply[0]
 // int scrollDir;			// 1 up, 2 right, 3 down, 4 left
 // int scrollX, scrollY;	// scrolling offset
 // int placeing, placeType, placeX, placeY;	// placeToken stuff
-// byte player;			// current player
+byte player;			// current player
 // int winner;				// who won? 3=draw
 byte sound_vol, music_vol;
 // int playingMidi = 0;
@@ -131,6 +131,8 @@ static int arrow4_sprite_id;
 static int player11_sprite_id;
 static int player21_sprite_id;
 static int notkn_sprite_id;
+static int dust001_sprite_id;
+static int dust002_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_white_font;
@@ -423,6 +425,8 @@ void init()
 	player11_sprite_id = jo_sprite_add_tga("TEX", "PLAYER11.TGA", JO_COLOR_Black);
 	player21_sprite_id = jo_sprite_add_tga("TEX", "PLAYER21.TGA", JO_COLOR_Black);
 	notkn_sprite_id = jo_sprite_add_tga("TEX", "NOTKN.TGA", JO_COLOR_Black);
+	dust001_sprite_id = jo_sprite_add_tga("TEX", "DUST001.TGA", JO_COLOR_Transparent);
+	dust002_sprite_id = jo_sprite_add_tga("TEX", "DUST002.TGA", JO_COLOR_Transparent);
 
 	token_sprite_ids[0] = emptytkn_sprite_id;
 	token_sprite_ids[1] = greentkn_sprite_id;
@@ -632,7 +636,38 @@ int get_right_aligned_x_coord(const jo_font *font, int right_x, float scale, cha
 	return right_x - (strlen(text) * font->spacing * scale);
 }
 
-void draw_game(int show_mouse) {
+void set_pointer_position(input_type current_input)
+{
+	if (current_input == INPUT_TYPE_LEFT || current_input == INPUT_TYPE_UP_LEFT || current_input == INPUT_TYPE_DOWN_LEFT)
+	{
+		pointer_x -= 2;
+		if (pointer_x < 0)
+			pointer_x = 0;
+	}
+	
+	if (current_input == INPUT_TYPE_RIGHT || current_input == INPUT_TYPE_UP_RIGHT || current_input == INPUT_TYPE_DOWN_RIGHT)
+	{
+		pointer_x += 2;
+		if (pointer_x > (JO_TV_WIDTH - 1 - POINTER_WIDTH))
+			pointer_x = JO_TV_WIDTH - 1 - POINTER_WIDTH;
+	}
+	
+	if (current_input == INPUT_TYPE_UP || current_input == INPUT_TYPE_UP_LEFT || current_input == INPUT_TYPE_UP_RIGHT)
+	{
+		pointer_y -= 2;
+		if (pointer_y < 0)
+			pointer_y = 0;
+	}
+
+	if (current_input == INPUT_TYPE_DOWN || current_input == INPUT_TYPE_DOWN_LEFT || current_input == INPUT_TYPE_DOWN_RIGHT)
+	{
+		pointer_y += 2;
+		if (pointer_y > (JO_TV_HEIGHT - 1 - POINTER_HEIGHT))
+			pointer_y = JO_TV_HEIGHT - 1 - POINTER_HEIGHT;
+	}
+}
+
+void draw_game(int show_pointer) {
 	int x,y;
 
 // 	// fps...
@@ -723,9 +758,20 @@ void draw_game(int show_mouse) {
 		jo_font_print(game_white_font, 245, 188, 0.5f, score_string);
 	}
 
-// 	if (show_mouse) drawParticles();
+	input_type current_input = get_input_types(game_mode, current_input_states);
+	set_pointer_position(current_input);
 
-// 	if (show_mouse) {
+	// 	if (show_pointer) drawParticles();
+
+	if (show_pointer)
+	{
+		int mx = pointer_x;
+		int my = pointer_y;
+		jo_sprite_draw3D2(pointer_sprite_id, mx-1, my-1, POINTER_ZINDEX);
+		jo_sprite_draw3D2((player == 1)?dust001_sprite_id:dust002_sprite_id, mx+9, my+11, POINTER_ZINDEX);
+	}
+
+// 	if (show_pointer) {
 // 		int mx = mouse_x;
 // 		int my = mouse_y;
 // 		if (ply[1].carry || ply[2].carry)
@@ -910,34 +956,7 @@ void title() {
 	}
 
 	input_type current_input = get_input_types(game_mode, current_input_states);
-
-	if (current_input == INPUT_TYPE_LEFT || current_input == INPUT_TYPE_UP_LEFT || current_input == INPUT_TYPE_DOWN_LEFT)
-	{
-		pointer_x -= 2;
-		if (pointer_x < 0)
-			pointer_x = 0;
-	}
-	
-	if (current_input == INPUT_TYPE_RIGHT || current_input == INPUT_TYPE_UP_RIGHT || current_input == INPUT_TYPE_DOWN_RIGHT)
-	{
-		pointer_x += 2;
-		if (pointer_x > (JO_TV_WIDTH - 1 - POINTER_WIDTH))
-			pointer_x = JO_TV_WIDTH - 1 - POINTER_WIDTH;
-	}
-	
-	if (current_input == INPUT_TYPE_UP || current_input == INPUT_TYPE_UP_LEFT || current_input == INPUT_TYPE_UP_RIGHT)
-	{
-		pointer_y -= 2;
-		if (pointer_y < 0)
-			pointer_y = 0;
-	}
-
-	if (current_input == INPUT_TYPE_DOWN || current_input == INPUT_TYPE_DOWN_LEFT || current_input == INPUT_TYPE_DOWN_RIGHT)
-	{
-		pointer_y += 2;
-		if (pointer_y > (JO_TV_HEIGHT - 1 - POINTER_HEIGHT))
-			pointer_y = JO_TV_HEIGHT - 1 - POINTER_HEIGHT;
-	}
+	set_pointer_position(current_input);
 
 // 	if (!playingMidi) {
 // 		play_midi(data[TITLESONG].dat,1);
@@ -1065,7 +1084,7 @@ void start_new_game() {
 	make_bg();
 
 	// playing = 1;
-	// player = 1;
+	player = 1;
 	// scrolling = 0;
 	// winner = 0;
 	// lockedCol = lockedRow = -1;
