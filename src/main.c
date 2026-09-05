@@ -767,6 +767,9 @@ void draw_game(int show_pointer) {
 	{
 		int mx = pointer_x;
 		int my = pointer_y;
+		if (ply[1].carry || ply[2].carry)
+			jo_sprite_draw3D2(multitkn_sprite_id, mx-11, my-11, POINTER_ZINDEX);
+
 		jo_sprite_draw3D2(pointer_sprite_id, mx-1, my-1, POINTER_ZINDEX);
 		jo_sprite_draw3D2((player == 1)?dust001_sprite_id:dust002_sprite_id, mx+9, my+11, POINTER_ZINDEX);
 	}
