@@ -14,7 +14,7 @@ typedef struct {
 	int anim;
 	int multi;
 	int carry;
-	int animOffset;
+	int anim_offset;
 } Tplayer;
 
 Tplayer reset_player = {0,0,0,0,0};
@@ -75,10 +75,10 @@ typedef enum
 	INPUT_TYPE_COUNT
 }input_type;
 
-Ttoken emptySquare = { 0,		  	  0, 0 };
-Ttoken greenToken  = { GREENTOKEN,   10, 0 };
-Ttoken blueToken   = { BLUETOKEN,	 10, 0 };
-Ttoken multiToken  = { MULTITOKEN,   50, 0 };
-Ttoken deadToken  =  { DEADTOKEN,   100, 0 };
+Ttoken empty_square = { 0,		  	  0, 0 };
+Ttoken green_token  = { GREENTOKEN,   10, 0 };
+Ttoken blue_token   = { BLUETOKEN,	 10, 0 };
+Ttoken multi_token  = { MULTITOKEN,   50, 0 };
+Ttoken dead_token  =  { DEADTOKEN,   100, 0 };
 
 #endif

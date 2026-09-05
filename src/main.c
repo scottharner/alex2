@@ -87,16 +87,16 @@ Tplayer ply[3];						// 2 players, ignore ply[0]
 // COLOR_MAP trans_table;
 
 // // global stuff
-// int playing;			// can the player interact?
+int playing;			// can the player interact?
 // int scrolling;			// are we scrolling the board?
 // int scrollDir;			// 1 up, 2 right, 3 down, 4 left
 // int scrollX, scrollY;	// scrolling offset
-// int placeing, placeType, placeX, placeY;	// placeToken stuff
+int placeing, place_type, place_x, place_y;	// place_token stuff
 byte player;			// current player
-// int winner;				// who won? 3=draw
+int winner;				// who won? 3=draw
 byte sound_vol, music_vol;
 // int playingMidi = 0;
-// int lockedRow, lockedCol; // current locked row/col
+int locked_row, locked_col; // current locked row/col
 // int hint, hintX, hintY;   // hint stuff
 // int cpu;				  // 0 = none, 1 = ply1, 2= ply2
 
@@ -150,6 +150,9 @@ static bool is_showing_main_menu_options = false;
 static bool is_showing_start_game_options = false;
 static bool title_did_set_seed = false;
 static short select_sound_id;
+static short plmulti_sound_id;
+static short pldead_sound_id;
+static short remove_sound_id;
 static int title_menu_x, title_menu_y;
 
 static const char* intro_text[] =
@@ -400,6 +403,9 @@ void init()
 	load_drv(ADX_MASTER_2304);
 	CDDA_SetVolume(4);
 	select_sound_id = load_8bit_pcm((Sint8 *)"SELECT.PCM", 15360); // using ponesound due to issues with jo engine audio
+	plmulti_sound_id = load_8bit_pcm((Sint8 *)"PLMULTI.PCM", 15360);
+	pldead_sound_id = load_8bit_pcm((Sint8 *)"PLDEAD.PCM", 15360);
+	remove_sound_id = load_8bit_pcm((Sint8 *)"REMOVE.PCM", 15360);
 
 	// initialize graphics
 	shlogo_sprite_id = jo_sprite_add_tga("TEX", "SHLOGO.TGA", JO_COLOR_Transparent);
@@ -683,8 +689,8 @@ void draw_game(int show_pointer) {
 			}
 
 // 	if (placeing) {
-// 		rectfill(swap_screen, 21+24*placeX, 21+24*placeY, 21+24*placeX+22, 21+24*placeY+22, 12);
-// 		stretch_sprite(swap_screen, data[TOKEN000+placeType].dat, 21+24*placeX+(placeing>>1), 21+24*placeY+(placeing>>1), 23-placeing, 23-placeing);
+// 		rectfill(swap_screen, 21+24*place_x, 21+24*place_y, 21+24*place_x+22, 21+24*place_y+22, 12);
+// 		stretch_sprite(swap_screen, data[TOKEN000+place_type].dat, 21+24*place_x+(placeing>>1), 21+24*place_y+(placeing>>1), 23-placeing, 23-placeing);
 // 	}
 
 // 	if (scrolling) {
@@ -737,9 +743,9 @@ void draw_game(int show_pointer) {
 	// draw characters
 	jo_sprite_draw3D2(player11_sprite_id, 280, 68, BACKGROUND_ZINDEX);
 	jo_sprite_draw3D2(player21_sprite_id, 280, 180, BACKGROUND_ZINDEX);
-// 	if (ply[1].anim) draw_sprite(swap_screen,data[PLAYER11+ply[1].animOffset+(ply[1].anim&8?1:0)].dat,280,68);
+// 	if (ply[1].anim) draw_sprite(swap_screen,data[PLAYER11+ply[1].anim_offset+(ply[1].anim&8?1:0)].dat,280,68);
 // 	else draw_sprite(swap_screen,data[PLAYER11].dat,280,68);
-// 	if (ply[2].anim) draw_sprite(swap_screen,data[PLAYER21+ply[2].animOffset+(ply[2].anim&8?0:1)].dat,280,180);
+// 	if (ply[2].anim) draw_sprite(swap_screen,data[PLAYER21+ply[2].anim_offset+(ply[2].anim&8?0:1)].dat,280,180);
 // 	else draw_sprite(swap_screen,data[PLAYER21].dat,280,180);
 
 	// draw avail. multi tokens
@@ -757,9 +763,6 @@ void draw_game(int show_pointer) {
 		sprintf(score_string, "%d", ply[2].multi);
 		jo_font_print(game_white_font, 245, 188, 0.5f, score_string);
 	}
-
-	input_type current_input = get_input_types(game_mode, current_input_states);
-	set_pointer_position(current_input);
 
 	// 	if (show_pointer) drawParticles();
 
@@ -1077,20 +1080,18 @@ void start_new_game() {
 
 	for(x=0;x<8;x++)
 		for(y=0;y<8;y++)
-			board[x][y] = emptySquare;
+			board[x][y] = empty_square;
 
-	board[3][3] = greenToken;
-	board[4][4] = greenToken;
-	board[3][4] = blueToken;
-	board[4][3] = blueToken;
+	board[3][3] = green_token;
+	board[4][4] = green_token;
+	board[3][4] = blue_token;
+	board[4][3] = blue_token;
 
-	make_bg();
-
-	// playing = 1;
+	playing = 1;
 	player = 1;
 	// scrolling = 0;
-	// winner = 0;
-	// lockedCol = lockedRow = -1;
+	winner = 0;
+	locked_col = locked_row = -1;
 	// hint = 0;
 
 	ply[1] = ply[2] = reset_player;
@@ -1180,91 +1181,98 @@ void start_new_game() {
 // 	return 1;
 // }
 
-// int placeToken(int x, int y, int type) {
-// 	if (board[x][y].token != 0) return 0;
+int place_token(int x, int y, int type) {
+	if (board[x][y].token != 0) return 0;
 
-// 	if (type == BLUETOKEN) board[x][y] = blueToken;
-// 	else if (type == GREENTOKEN) board[x][y] = greenToken;
-// 	else if (type == MULTITOKEN) board[x][y] = multiToken;
-// 	else if (type == DEADTOKEN) board[x][y] = deadToken;
+	if (type == BLUETOKEN) board[x][y] = blue_token;
+	else if (type == GREENTOKEN) board[x][y] = green_token;
+	else if (type == MULTITOKEN) board[x][y] = multi_token;
+	else if (type == DEADTOKEN) board[x][y] = dead_token;
 
-// 	return 1;
-// }
+	return 1;
+}
 
-// int animPlaceToken(int x, int y, int type) {
-// 	if (!placeToken(x,y,type)) return 0;
+int anim_place_token(int x, int y, int type) {
+	if (!place_token(x,y,type)) return 0;
 
-// 	play_sample(data[(type<3 ? PLACE1 : (type==3 ? PLACE2 : PLACE3))].dat,soundvol,128,800+rand()%400,0);
+	short sound_id = (type<3 ? select_sound_id : (type==3 ? plmulti_sound_id : pldead_sound_id));
+	pcm_play(sound_id, PCM_PROTECTED, sound_vol);
+	// play_sample(data[(type<3 ? PLACE1 : (type==3 ? PLACE2 : PLACE3))].dat,soundvol,128,800+rand()%400,0);
 
-// 	placeX = x;
-// 	placeY = y;
-// 	placeing = 24;
-// 	placeType = type;
-// 	playing = 0;
+	place_x = x;
+	place_y = y;
+	placeing = 24;
+	place_type = type;
+	playing = 0;
 
-// 	return 1;
-// }
+	return 1;
+}
 
-// int getToken(int x, int y, int p) {
-// 	int t = board[x][y].token;
-// 	if (t==DEADTOKEN) t = 0;
-// 	if (t==MULTITOKEN) t = p;
-// 	return t;
-// }
+int get_token(int x, int y, int p) 
+{
+	int t = board[x][y].token;
+	if (t==DEADTOKEN) t = 0;
+	if (t==MULTITOKEN) t = p;
+	return t;
+}
 
-// void flagSquare(int x, int y) {
-// 	board[x][y].flag = 
-// 	board[x+1][y].flag = 
-// 	board[x+1][y+1].flag = 
-// 	board[x][y+1].flag = 1;
-// }
+void flag_square(int x, int y) 
+{
+	board[x][y].flag = 
+	board[x+1][y].flag = 
+	board[x+1][y+1].flag = 
+	board[x][y+1].flag = 1;
+}
 
-// int checkBoardScore() {
-// 	int x,y;
-// 	int me;
-// 	int accScore = 0;
+int check_board_score() 
+{
+	int x,y;
+	int me;
+	int acc_score = 0;
 
-// 	// unflag tokens
-// 	for(x=0;x<8;x++)
-// 		for(y=0;y<8;y++) 
-// 			board[x][y].flag = 0;
+	// unflag tokens
+	for(x=0;x<8;x++)
+		for(y=0;y<8;y++) 
+			board[x][y].flag = 0;
 
-// 	// flag all tokens that are in a four
-// 	for(x=0;x<8;x++)
-// 		for(y=0;y<8;y++) {
-// 			me = board[x][y].token;
-// 			if (me) {
-// 				if (x<7 && y<7)
-// 					if (getToken(x+1,y,me) == me && getToken(x+1,y+1,me) == me && getToken(x,y+1,me) == me) flagSquare(x,y);
-// 				if (x>0 && y<7)
-// 					if (getToken(x-1,y,me) == me && getToken(x-1,y+1,me) == me && getToken(x,y+1,me) == me) flagSquare(x-1,y);
-// 				if (x<7 && y>0)
-// 					if (getToken(x+1,y,me) == me && getToken(x+1,y-1,me) == me && getToken(x,y-1,me) == me) flagSquare(x,y-1);
-// 				if (x>0 && y>0)
-// 					if (getToken(x-1,y,me) == me && getToken(x-1,y-1,me) == me && getToken(x,y-1,me) == me) flagSquare(x-1,y-1);
-// 			}
-// 		}
+	// flag all tokens that are in a four
+	for(x=0;x<8;x++)
+		for(y=0;y<8;y++) {
+			me = board[x][y].token;
+			if (me) 
+			{
+				if (x<7 && y<7)
+					if (get_token(x+1,y,me) == me && get_token(x+1,y+1,me) == me && get_token(x,y+1,me) == me) flag_square(x,y);
+				if (x>0 && y<7)
+					if (get_token(x-1,y,me) == me && get_token(x-1,y+1,me) == me && get_token(x,y+1,me) == me) flag_square(x-1,y);
+				if (x<7 && y>0)
+					if (get_token(x+1,y,me) == me && get_token(x+1,y-1,me) == me && get_token(x,y-1,me) == me) flag_square(x,y-1);
+				if (x>0 && y>0)
+					if (get_token(x-1,y,me) == me && get_token(x-1,y-1,me) == me && get_token(x,y-1,me) == me) flag_square(x-1,y-1);
+			}
+		}
 
-// 	// score flagged tokens
-// 	me = 0;
-// 	for(x=0;x<8;x++)
-// 		for(y=0;y<8;y++) 
-// 			if (board[x][y].flag) {
-// 				accScore += board[x][y].score;
-// 				me++;
-// 			}
+	// score flagged tokens
+	me = 0;
+	for(x=0;x<8;x++)
+		for(y=0;y<8;y++) 
+			if (board[x][y].flag) 
+			{
+				acc_score += board[x][y].score;
+				me++;
+			}
 
-// 	// get plenty-bonus
-// 	if (me) accScore += (me-1)*(me+1);
+	// get plenty-bonus
+	if (me) acc_score += (me-1)*(me+1);
 
-// 	return accScore;
-// }
+	return acc_score;
+}
 
 // int checkEnd() {
 // 	int x,y;
 // 	int p1=0,p2=0;
 
-// 	checkBoardScore(); // force flagging of tokens are to be removed
+// 	check_board_score(); // force flagging of tokens are to be removed
 // 	for(x=0;x<8;x++)
 // 		for(y=0;y<8;y++) {
 // 			if (board[x][y].token==1 && !board[x][y].flag) p1++;
@@ -1277,50 +1285,54 @@ void start_new_game() {
 // 	return 0;
 // }
 
-// void checkBoard(byte player) {
-// 	int x,y;
-// 	int me,i;
-// 	int accScore;
-// 	int p1=0,p2=0;
+void check_board(byte player) 
+{
+	int x,y;
+	int me,i;
+	int acc_score;
+	int p1=0,p2=0;
 
-// 	// unflag tokens
-// 	for(x=0;x<8;x++)
-// 		for(y=0;y<8;y++) 
-// 			board[x][y].flag = 0;
+	// unflag tokens
+	for(x=0;x<8;x++)
+		for(y=0;y<8;y++) 
+			board[x][y].flag = 0;
 
-// 	accScore = checkBoardScore();			// flags tokens
+	acc_score = check_board_score();			// flags tokens
 	
-// 	// remove flagged tokens
-// 	me = 0;
-// 	for(x=0;x<8;x++)
-// 		for(y=0;y<8;y++) 
-// 			if (board[x][y].flag) {
+	// remove flagged tokens
+	me = 0;
+	for(x=0;x<8;x++)
+		for(y=0;y<8;y++) 
+			if (board[x][y].flag) 
+			{
 // 				for(i=0;i<10;i++) createParticle(20+x*24+rand()%24,20+y*24+rand()%24,board[x][y].token);
-// 				board[x][y] = emptySquare;
-// 				me++;
-// 			}
+				board[x][y] = empty_square;
+				me++;
+			}
 
-// 	if (me) {
-// 		play_sample(data[REMOVE].dat,soundvol,128,800+rand()%400,0);
-// 		ply[player].anim=100;
-// 		ply[player].animOffset=0;
-// 		if (me>4) {
-// 			ply[player].multi++;
-// 			ply[player].animOffset=2;
-// 			ply[player].anim=200;
-// 		}
-// 	}
+	if (me) 
+	{
+		pcm_play(remove_sound_id, PCM_PROTECTED, sound_vol);
+		ply[player].anim=100;
+		ply[player].anim_offset=0;
+		if (me>4) {
+			ply[player].multi++;
+			ply[player].anim_offset=2;
+			ply[player].anim=200;
+		}
+	}
 
-// 	ply[player].score += accScore;
+	ply[player].score += acc_score;
 
-// 	for(x=0;x<8;x++)
-// 		for(y=0;y<8;y++) {
-// 			if (board[x][y].token==1 && !board[x][y].flag) p1++;
-// 			if (board[x][y].token==2 && !board[x][y].flag) p2++;
-// 		}
+	for(x=0;x<8;x++)
+		for(y=0;y<8;y++) 
+		{
+			if (board[x][y].token==1 && !board[x][y].flag) p1++;
+			if (board[x][y].token==2 && !board[x][y].flag) p2++;
+		}
 
-// 	if (!p1 || !p2) winner=1;
-// }
+	if (!p1 || !p2) winner=1;
+}
 
 void draw_high_scores() {
 	int i;
@@ -1499,7 +1511,7 @@ void high_scores() {
 // 	for(x=0;x<8;x++) {
 // 		if (x!=lockedRow) {
 // 			rotateRow(x,0);  // right slide
-// 			tmpScore = checkBoardScore(); 	// check possible score
+// 			tmpScore = check_board_score(); 	// check possible score
 // 			tmpScore += loserWarning(player,tmpScore);   // add win warnings
 // 			rotateRow(x,1);	// reset board
 // 			if (tmpScore<0) { crisis=2; cx=x; cy=2; }
@@ -1511,7 +1523,7 @@ void high_scores() {
 // 				if (bestScore>=100000) return 100000;
 // 			}
 // 			rotateRow(x,1); // left slide
-// 			tmpScore = checkBoardScore(); 	// check possible score
+// 			tmpScore = check_board_score(); 	// check possible score
 // 			tmpScore += loserWarning(player,tmpScore);   // add win warnings
 // 			rotateRow(x,0);	// reset board
 // 			if (tmpScore<0) { crisis=2; cx=x; cy=4; }
@@ -1525,7 +1537,7 @@ void high_scores() {
 // 		}
 // 		if (x!=lockedCol) {
 // 			rotateColumn(x,0); // down slide
-// 			tmpScore = checkBoardScore(); 	// check possible score
+// 			tmpScore = check_board_score(); 	// check possible score
 // 			tmpScore += loserWarning(player,tmpScore);   // add win warnings
 // 			rotateColumn(x,1);	// reset board
 // 			if (tmpScore<0) { crisis=2; cx=x; cy=3; }
@@ -1537,7 +1549,7 @@ void high_scores() {
 // 				if (bestScore>=100000) return 100000;
 // 			}
 // 			rotateColumn(x,1);  // up slide
-// 			tmpScore = checkBoardScore(); 	// check possible score
+// 			tmpScore = check_board_score(); 	// check possible score
 // 			tmpScore += loserWarning(player,tmpScore);   // add win warnings
 // 			rotateColumn(x,0);	// reset board
 // 			if (tmpScore<0) { crisis=2; cx=x; cy=1; }
@@ -1555,10 +1567,10 @@ void high_scores() {
 // 	for(x=0;x<8;x++)
 // 		for(y=0;y<8;y++)
 // 			if (!board[x][y].token) {
-// 				placeToken(x,y,player);
-// 				tmpScore = checkBoardScore(); 	// check possible score
+// 				place_token(x,y,player);
+// 				tmpScore = check_board_score(); 	// check possible score
 // 				tmpScore += loserWarning(player,tmpScore);   // add win warnings
-// 				board[x][y] = emptySquare;		// remove temporary token
+// 				board[x][y] = empty_square;		// remove temporary token
 // 				if (tmpScore<0) { crisis=1; cx=x; cy=y; }
 // 				if (tmpScore > bestScore) {
 // 					hintX = x;
@@ -1579,8 +1591,8 @@ void high_scores() {
 // 					for(i=MAX(x-1,0);i<MIN(8,x+2);i++)
 // 						for(j=MAX(y-1,0);j<MIN(8,y+2);j++) 
 // 							tmpScore += (x==i||y==j ? 2 : 1) * sArray[board[i][j].token];
-// 					placeToken(x,y,player);
-// 					board[x][y] = emptySquare;		// remove temporary token
+// 					place_token(x,y,player);
+// 					board[x][y] = empty_square;		// remove temporary token
 // 					if (tmpScore > bestScore) {
 // 						hintX = x;
 // 						hintY = y;
@@ -1600,9 +1612,9 @@ void high_scores() {
 // 		oy = hintY;  // backup own move
 
 // 		// do move (place)
-// 		if (placeToken(ox,oy,player)) {			// make move if available
+// 		if (place_token(ox,oy,player)) {			// make move if available
 // 			i = getHint((player==1?2:1),0);		// no recurse!!!
-// 			board[ox][oy] = emptySquare;		// remove temporary token
+// 			board[ox][oy] = empty_square;		// remove temporary token
 // 			if (i < 10000) {					// opponent can't win next time, use own move
 // 				hintX = ox;	
 // 				hintY = oy;  
@@ -1637,10 +1649,10 @@ void high_scores() {
 
 int play() {
 // 	int done = 0;
-// 	int x,y;
-// 	int mx,my;
+	int x,y;
+	int mx,my;
 // 	int clicked = 0;
-// 	int tokenCount = 0;
+	int token_count = 0;
 // 	int stoneCount = 0;
 // 	int thinking = 0;
 
@@ -1666,12 +1678,14 @@ int play() {
 				CDDA_PlaySingle(SONG4_TRACKID, true);
 				break;
 		}
-	}
 	
-	// 	play_midi(data[SONG1+rand()%4].dat,1);
-// 	playingMidi=1;
+		start_new_game();
+	}
 
-	start_new_game();
+	make_bg();
+	
+	input_type current_input = get_input_types(game_mode, current_input_states);
+	set_pointer_position(current_input);
 	draw_game(1);
 // 	blitScreen();
 // 	fade_in(data[GAMEPAL].dat,4);
@@ -1690,22 +1704,24 @@ int play() {
 
 // 		if (scrolling) if (--scrolling==0) {
 // 			playing=1;
-// 			checkBoard(player);
+// 			check_board(player);
 // 			player = (player==1?2:1); // next player
 // 		}
 
-// 		if (placeing) {
-// 			placeing -= 2;
-// 			if (placeing==0) {
-// 				playing=1;
-// 				checkBoard(player);
-// 				player = (player==1?2:1); // next player
-// 				tokenCount++;
-// 				if (tokenCount==10) {
-// 					tokenCount=0;
+		if (placeing) 
+		{
+			placeing -= 2;
+			if (placeing==0) 
+			{
+				playing=1;
+				check_board(player);
+				player = (player==1?2:1); // next player
+				token_count++;
+// 				if (token_count==10) {
+// 					token_count=0;
 // 					if (stoneCount<10) {
-// 						if (!animPlaceToken(rand()%8,rand()%8,4)) {  // can't place stone, try next time
-// 							tokenCount = 9;
+// 						if (!anim_place_token(rand()%8,rand()%8,4)) {  // can't place stone, try next time
+// 							token_count = 9;
 // 						} 
 // 						else  {// stone placed
 // 							stoneCount++;
@@ -1713,8 +1729,8 @@ int play() {
 // 						}
 // 					}
 // 				}
-// 			}
-// 		}
+			}
+		}
 
 // 		if (cpu==player && playing && !thinking) thinking = 30;
 // 		if (cpu==player && thinking) thinking--;
@@ -1732,12 +1748,32 @@ int play() {
 // 					ply[player].multi--;
 // 					ply[player].carry++;
 // 				}
-// 				animPlaceToken(hintX,hintY,(ply[player].carry?3:player));
+// 				anim_place_token(hintX,hintY,(ply[player].carry?3:player));
 // 				lockedCol = lockedRow = -1;
 // 				ply[player].carry = 0;
 // 			}
 // 		}
 
+// check if the user simulated a mouse click
+if (current_input == INPUT_TYPE_A || current_input == INPUT_TYPE_C)
+{
+	mx = pointer_x;
+	my = pointer_y;
+	if (playing)
+	{
+		// check board
+		for(x=0;x<8;x++)
+			for(y=0;y<8;y++)
+				if (mx>21+x*24 && mx<44+x*24 && my>21+y*24 && my<44+y*24) 
+				{
+					if (anim_place_token(x,y,(ply[player].carry?3:player))) 
+					{
+						locked_col = locked_row = -1;
+						ply[player].carry = 0;
+					}
+				}
+	}
+}
 // 		if (mouse_b!=1) clicked = 0;
 // 		if (mouse_b==1 && !clicked && cpu!=player) {   // user has clicked mouse
 // 			clicked++;
@@ -1749,7 +1785,7 @@ int play() {
 // 				for(x=0;x<8;x++)
 // 					for(y=0;y<8;y++)
 // 						if (mx>21+x*24 && mx<44+x*24 && my>21+y*24 && my<44+y*24) {
-// 							if (animPlaceToken(x,y,(ply[player].carry?3:player))) {
+// 							if (anim_place_token(x,y,(ply[player].carry?3:player))) {
 // 								lockedCol = lockedRow = -1;
 // 								ply[player].carry = 0;
 // 							}

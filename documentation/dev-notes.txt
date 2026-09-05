@@ -46,3 +46,4 @@ todo
 - build up ss utils file
 - improve load times?
 - animate alligators
+- deal with particles on token removal
