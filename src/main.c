@@ -1646,7 +1646,7 @@ int get_hint(int player, int recurse)
 }
 
 int play() {
-// 	int done = 0;
+	int done = 0;
 	int x,y;
 	int mx,my;
 // 	int clicked = 0;
@@ -1689,6 +1689,8 @@ int play() {
 // 	fade_in(data[GAMEPAL].dat,4);
 
 // 	while (!done && !winner) {
+	if (!done && !winner)
+	{
 // 		if (key[KEY_W]) set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
 // 		game_count=0;
 // 		draw_game(1);
@@ -1754,26 +1756,26 @@ int play() {
 // 			}
 		}
 
-// check if the user simulated a mouse click
-if ((current_input == INPUT_TYPE_A || current_input == INPUT_TYPE_C) && player != cpu)
-{
-	mx = pointer_x;
-	my = pointer_y;
-	if (playing)
-	{
-		// check board
-		for(x=0;x<8;x++)
-			for(y=0;y<8;y++)
-				if (mx>21+x*24 && mx<44+x*24 && my>21+y*24 && my<44+y*24) 
-				{
-					if (anim_place_token(x,y,(ply[player].carry?3:player))) 
-					{
-						locked_col = locked_row = -1;
-						ply[player].carry = 0;
-					}
-				}
-	}
-}
+		// check if the user simulated a mouse click
+		if ((current_input == INPUT_TYPE_A || current_input == INPUT_TYPE_C) && player != cpu)
+		{
+			mx = pointer_x;
+			my = pointer_y;
+			if (playing)
+			{
+				// check board
+				for(x=0;x<8;x++)
+					for(y=0;y<8;y++)
+						if (mx>21+x*24 && mx<44+x*24 && my>21+y*24 && my<44+y*24) 
+						{
+							if (anim_place_token(x,y,(ply[player].carry?3:player))) 
+							{
+								locked_col = locked_row = -1;
+								ply[player].carry = 0;
+							}
+						}
+			}
+		}
 // 		if (mouse_b!=1) clicked = 0;
 // 		if (mouse_b==1 && !clicked && cpu!=player) {   // user has clicked mouse
 // 			clicked++;
@@ -1821,30 +1823,35 @@ if ((current_input == INPUT_TYPE_A || current_input == INPUT_TYPE_C) && player !
 
 // 		if (key[KEY_ESC]) done = confirm("Really quit? (Y/N)");
 // 		while(!game_count);
-// 	}
+	}
 
-// 	if (winner) {
-// 		char buf[128];
-// 		Thisc tmp;
+	if (winner) {
+		char buf[128];
+		Thisc tmp;
 
-// 		winner = (ply[1].score>ply[2].score ? 1:2);
-// 		done = 0;
-// 		x=0;
-// 		if (ply[1].score == ply[2].score) winner = 3;
+		winner = (ply[1].score>ply[2].score ? 1:2);
+		done = 0;
+		x=0;
+		if (ply[1].score == ply[2].score) winner = 3;
 // 		else ply[winner].anim = 100000;
-// 		if (!cpu) sprintf(buf,"Player %d won the game!",winner);
-// 		else {
-// 			if (cpu==winner) {
-// 				if (winner==1) sprintf(buf,"%s won the game!","ALEX");
-// 				if (winner==2) sprintf(buf,"%s won the game!","AARON");
-// 			}
-// 			else sprintf(buf,"%s won the game!","YOU");
-// 		}
+		if (!cpu) sprintf(buf,"PLAYER %d WON THE GAME!",winner);
+		else 
+		{
+			if (cpu==winner) 
+			{
+				if (winner==1) sprintf(buf,"%s WON THE GAME!","ALEX");
+				if (winner==2) sprintf(buf,"%s WON THE GAME!","AARON");
+			}
+			else sprintf(buf,"%s WON THE GAME!","YOU");
+		}
 
-// 		while(!done) {
+		if (!done)
+		{
 // 			game_count=0;
 // 			draw_game(1);
 // 			if (x==0) {
+				jo_font_print_centered(game_black_font, 1, 1, 0.99f, "BOARD CLEARED!");
+				jo_font_print_centered(game_white_font, 0, 0, 0.99f, "BOARD CLEARED!");
 // 				textout_centre(swap_screen, data[MYFONT].dat, "Board cleared!", 161, 91, 1);
 // 				textout_centre(swap_screen, data[MYFONT].dat, "Board cleared!", 160, 90, -1);
 // 			}
@@ -1863,7 +1870,7 @@ if ((current_input == INPUT_TYPE_A || current_input == INPUT_TYPE_C) && player !
 // 			if (mouse_b!=1) clicked = 0;
 // 			if (!clicked && mouse_b==1) { x++; clicked = 1; }
 // 			while(!game_count);
-// 		}
+		}
 // 		fade_out(4);
 // 		if (ply[1].score>=ply[2].score) {
 // 			tmp.score = ply[1].score;
@@ -1878,7 +1885,7 @@ if ((current_input == INPUT_TYPE_A || current_input == INPUT_TYPE_C) && player !
 // 			if (qualifyTable(hisc, tmp) && cpu!=1) enterHof(tmp,1);
 // 		}
 // 		showHighscores();
-// 	}
+	}
 
 // 	fade_out(4);
 // 	play_midi(NULL,0);
