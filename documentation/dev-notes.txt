@@ -47,3 +47,6 @@ todo
 - improve load times?
 - animate alligators
 - deal with particles on token removal
+- cleanup black font
+- screen transitioning code cleanup
+- tracking previous mode?

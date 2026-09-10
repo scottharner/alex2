@@ -94,6 +94,7 @@ int playing;			// can the player interact?
 int placeing, place_type, place_x, place_y;	// place_token stuff
 byte player;			// current player
 int winner;				// who won? 3=draw
+int winner_presses;			// button presses after winner message is shown
 byte sound_vol, music_vol;
 // int playingMidi = 0;
 int locked_row, locked_col; // current locked row/col
@@ -385,14 +386,19 @@ void load_sound_config()
 // 	pack_fclose(fp);
 // }
 
-void reset_game()
+void reset_title_props()
 {
-	game_mode = MODE_INTRO;
 	current_game_type = GAME_TYPE_HVC;
 	action_counter = 0;
 
 	title_menu_x=-200, title_menu_y=144;
 	is_showing_start_game_options = false;
+}
+
+void reset_game()
+{
+	game_mode = MODE_INTRO;
+	reset_title_props();
 }
 
 void init() 
@@ -1088,6 +1094,7 @@ void start_new_game() {
 	player = 1;
 	// scrolling = 0;
 	winner = 0;
+	winner_presses = 0;
 	locked_col = locked_row = -1;
 	// hint = 0;
 
@@ -1831,7 +1838,6 @@ int play() {
 
 		winner = (ply[1].score>ply[2].score ? 1:2);
 		done = 0;
-		x=0;
 		if (ply[1].score == ply[2].score) winner = 3;
 // 		else ply[winner].anim = 100000;
 		if (!cpu) sprintf(buf,"PLAYER %d WON THE GAME!",winner);
@@ -1848,25 +1854,31 @@ int play() {
 		if (!done)
 		{
 // 			game_count=0;
-// 			draw_game(1);
-// 			if (x==0) {
+			if (winner_presses==0) 
+			{
 				jo_font_print_centered(game_black_font, 1, 1, 0.99f, "BOARD CLEARED!");
 				jo_font_print_centered(game_white_font, 0, 0, 0.99f, "BOARD CLEARED!");
-// 				textout_centre(swap_screen, data[MYFONT].dat, "Board cleared!", 161, 91, 1);
-// 				textout_centre(swap_screen, data[MYFONT].dat, "Board cleared!", 160, 90, -1);
-// 			}
-// 			if (x==1) { 
-// 				if (winner<3) {
-// 					textprintf_centre(swap_screen, data[MYFONT].dat, 161, 91, 1, buf, winner);
-// 					textprintf_centre(swap_screen, data[MYFONT].dat, 160, 90, -1, buf, winner);
-// 				}
-// 				else {
-// 					textout_centre(swap_screen, data[MYFONT].dat, "It's a draw!", 161, 91, 1);
-// 					textout_centre(swap_screen, data[MYFONT].dat, "It's a draw!", 160, 90, -1);
-// 				}
-// 			}
-// 			if (x==2) done = 1;
-// 			blitScreen();
+			}
+			if (winner_presses==1) 
+			{ 
+				if (winner<3) 
+				{
+					jo_font_print_centered(game_black_font, 1, 1, 0.99f, buf);
+					jo_font_print_centered(game_white_font, 0, 0, 0.99f, buf);
+				}
+				else 
+				{
+					jo_font_print_centered(game_black_font, 1, 1, 0.99f, "IT'S A DRAW!");
+					jo_font_print_centered(game_white_font, 0, 0, 0.99f, "IT'S A DRAW!");
+				}
+			}
+			if (winner_presses==2) done = 1;
+			if (current_input == INPUT_TYPE_A || 
+				current_input == INPUT_TYPE_C || 
+				current_input == INPUT_TYPE_START)
+			{
+				winner_presses++;
+			}
 // 			if (mouse_b!=1) clicked = 0;
 // 			if (!clicked && mouse_b==1) { x++; clicked = 1; }
 // 			while(!game_count);
@@ -1885,6 +1897,14 @@ int play() {
 // 			if (qualifyTable(hisc, tmp) && cpu!=1) enterHof(tmp,1);
 // 		}
 // 		showHighscores();
+		if (done)
+		{
+			// user wants to return to title
+			game_mode = MODE_TITLE;
+			reset_title_props();
+			CDDA_Stop();
+			CDDA_PlaySingle(TITLE_TRACKID, true);
+		}
 	}
 
 // 	fade_out(4);
@@ -2079,14 +2099,6 @@ void intro()
 		process_intro_text_display();
 	}
 }
-
-// void outro() {
-// 	fade_out(4);
-// 	play_midi(NULL,0);
-// 	if (fadeText("Thanks for playing.",1000)) return;
-// 	if (fadeText("See you in next SpeedHack.",1500)) return;
-// 	myRest(1000);
-// }
 
 // void shutdown() {
 // 	saveTable(hisc,"hiscores.sav");
