@@ -88,9 +88,9 @@ Tplayer ply[3];						// 2 players, ignore ply[0]
 
 // // global stuff
 int playing;			// can the player interact?
-// int scrolling;			// are we scrolling the board?
-// int scrollDir;			// 1 up, 2 right, 3 down, 4 left
-// int scrollX, scrollY;	// scrolling offset
+int scrolling;			// are we scrolling the board?
+int scroll_dir;			// 1 up, 2 right, 3 down, 4 left
+int scroll_x, scroll_y;	// scrolling offset
 int placeing, place_type, place_x, place_y;	// place_token stuff
 byte player;			// current player
 int winner;				// who won? 3=draw
@@ -130,6 +130,10 @@ static int arrow1_sprite_id;
 static int arrow2_sprite_id;
 static int arrow3_sprite_id;
 static int arrow4_sprite_id;
+static int darrow1_sprite_id;
+static int darrow2_sprite_id;
+static int darrow3_sprite_id;
+static int darrow4_sprite_id;
 static int player11_sprite_id;
 static int player21_sprite_id;
 static int notkn_sprite_id;
@@ -155,6 +159,7 @@ static short select_sound_id;
 static short plmulti_sound_id;
 static short pldead_sound_id;
 static short remove_sound_id;
+static short rotate_sound_id;
 static int title_menu_x, title_menu_y;
 
 static const char* intro_text[] =
@@ -413,6 +418,7 @@ void init()
 	plmulti_sound_id = load_8bit_pcm((Sint8 *)"PLMULTI.PCM", 15360);
 	pldead_sound_id = load_8bit_pcm((Sint8 *)"PLDEAD.PCM", 15360);
 	remove_sound_id = load_8bit_pcm((Sint8 *)"REMOVE.PCM", 15360);
+	rotate_sound_id = load_8bit_pcm((Sint8 *)"ROTATE.PCM", 15360);
 
 	// initialize graphics
 	shlogo_sprite_id = jo_sprite_add_tga("TEX", "SHLOGO.TGA", JO_COLOR_Transparent);
@@ -435,6 +441,10 @@ void init()
 	arrow2_sprite_id = jo_sprite_add_tga("TEX", "ARROW2.TGA", JO_COLOR_Black);
 	arrow3_sprite_id = jo_sprite_add_tga("TEX", "ARROW3.TGA", JO_COLOR_Black);
 	arrow4_sprite_id = jo_sprite_add_tga("TEX", "ARROW4.TGA", JO_COLOR_Black);
+	darrow1_sprite_id = jo_sprite_add_tga("TEX", "DARROW1.TGA", JO_COLOR_Black);
+	darrow2_sprite_id = jo_sprite_add_tga("TEX", "DARROW2.TGA", JO_COLOR_Black);
+	darrow3_sprite_id = jo_sprite_add_tga("TEX", "DARROW3.TGA", JO_COLOR_Black);
+	darrow4_sprite_id = jo_sprite_add_tga("TEX", "DARROW4.TGA", JO_COLOR_Black);
 	player11_sprite_id = jo_sprite_add_tga("TEX", "PLAYER11.TGA", JO_COLOR_Black);
 	player21_sprite_id = jo_sprite_add_tga("TEX", "PLAYER21.TGA", JO_COLOR_Black);
 	notkn_sprite_id = jo_sprite_add_tga("TEX", "NOTKN.TGA", JO_COLOR_Black);
@@ -701,36 +711,36 @@ void draw_game(int show_pointer) {
 // 	}
 
 // 	if (scrolling) {
-// 		if (scrollDir==1) {
-// 			blit(scroller, swap_screen, 0, 24-scrolling, scrollX, scrollY, 23, 194-24+scrolling);
-// 			blit(scroller, swap_screen, 0, 0, scrollX, 212-24+scrolling, 23, 25-scrolling);
+// 		if (scroll_dir==1) {
+// 			blit(scroller, swap_screen, 0, 24-scrolling, scroll_x, scroll_y, 23, 194-24+scrolling);
+// 			blit(scroller, swap_screen, 0, 0, scroll_x, 212-24+scrolling, 23, 25-scrolling);
 // 		}
-// 		if (scrollDir==2) {
-// 			blit(scroller, swap_screen, 0, 0, scrollX+24-scrolling, scrollY, 194-25+scrolling, 23);
-// 			blit(scroller, swap_screen, 194-26+scrolling, 0, 20, scrollY, 24-scrolling, 23);
+// 		if (scroll_dir==2) {
+// 			blit(scroller, swap_screen, 0, 0, scroll_x+24-scrolling, scroll_y, 194-25+scrolling, 23);
+// 			blit(scroller, swap_screen, 194-26+scrolling, 0, 20, scroll_y, 24-scrolling, 23);
 // 		}
-// 		if (scrollDir==3) {
-// 			blit(scroller, swap_screen, 0, 0, scrollX, scrollY+24-scrolling, 23, 194-25+scrolling);
-// 			blit(scroller, swap_screen, 0, 194-26+scrolling, scrollX, 20, 23, 24-scrolling);
+// 		if (scroll_dir==3) {
+// 			blit(scroller, swap_screen, 0, 0, scroll_x, scroll_y+24-scrolling, 23, 194-25+scrolling);
+// 			blit(scroller, swap_screen, 0, 194-26+scrolling, scroll_x, 20, 23, 24-scrolling);
 // 		}
-// 		if (scrollDir==4) {
-// 			blit(scroller, swap_screen, 24-scrolling, 0, scrollX, scrollY, 194-24+scrolling, 23);
-// 			blit(scroller, swap_screen, 0, 0, 212-24+scrolling, scrollY, 25-scrolling, 23);
+// 		if (scroll_dir==4) {
+// 			blit(scroller, swap_screen, 24-scrolling, 0, scroll_x, scroll_y, 194-24+scrolling, 23);
+// 			blit(scroller, swap_screen, 0, 0, 212-24+scrolling, scroll_y, 25-scrolling, 23);
 // 		}
 // 	}
 
 
-// 	// draw arrows
-// 	for(x=0;x<8;x++) {
-// 		if (x != locked_col) {
-// 			draw_sprite(swap_screen, data[ARROW1].dat, 27+x*24, 6);
-// 			draw_sprite(swap_screen, data[ARROW3].dat, 27+x*24, 216);
-// 		}
-// 		if (x != locked_row) {
-// 			draw_sprite(swap_screen, data[ARROW2].dat, 216, 27+x*24);
-// 			draw_sprite(swap_screen, data[ARROW4].dat, 6, 27+x*24);
-// 		}
-// 	}
+	// draw arrows - replace if disabled
+	for(x=0;x<8;x++) {
+		if (x == locked_col) {
+			jo_sprite_draw3D2(darrow1_sprite_id, 26+x*24, 6, BACKGROUND_ZINDEX);
+			jo_sprite_draw3D2(darrow3_sprite_id, 26+x*24, 213, BACKGROUND_ZINDEX);
+		}
+		if (x == locked_row) {
+			jo_sprite_draw3D2(darrow2_sprite_id, 213, 26+x*24, BACKGROUND_ZINDEX);
+			jo_sprite_draw3D2(darrow4_sprite_id, 6, 26+x*24, BACKGROUND_ZINDEX);
+		}
+	}
 
 // 	// draw hint
 // 	if (hint & 8) {
@@ -1103,87 +1113,90 @@ void start_new_game() {
 	reset_particles();
 }
 
-// int rotateRow(int row, int goLeft) {
-// 	int i;
-// 	Ttoken tmp;
+int rotate_row(int row, int go_left) {
+	int i;
+	Ttoken tmp;
 
-// 	// move tokens
-// 	if (goLeft) {
-// 		tmp = board[0][row];
-// 		for(i=0;i<7;i++) board[i][row] = board[i+1][row];
-// 		board[7][row] = tmp;
-// 	}
-// 	else {
-// 		tmp = board[7][row];
-// 		for(i=7;i>0;i--) board[i][row] = board[i-1][row];
-// 		board[0][row] = tmp;
-// 	}
+	// move tokens
+	if (go_left) {
+		tmp = board[0][row];
+		for(i=0;i<7;i++) board[i][row] = board[i+1][row];
+		board[7][row] = tmp;
+	}
+	else {
+		tmp = board[7][row];
+		for(i=7;i>0;i--) board[i][row] = board[i-1][row];
+		board[0][row] = tmp;
+	}
 
-// 	return 1;
-// }
+	return 1;
+}
 
-// int animRotateRow(int row, int goLeft) {
-// 	// setup scrolling area
+int anim_rotate_row(int row, int go_left) {
+	// setup scrolling area
 // 	if (scroller != NULL) destroy_bitmap(scroller);
 // 	scroller = create_bitmap(194,23);
-// 	scrollDir = (goLeft?4:2);
+	scroll_dir = (go_left?4:2);
 
 // 	draw_game(0);
 // 	blit(swap_screen, scroller, 20, 21+row*24, 0, 0, 194, 23);
-// 	scrollX = 20;
-// 	scrollY = 21+row*24;
-// 	scrolling = 24;
+	scroll_x = 20;
+	scroll_y = 21+row*24;
+	scrolling = 1; // 24; restore for animation
 
-// 	rotateRow(row,goLeft);
+	rotate_row(row,go_left);
 		
-// 	playing = 0;
-// 	play_sample(data[ROTATE].dat,soundvol,128,800+rand()%400,0);
-// 	locked_row = row;
-// 	locked_col = -1;
+	playing = 0;
+	pcm_play(rotate_sound_id, PCM_PROTECTED, sound_vol);
+	locked_row = row;
+	locked_col = -1;
 
-// 	return 1;
-// }
+	return 1;
+}
 
-// int rotateColumn(int col, int goUp) {
-// 	int i;
-// 	Ttoken tmp;
+int rotate_column(int col, int go_up) 
+{
+	int i;
+	Ttoken tmp;
 
-// 	// move tokens
-// 	if (goUp) {
-// 		tmp = board[col][0];
-// 		for(i=0;i<7;i++) board[col][i] = board[col][i+1];
-// 		board[col][7] = tmp;
-// 	}
-// 	else {
-// 		tmp = board[col][7];
-// 		for(i=7;i>0;i--) board[col][i] = board[col][i-1];
-// 		board[col][0] = tmp;
-// 	}
+	// move tokens
+	if (go_up) {
+		tmp = board[col][0];
+		for(i=0;i<7;i++) board[col][i] = board[col][i+1];
+		board[col][7] = tmp;
+	}
+	else {
+		tmp = board[col][7];
+		for(i=7;i>0;i--) board[col][i] = board[col][i-1];
+		board[col][0] = tmp;
+	}
 
-// 	return 1;
-// }
+	return 1;
+}
 
-// int animRotateColumn(int col, int goUp) {
-// 	// setup scrolling area
+int anim_rotate_column(int col, int go_up) 
+{
+	// setup scrolling area
 // 	if (scroller != NULL) destroy_bitmap(scroller);
 // 	scroller = create_bitmap(23,194);
-// 	scrollDir = (goUp?1:3);
+	scroll_dir = (go_up?1:3);
 
 // 	draw_game(0);
 // 	blit(swap_screen, scroller, 21+col*24, 20, 0, 0, 23, 194);
-// 	scrollX = 21+col*24;
-// 	scrollY = 20;
-// 	scrolling = 24;
+	scroll_x = 21+col*24;
+	scroll_y = 20;
+	scrolling = 1; // 24; restore for animation
 
-// 	rotateColumn(col,goUp);
+	rotate_column(col,go_up);
 
-// 	playing=0;
-// 	locked_col = col;
-// 	locked_row = -1;
-// 	play_sample(data[ROTATE].dat,soundvol,128,800+rand()%400,0);
+	playing=0;
+	locked_col = col;
+	locked_row = -1;
+	
+	pcm_play(rotate_sound_id, PCM_PROTECTED, sound_vol);
 
-// 	return 1;
-// }
+	return 1;
+}
 
 int place_token(int x, int y, int type) {
 	if (board[x][y].token != 0) return 0;
@@ -1515,10 +1528,10 @@ int get_hint(int player, int recurse)
 // 	// check for good slide moves
 // 	for(x=0;x<8;x++) {
 // 		if (x!=locked_row) {
-// 			rotateRow(x,0);  // right slide
+// 			rotate_row(x,0);  // right slide
 // 			tmp_score = check_board_score(); 	// check possible score
 // 			tmp_score += loser_warning(player,tmp_score);   // add win warnings
-// 			rotateRow(x,1);	// reset board
+// 			rotate_row(x,1);	// reset board
 // 			if (tmp_score<0) { crisis=2; cx=x; cy=2; }
 // 			if (tmp_score > best_score) {
 // 				hint_x = 8;
@@ -1527,10 +1540,10 @@ int get_hint(int player, int recurse)
 // 				move = 1;
 // 				if (best_score>=100000) return 100000;
 // 			}
-// 			rotateRow(x,1); // left slide
+// 			rotate_row(x,1); // left slide
 // 			tmp_score = check_board_score(); 	// check possible score
 // 			tmp_score += loser_warning(player,tmp_score);   // add win warnings
-// 			rotateRow(x,0);	// reset board
+// 			rotate_row(x,0);	// reset board
 // 			if (tmp_score<0) { crisis=2; cx=x; cy=4; }
 // 			if (tmp_score > best_score) {
 // 				hint_x = -1;
@@ -1541,10 +1554,10 @@ int get_hint(int player, int recurse)
 // 			}
 // 		}
 // 		if (x!=locked_col) {
-// 			rotateColumn(x,0); // down slide
+// 			rotate_column(x,0); // down slide
 // 			tmp_score = check_board_score(); 	// check possible score
 // 			tmp_score += loser_warning(player,tmp_score);   // add win warnings
-// 			rotateColumn(x,1);	// reset board
+// 			rotate_column(x,1);	// reset board
 // 			if (tmp_score<0) { crisis=2; cx=x; cy=3; }
 // 			if (tmp_score > best_score) {
 // 				hint_x = x;
@@ -1553,10 +1566,10 @@ int get_hint(int player, int recurse)
 // 				move = 1;
 // 				if (best_score>=100000) return 100000;
 // 			}
-// 			rotateColumn(x,1);  // up slide
+// 			rotate_column(x,1);  // up slide
 // 			tmp_score = check_board_score(); 	// check possible score
 // 			tmp_score += loser_warning(player,tmp_score);   // add win warnings
-// 			rotateColumn(x,0);	// reset board
+// 			rotate_column(x,0);	// reset board
 // 			if (tmp_score<0) { crisis=2; cx=x; cy=1; }
 // 			if (tmp_score > best_score) {
 // 				hint_x = x;
@@ -1709,11 +1722,11 @@ int play() {
 // 		if (hint) hint--;
 // 		if (key[KEY_H]) get_hint(player,3);
 
-// 		if (scrolling) if (--scrolling==0) {
-// 			playing=1;
-// 			check_board(player);
-// 			player = (player==1?2:1); // next player
-// 		}
+		if (scrolling) if (--scrolling==0) {
+			playing=1;
+			check_board(player);
+			player = (player==1?2:1); // next player
+		}
 
 		if (placeing) 
 		{
@@ -1746,10 +1759,10 @@ int play() {
 			thinking=0;
 			get_hint(player,3);
 // 			if (hint_x>7 || hint_y>7 || hint_x<0 || hint_y<0) { // slide
-// 				if (hint_x<0) animRotateRow(hint_y, 1);
-// 				if (hint_x>7) animRotateRow(hint_y, 0);
-// 				if (hint_y<0) animRotateColumn(hint_x, 1);
-// 				if (hint_y>7) animRotateColumn(hint_x, 0);
+// 				if (hint_x<0) anim_rotate_row(hint_y, 1);
+// 				if (hint_x>7) anim_rotate_row(hint_y, 0);
+// 				if (hint_y<0) anim_rotate_column(hint_x, 1);
+// 				if (hint_y>7) anim_rotate_column(hint_x, 0);
 // 			}
 // 			else { // place
 				if (ply[player].multi) 
@@ -1781,6 +1794,16 @@ int play() {
 								ply[player].carry = 0;
 							}
 						}
+
+				// check arrows
+				if (!ply[player].carry) 
+					for(x=0;x<8;x++) {
+						int moved = 0;
+						if (mx>27+x*24 && mx<37+x*24 && my>6 && my<16 && locked_col!=x) moved = anim_rotate_column(x, 1);
+						if (mx>27+x*24 && mx<37+x*24 && my>216 && my<226 && locked_col!=x) moved = anim_rotate_column(x, 0);
+						if (mx>6 && mx<16 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 1);
+						if (mx>216 && mx<226 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 0);
+					}
 			}
 		}
 // 		if (mouse_b!=1) clicked = 0;
@@ -1790,24 +1813,14 @@ int play() {
 // 			my = mouse_y;
 			
 // 			if (playing) {
-// 				// check board
-// 				for(x=0;x<8;x++)
-// 					for(y=0;y<8;y++)
-// 						if (mx>21+x*24 && mx<44+x*24 && my>21+y*24 && my<44+y*24) {
-// 							if (anim_place_token(x,y,(ply[player].carry?3:player))) {
-// 								locked_col = locked_row = -1;
-// 								ply[player].carry = 0;
-// 							}
-// 						}
-
 // 				// check arrows
 // 				if (!ply[player].carry) 
 // 					for(x=0;x<8;x++) {
 // 						int moved = 0;
-// 						if (mx>27+x*24 && mx<37+x*24 && my>6 && my<16 && locked_col!=x) moved = animRotateColumn(x, 1);
-// 						if (mx>27+x*24 && mx<37+x*24 && my>216 && my<226 && locked_col!=x) moved = animRotateColumn(x, 0);
-// 						if (mx>6 && mx<16 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = animRotateRow(x, 1);
-// 						if (mx>216 && mx<226 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = animRotateRow(x, 0);
+// 						if (mx>27+x*24 && mx<37+x*24 && my>6 && my<16 && locked_col!=x) moved = anim_rotate_column(x, 1);
+// 						if (mx>27+x*24 && mx<37+x*24 && my>216 && my<226 && locked_col!=x) moved = anim_rotate_column(x, 0);
+// 						if (mx>6 && mx<16 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 1);
+// 						if (mx>216 && mx<226 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 0);
 // 					}
 				
 // 				// check other (multi)
