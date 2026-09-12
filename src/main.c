@@ -936,6 +936,16 @@ bool pointer_on_credits_option(int menu_y)
 		pointer_y <= (menu_y + 60 + GAME_FONT_HEIGHT - 8));
 }
 
+bool pointer_on_sound_vol()
+{
+	return (pointer_x>275 && pointer_x<290 && pointer_y>149 && pointer_y<201);
+}
+
+bool pointer_on_music_vol()
+{
+	return (pointer_x>295 && pointer_x<310 && pointer_y>149 && pointer_y<201);
+}
+
 void process_game_option_select(game_type selected_game_type)
 {
 	pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
@@ -1026,7 +1036,24 @@ void title() {
 		current_input == INPUT_TYPE_A || 
 		current_input == INPUT_TYPE_C))
 	{
-		if (is_showing_main_menu_options)
+		if (pointer_on_sound_vol())
+		{
+			int sv=sound_vol;
+			sound_vol=(pointer_y >= 197) ? 0 : (int)((197 - pointer_y) / 7);	// fx
+			if (sound_vol!=sv) 
+			{
+				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+			}
+		}
+		else if (pointer_on_music_vol())
+		{
+			int mv=music_vol;
+			music_vol=(pointer_y >= 197) ? 0 : (int)((197 - pointer_y) / 7);	// music
+			if (mv!=music_vol) {
+				CDDA_SetVolume(music_vol);
+			}
+		}
+		else if (is_showing_main_menu_options)
 		{
 			if (pointer_on_start_game_option(title_menu_y))
 			{
