@@ -793,21 +793,7 @@ void draw_game(int show_pointer) {
 		jo_sprite_draw3D2(pointer_sprite_id, mx-1, my-1, POINTER_ZINDEX);
 		jo_sprite_draw3D2((player == 1)?dust001_sprite_id:dust002_sprite_id, mx+9, my+11, POINTER_ZINDEX);
 	}
-
-// 	if (show_pointer) {
-// 		int mx = mouse_x;
-// 		int my = mouse_y;
-// 		if (ply[1].carry || ply[2].carry)
-// 			draw_sprite(swap_screen, data[TOKEN003].dat, mx-11, my-11);
-// 		draw_sprite(swap_screen, data[POINTER].dat, mx-1, my-1);
-// 		draw_sprite(swap_screen, data[DUST000+player].dat, mx+9, my+11);
-// 	}
 }
-
-// void blitScreen() {
-// 	vsync();
-// 	blit(swap_screen,screen,0,0,0,0,320,240);
-// }
 
 void reset_particles() {
 	int i;
@@ -1214,7 +1200,6 @@ int anim_place_token(int x, int y, int type) {
 
 	short sound_id = (type<3 ? select_sound_id : (type==3 ? plmulti_sound_id : pldead_sound_id));
 	pcm_play(sound_id, PCM_PROTECTED, sound_vol);
-	// play_sample(data[(type<3 ? PLACE1 : (type==3 ? PLACE2 : PLACE3))].dat,soundvol,128,800+rand()%400,0);
 
 	place_x = x;
 	place_y = y;
@@ -1804,42 +1789,22 @@ int play() {
 						if (mx>6 && mx<16 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 1);
 						if (mx>216 && mx<226 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 0);
 					}
+
+				// check other (multi)
+				if (ply[player].multi && !ply[player].carry) {
+					if (mx>245 && mx<268 && my>73+112*(player-1) && my<96+112*(player-1)) {
+						ply[player].multi--;
+						ply[player].carry = 1;
+					}
+				}
+				else if (ply[player].carry) {
+					if (mx>245 && mx<268 && my>73+112*(player-1) && my<96+112*(player-1)) {
+						ply[player].multi ++;
+						ply[player].carry = 0;
+					}
+				}
 			}
 		}
-// 		if (mouse_b!=1) clicked = 0;
-// 		if (mouse_b==1 && !clicked && cpu!=player) {   // user has clicked mouse
-// 			clicked++;
-// 			mx = mouse_x;
-// 			my = mouse_y;
-			
-// 			if (playing) {
-// 				// check arrows
-// 				if (!ply[player].carry) 
-// 					for(x=0;x<8;x++) {
-// 						int moved = 0;
-// 						if (mx>27+x*24 && mx<37+x*24 && my>6 && my<16 && locked_col!=x) moved = anim_rotate_column(x, 1);
-// 						if (mx>27+x*24 && mx<37+x*24 && my>216 && my<226 && locked_col!=x) moved = anim_rotate_column(x, 0);
-// 						if (mx>6 && mx<16 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 1);
-// 						if (mx>216 && mx<226 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 0);
-// 					}
-				
-// 				// check other (multi)
-// 				if (ply[player].multi && !ply[player].carry) {
-// 					if (mx>245 && mx<268 && my>73+112*(player-1) && my<96+112*(player-1)) {
-// 						ply[player].multi--;
-// 						ply[player].carry = 1;
-// 					}
-// 				}
-// 				else if (ply[player].carry) {
-// 					if (mx>245 && mx<268 && my>73+112*(player-1) && my<96+112*(player-1)) {
-// 						ply[player].multi ++;
-// 						ply[player].carry = 0;
-// 					}
-// 				}
-// 			}
-
-// 			while(!game_count);
-// 		}
 
 // 		if (key[KEY_ESC]) done = confirm("Really quit? (Y/N)");
 // 		while(!game_count);
