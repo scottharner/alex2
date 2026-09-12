@@ -422,7 +422,7 @@ void init()
 
 	// initialize graphics
 	shlogo_sprite_id = jo_sprite_add_tga("TEX", "SHLOGO.TGA", JO_COLOR_Transparent);
-	title_sprite_id = jo_sprite_add_tga("TEX", "TITLE.TGA", JO_COLOR_RGB(255,0,255));
+	title_sprite_id = jo_sprite_add_tga("TEX", "TITLE.TGA", JO_COLOR_Transparent);
 	aa2_sprite_id = jo_sprite_add_tga("TEX", "AA2.TGA", JO_COLOR_Black);
 	aalogo_sprite_id = jo_sprite_add_tga("TEX", "AALOGO.TGA", JO_COLOR_RGB(255,0,255));
 	vol1_sprite_id = jo_sprite_add_tga("TEX", "VOL1.TGA", JO_COLOR_Black);
