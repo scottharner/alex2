@@ -425,36 +425,38 @@ void init()
 	rotate_sound_id = load_8bit_pcm((Sint8 *)"ROTATE.PCM", 15360);
 
 	// initialize graphics
-	shlogo_sprite_id = jo_sprite_add_tga("TEX", "SHLOGO.TGA", JO_COLOR_Transparent);
-	title_sprite_id = jo_sprite_add_tga("TEX", "TITLE.TGA", JO_COLOR_Transparent);
-	aa2_sprite_id = jo_sprite_add_tga("TEX", "AA2.TGA", JO_COLOR_Black);
-	aalogo_sprite_id = jo_sprite_add_tga("TEX", "AALOGO.TGA", JO_COLOR_RGB(255,0,255));
-	vol1_sprite_id = jo_sprite_add_tga("TEX", "VOL1.TGA", JO_COLOR_Black);
-	vol2_sprite_id = jo_sprite_add_tga("TEX", "VOL2.TGA", JO_COLOR_Black);
-	vol3_sprite_id = jo_sprite_add_tga("TEX", "VOL3.TGA", JO_COLOR_Black);
-	pointer_sprite_id = jo_sprite_add_tga("TEX", "POINTER.TGA", JO_COLOR_Black);
-	emptytkn_sprite_id = jo_sprite_add_tga("TEX", "EMPTYTKN.TGA", JO_COLOR_Black);
-	greentkn_sprite_id = jo_sprite_add_tga("TEX", "GREENTKN.TGA", JO_COLOR_Transparent);
-	bluetkn_sprite_id = jo_sprite_add_tga("TEX", "BLUETKN.TGA", JO_COLOR_Transparent);
-	multitkn_sprite_id = jo_sprite_add_tga("TEX", "MULTITKN.TGA", JO_COLOR_Black);
-	deadtkn_sprite_id = jo_sprite_add_tga("TEX", "DEADTKN.TGA", JO_COLOR_Black);
-	board_sprite_id = jo_sprite_add_tga("TEX", "BOARD.TGA", JO_COLOR_Transparent);
-	p1status_sprite_id = jo_sprite_add_tga("TEX", "P1STATUS.TGA", JO_COLOR_Transparent);
-	p2status_sprite_id = jo_sprite_add_tga("TEX", "P2STATUS.TGA", JO_COLOR_Transparent);
-	arrow1_sprite_id = jo_sprite_add_tga("TEX", "ARROW1.TGA", JO_COLOR_Black);
-	arrow2_sprite_id = jo_sprite_add_tga("TEX", "ARROW2.TGA", JO_COLOR_Black);
-	arrow3_sprite_id = jo_sprite_add_tga("TEX", "ARROW3.TGA", JO_COLOR_Black);
-	arrow4_sprite_id = jo_sprite_add_tga("TEX", "ARROW4.TGA", JO_COLOR_Black);
-	darrow1_sprite_id = jo_sprite_add_tga("TEX", "DARROW1.TGA", JO_COLOR_Black);
-	darrow2_sprite_id = jo_sprite_add_tga("TEX", "DARROW2.TGA", JO_COLOR_Black);
-	darrow3_sprite_id = jo_sprite_add_tga("TEX", "DARROW3.TGA", JO_COLOR_Black);
-	darrow4_sprite_id = jo_sprite_add_tga("TEX", "DARROW4.TGA", JO_COLOR_Black);
-	player11_sprite_id = jo_sprite_add_tga("TEX", "PLAYER11.TGA", JO_COLOR_Black);
-	player21_sprite_id = jo_sprite_add_tga("TEX", "PLAYER21.TGA", JO_COLOR_Black);
-	notkn_sprite_id = jo_sprite_add_tga("TEX", "NOTKN.TGA", JO_COLOR_Black);
-	dust001_sprite_id = jo_sprite_add_tga("TEX", "DUST001.TGA", JO_COLOR_Transparent);
-	dust002_sprite_id = jo_sprite_add_tga("TEX", "DUST002.TGA", JO_COLOR_Transparent);
-	hint_sprite_id = jo_sprite_add_tga("TEX", "HINT.TGA", JO_COLOR_Black);
+	jo_fs_cd("TEX");
+	shlogo_sprite_id = jo_sprite_add_tga(NULL, "SHLOGO.TGA", JO_COLOR_Transparent);
+	title_sprite_id = jo_sprite_add_tga(NULL, "TITLE.TGA", JO_COLOR_Transparent);
+	aa2_sprite_id = jo_sprite_add_tga(NULL, "AA2.TGA", JO_COLOR_Black);
+	aalogo_sprite_id = jo_sprite_add_tga(NULL, "AALOGO.TGA", JO_COLOR_RGB(255,0,255));
+	vol1_sprite_id = jo_sprite_add_tga(NULL, "VOL1.TGA", JO_COLOR_Black);
+	vol2_sprite_id = jo_sprite_add_tga(NULL, "VOL2.TGA", JO_COLOR_Black);
+	vol3_sprite_id = jo_sprite_add_tga(NULL, "VOL3.TGA", JO_COLOR_Black);
+	pointer_sprite_id = jo_sprite_add_tga(NULL, "POINTER.TGA", JO_COLOR_Black);
+	emptytkn_sprite_id = jo_sprite_add_tga(NULL, "EMPTYTKN.TGA", JO_COLOR_Black);
+	greentkn_sprite_id = jo_sprite_add_tga(NULL, "GREENTKN.TGA", JO_COLOR_Transparent);
+	bluetkn_sprite_id = jo_sprite_add_tga(NULL, "BLUETKN.TGA", JO_COLOR_Transparent);
+	multitkn_sprite_id = jo_sprite_add_tga(NULL, "MULTITKN.TGA", JO_COLOR_Black);
+	deadtkn_sprite_id = jo_sprite_add_tga(NULL, "DEADTKN.TGA", JO_COLOR_Black);
+	board_sprite_id = jo_sprite_add_tga(NULL, "BOARD.TGA", JO_COLOR_Transparent);
+	p1status_sprite_id = jo_sprite_add_tga(NULL, "P1STATUS.TGA", JO_COLOR_Transparent);
+	p2status_sprite_id = jo_sprite_add_tga(NULL, "P2STATUS.TGA", JO_COLOR_Transparent);
+	arrow1_sprite_id = jo_sprite_add_tga(NULL, "ARROW1.TGA", JO_COLOR_Black);
+	arrow2_sprite_id = jo_sprite_add_tga(NULL, "ARROW2.TGA", JO_COLOR_Black);
+	arrow3_sprite_id = jo_sprite_add_tga(NULL, "ARROW3.TGA", JO_COLOR_Black);
+	arrow4_sprite_id = jo_sprite_add_tga(NULL, "ARROW4.TGA", JO_COLOR_Black);
+	darrow1_sprite_id = jo_sprite_add_tga(NULL, "DARROW1.TGA", JO_COLOR_Black);
+	darrow2_sprite_id = jo_sprite_add_tga(NULL, "DARROW2.TGA", JO_COLOR_Black);
+	darrow3_sprite_id = jo_sprite_add_tga(NULL, "DARROW3.TGA", JO_COLOR_Black);
+	darrow4_sprite_id = jo_sprite_add_tga(NULL, "DARROW4.TGA", JO_COLOR_Black);
+	player11_sprite_id = jo_sprite_add_tga(NULL, "PLAYER11.TGA", JO_COLOR_Black);
+	player21_sprite_id = jo_sprite_add_tga(NULL, "PLAYER21.TGA", JO_COLOR_Black);
+	notkn_sprite_id = jo_sprite_add_tga(NULL, "NOTKN.TGA", JO_COLOR_Black);
+	dust001_sprite_id = jo_sprite_add_tga(NULL, "DUST001.TGA", JO_COLOR_Transparent);
+	dust002_sprite_id = jo_sprite_add_tga(NULL, "DUST002.TGA", JO_COLOR_Transparent);
+	hint_sprite_id = jo_sprite_add_tga(NULL, "HINT.TGA", JO_COLOR_Black);
+	jo_fs_cd("..");
 
 	token_sprite_ids[0] = emptytkn_sprite_id;
 	token_sprite_ids[1] = greentkn_sprite_id;
@@ -463,10 +465,12 @@ void init()
 	token_sprite_ids[4] = deadtkn_sprite_id; 
 
 	// initialize fonts
-	game_white_font = jo_font_load("FNT", "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
+	jo_fs_cd("FNT");
+	game_white_font = jo_font_load(NULL, "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
 	game_white_font->z_index = BACKGROUND_ZINDEX;
-	game_black_font = jo_font_load("FNT", "GAMEBLK.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
+	game_black_font = jo_font_load(NULL, "GAMEBLK.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
 	game_black_font->z_index = BACKGROUND_ZINDEX;
+	jo_fs_cd("..");
 // 	allegro_init();
 
 // 	set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
