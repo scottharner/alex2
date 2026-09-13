@@ -162,6 +162,9 @@ static short pldead_sound_id;
 static short remove_sound_id;
 static short rotate_sound_id;
 static int title_menu_x, title_menu_y;
+static int token_count = 0;
+static int stone_count = 0;
+
 
 static const char* intro_text[] =
 {
@@ -1700,8 +1703,6 @@ int play() {
 	int x,y;
 	int mx,my;
 // 	int clicked = 0;
-	int token_count = 0;
-// 	int stoneCount = 0;
 
 	if (action_counter <= 1)
 	{
@@ -1766,18 +1767,18 @@ int play() {
 				check_board(player);
 				player = (player==1?2:1); // next player
 				token_count++;
-// 				if (token_count==10) {
-// 					token_count=0;
-// 					if (stoneCount<10) {
-// 						if (!anim_place_token(rand()%8,rand()%8,4)) {  // can't place stone, try next time
-// 							token_count = 9;
-// 						} 
-// 						else  {// stone placed
-// 							stoneCount++;
-// 							player = (player==1?2:1); // adjust player
-// 						}
-// 					}
-// 				}
+				if (token_count==10) {
+					token_count=0;
+					if (stone_count<10) {
+						if (!anim_place_token(get_random(8)-1,get_random(8)-1,4)) {  // can't place stone, try next time
+							token_count = 9;
+						} 
+						else  {// stone placed
+							stone_count++;
+							player = (player==1?2:1); // adjust player
+						}
+					}
+				}
 			}
 		}
 

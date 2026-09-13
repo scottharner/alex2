@@ -50,3 +50,5 @@ todo
 - cleanup black font
 - screen transitioning code cleanup
 - tracking previous mode?
+- p2 score placement bug
+- next player should wait until sound is done?
