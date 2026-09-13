@@ -1886,19 +1886,19 @@ int play() {
 // 			game_count=0;
 			if (winner_presses==0) 
 			{
-				jo_font_print_centered(game_black_font, 1, 1, 0.99f, "BOARD CLEARED!");
+				jo_font_print_centered(game_black_font, -1, 1, 0.99f, "BOARD CLEARED!");
 				jo_font_print_centered(game_white_font, 0, 0, 0.99f, "BOARD CLEARED!");
 			}
 			if (winner_presses==1) 
 			{ 
 				if (winner<3) 
 				{
-					jo_font_print_centered(game_black_font, 1, 1, 0.99f, buf);
+					jo_font_print_centered(game_black_font, -1, 1, 0.99f, buf);
 					jo_font_print_centered(game_white_font, 0, 0, 0.99f, buf);
 				}
 				else 
 				{
-					jo_font_print_centered(game_black_font, 1, 1, 0.99f, "IT'S A DRAW!");
+					jo_font_print_centered(game_black_font, -1, 1, 0.99f, "IT'S A DRAW!");
 					jo_font_print_centered(game_white_font, 0, 0, 0.99f, "IT'S A DRAW!");
 				}
 			}
