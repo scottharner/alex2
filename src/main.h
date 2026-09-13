@@ -72,6 +72,7 @@ typedef enum
 	INPUT_TYPE_DOWN_RIGHT, 
 	INPUT_TYPE_A,
 	INPUT_TYPE_C,
+	INPUT_TYPE_Z,
 	INPUT_TYPE_COUNT
 }input_type;
 

@@ -123,6 +123,7 @@ static int greentkn_sprite_id;
 static int bluetkn_sprite_id;
 static int multitkn_sprite_id;
 static int deadtkn_sprite_id;
+static int hint_sprite_id;
 static int board_sprite_id;
 static int p1status_sprite_id;
 static int p2status_sprite_id;
@@ -450,6 +451,7 @@ void init()
 	notkn_sprite_id = jo_sprite_add_tga("TEX", "NOTKN.TGA", JO_COLOR_Black);
 	dust001_sprite_id = jo_sprite_add_tga("TEX", "DUST001.TGA", JO_COLOR_Transparent);
 	dust002_sprite_id = jo_sprite_add_tga("TEX", "DUST002.TGA", JO_COLOR_Transparent);
+	hint_sprite_id = jo_sprite_add_tga("TEX", "HINT.TGA", JO_COLOR_Black);
 
 	token_sprite_ids[0] = emptytkn_sprite_id;
 	token_sprite_ids[1] = greentkn_sprite_id;
@@ -545,6 +547,7 @@ static void update_input_states(bool current_input_states[INPUT_TYPE_COUNT])
     current_input_states[INPUT_TYPE_START] = jo_is_pad1_key_pressed(JO_KEY_START);    
 	current_input_states[INPUT_TYPE_A] = jo_is_pad1_key_pressed(JO_KEY_A);
 	current_input_states[INPUT_TYPE_C] = jo_is_pad1_key_pressed(JO_KEY_C);
+	current_input_states[INPUT_TYPE_Z] = jo_is_pad1_key_pressed(JO_KEY_Z);
 }
 
 // retrieve the input type from the user
@@ -578,6 +581,7 @@ input_type get_input_types(mode game_mode, bool current_input_states[INPUT_TYPE_
                 if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;  
 				else if (input_pressed(INPUT_TYPE_A)) current_input = INPUT_TYPE_A;
 				else if (input_pressed(INPUT_TYPE_C)) current_input = INPUT_TYPE_C;
+				else if (input_pressed(INPUT_TYPE_Z)) current_input = INPUT_TYPE_Z;
                 else if (jo_is_pad1_key_pressed(JO_KEY_UP) && jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_input = INPUT_TYPE_UP_LEFT;
                 else if (jo_is_pad1_key_pressed(JO_KEY_UP) && jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_input = INPUT_TYPE_UP_RIGHT;
                 else if (jo_is_pad1_key_pressed(JO_KEY_DOWN) && jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_input = INPUT_TYPE_DOWN_LEFT;
@@ -742,10 +746,11 @@ void draw_game(int show_pointer) {
 		}
 	}
 
-// 	// draw hint
-// 	if (hint & 8) {
-// 		draw_sprite(swap_screen, data[TOKEN006].dat, 21+hint_x*24, 21+hint_y*24);
-// 	}
+ 	// draw hint
+ 	if (hint & 8) {
+		jo_sprite_draw3D2(hint_sprite_id, 21+hint_x*24, 21+hint_y*24, BACKGROUND_ZINDEX);
+		// 		draw_sprite(swap_screen, data[TOKEN006].dat, 21+hint_x*24, 21+hint_y*24);
+ 	}
 
 	// draw scores
 	char score_string[10];
@@ -1119,7 +1124,7 @@ void start_new_game() {
 	winner = 0;
 	winner_presses = 0;
 	locked_col = locked_row = -1;
-	// hint = 0;
+	hint = 0;
 
 	ply[1] = ply[2] = reset_player;
 
@@ -1635,27 +1640,27 @@ int get_hint(int player, int recurse)
 // 	}
 
 	
-// 	// check if opponent can win next turn
-// 	if (recurse && !crisis && move>1) {
-// 		int ox,oy;
-// 		ox = hint_x;	// backup own move
-// 		oy = hint_y;  // backup own move
+	// // check if opponent can win next turn
+	// if (recurse && !crisis && move>1) {
+	// 	int ox,oy;
+	// 	ox = hint_x;	// backup own move
+	// 	oy = hint_y;  // backup own move
 
-// 		// do move (place)
-// 		if (place_token(ox,oy,player)) {			// make move if available
-// 			i = get_hint((player==1?2:1),0);		// no recurse!!!
-// 			board[ox][oy] = empty_square;		// remove temporary token
-// 			if (i < 10000) {					// opponent can't win next time, use own move
-// 				hint_x = ox;	
-// 				hint_y = oy;  
-// 			}	
-// 			else {  // opponent can win, stop him!
-// 				crisis = 1;
-// 			}
-// 		}
-// 		else 
-// 			crisis = 3;   // can't find spot, make random slide
-// 	}
+	// 	// do move (place)
+	// 	if (place_token(ox,oy,player)) {			// make move if available
+	// 		i = get_hint((player==1?2:1),0);		// no recurse!!!
+	// 		board[ox][oy] = empty_square;		// remove temporary token
+	// 		if (i < 10000) {					// opponent can't win next time, use own move
+	// 			hint_x = ox;	
+	// 			hint_y = oy;  
+	// 		}	
+	// 		else {  // opponent can win, stop him!
+	// 			crisis = 1;
+	// 		}
+	// 	}
+	// 	else 
+	// 		crisis = 3;   // can't find spot, make random slide
+	// }
 
 // 	if (crisis==1) { // opponent can win by placing a token
 // 		get_hint((player==1?2:1),0); // find out where and put it there
@@ -1673,6 +1678,19 @@ int get_hint(int player, int recurse)
 // 		else if (r>25) { hint_y = rand()%8; hint_x = -1; }
 // 		else { hint_y = rand()%8; hint_x = 8; }
 // 	}
+
+	// possible temporary fail safe to look for empty location
+	// we were sometimes seeing a hint on top of a block but some code was commented
+	if (board[hint_x][hint_y].token)
+	{
+		for(x=0;x<8;x++)
+			for(y=0;y<8;y++)
+				if (!board[x][y].token) 
+				{
+					hint_x = x;
+					hint_y = y;
+				}
+	}
 
 	return best_score;
 }
@@ -1731,8 +1749,7 @@ int play() {
 // 		if (ply[1].anim) ply[1].anim--;
 // 		if (ply[2].anim) ply[2].anim--;
 
-// 		if (hint) hint--;
-// 		if (key[KEY_H]) get_hint(player,3);
+		if (hint && !jo_is_pad1_key_pressed(JO_KEY_Z)) hint--; // hold hint steady if z is held
 
 		if (scrolling) if (--scrolling==0) {
 			playing=1;
@@ -1789,47 +1806,54 @@ int play() {
 		}
 
 		// check if the user simulated a mouse click
-		if ((current_input == INPUT_TYPE_A || current_input == INPUT_TYPE_C) && player != cpu)
+		if (player != cpu)
 		{
-			mx = pointer_x;
-			my = pointer_y;
-			if (playing)
+			if ((current_input == INPUT_TYPE_A || current_input == INPUT_TYPE_C))
 			{
-				// check board
-				for(x=0;x<8;x++)
-					for(y=0;y<8;y++)
-						if (mx>21+x*24 && mx<44+x*24 && my>21+y*24 && my<44+y*24) 
-						{
-							if (anim_place_token(x,y,(ply[player].carry?3:player))) 
+				mx = pointer_x;
+				my = pointer_y;
+				if (playing)
+				{
+					// check board
+					for(x=0;x<8;x++)
+						for(y=0;y<8;y++)
+							if (mx>21+x*24 && mx<44+x*24 && my>21+y*24 && my<44+y*24) 
 							{
-								locked_col = locked_row = -1;
-								ply[player].carry = 0;
+								if (anim_place_token(x,y,(ply[player].carry?3:player))) 
+								{
+									locked_col = locked_row = -1;
+									ply[player].carry = 0;
+								}
 							}
+
+					// check arrows
+					if (!ply[player].carry) 
+						for(x=0;x<8;x++) {
+							int moved = 0;
+							if (mx>27+x*24 && mx<37+x*24 && my>6 && my<16 && locked_col!=x) moved = anim_rotate_column(x, 1);
+							if (mx>27+x*24 && mx<37+x*24 && my>216 && my<226 && locked_col!=x) moved = anim_rotate_column(x, 0);
+							if (mx>6 && mx<16 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 1);
+							if (mx>216 && mx<226 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 0);
 						}
 
-				// check arrows
-				if (!ply[player].carry) 
-					for(x=0;x<8;x++) {
-						int moved = 0;
-						if (mx>27+x*24 && mx<37+x*24 && my>6 && my<16 && locked_col!=x) moved = anim_rotate_column(x, 1);
-						if (mx>27+x*24 && mx<37+x*24 && my>216 && my<226 && locked_col!=x) moved = anim_rotate_column(x, 0);
-						if (mx>6 && mx<16 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 1);
-						if (mx>216 && mx<226 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 0);
+					// check other (multi)
+					if (ply[player].multi && !ply[player].carry) {
+						if (mx>245 && mx<268 && my>73+112*(player-1) && my<96+112*(player-1)) {
+							ply[player].multi--;
+							ply[player].carry = 1;
+						}
 					}
-
-				// check other (multi)
-				if (ply[player].multi && !ply[player].carry) {
-					if (mx>245 && mx<268 && my>73+112*(player-1) && my<96+112*(player-1)) {
-						ply[player].multi--;
-						ply[player].carry = 1;
+					else if (ply[player].carry) {
+						if (mx>245 && mx<268 && my>73+112*(player-1) && my<96+112*(player-1)) {
+							ply[player].multi ++;
+							ply[player].carry = 0;
+						}
 					}
 				}
-				else if (ply[player].carry) {
-					if (mx>245 && mx<268 && my>73+112*(player-1) && my<96+112*(player-1)) {
-						ply[player].multi ++;
-						ply[player].carry = 0;
-					}
-				}
+			}
+			else if (current_input == INPUT_TYPE_Z)
+			{
+				get_hint(player,3);
 			}
 		}
 
