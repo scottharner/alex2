@@ -752,7 +752,6 @@ void draw_game(int show_pointer) {
  	// draw hint
  	if (hint & 8) {
 		jo_sprite_draw3D2(hint_sprite_id, 21+hint_x*24, 21+hint_y*24, BACKGROUND_ZINDEX);
-		// 		draw_sprite(swap_screen, data[TOKEN006].dat, 21+hint_x*24, 21+hint_y*24);
  	}
 
 	// draw scores
@@ -762,6 +761,7 @@ void draw_game(int show_pointer) {
 	jo_font_print(game_black_font, right_aligned_x-1,20,0.99f, score_string);
 	jo_font_print(game_white_font, right_aligned_x,19,0.99f, score_string);
 	sprintf(score_string, "%d", ply[2].score);
+	right_aligned_x = get_right_aligned_x_coord(game_white_font, 314, 0.99f, score_string);
 	jo_font_print(game_black_font, right_aligned_x-1,122,0.99f, score_string);
 	jo_font_print(game_white_font, right_aligned_x,121,0.99f, score_string);
 
