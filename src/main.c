@@ -141,6 +141,8 @@ static int notkn_sprite_id;
 static int dust001_sprite_id;
 static int dust002_sprite_id;
 static int end_sprite_id;
+static int tglup_sprite_id;
+static int tgldn_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_white_font;
@@ -459,6 +461,8 @@ void init()
 	dust002_sprite_id = jo_sprite_add_tga(NULL, "DUST002.TGA", JO_COLOR_Transparent);
 	hint_sprite_id = jo_sprite_add_tga(NULL, "HINT.TGA", JO_COLOR_Black);
 	end_sprite_id = jo_sprite_add_tga(NULL, "END.TGA", JO_COLOR_RGB(255,0,255));
+	tglup_sprite_id = jo_sprite_add_tga(NULL, "TGLUP.TGA", JO_COLOR_RGB(255,0,255));
+	tgldn_sprite_id = jo_sprite_add_tga(NULL, "TGLDN.TGA", JO_COLOR_RGB(255,0,255));
 	jo_fs_cd("..");
 
 	token_sprite_ids[0] = emptytkn_sprite_id;
@@ -1515,12 +1519,21 @@ void hof()
 	jo_font_print_centered(game_white_font, 0, -28, 0.50f, score_string);
 
 	int center_x_coord = get_center_aligned_x_coord(game_white_font, 0.99f, "AAAA");
-	jo_font_print(game_white_font, center_x_coord, 100, 0.99f, "A");		
-	jo_font_print(game_white_font, center_x_coord + 16, 100, 0.99f, "A");		
-	jo_font_print(game_white_font, center_x_coord + 32, 100, 0.99f, "A");		
+	jo_sprite_draw3D2(tglup_sprite_id, center_x_coord, 104, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(tglup_sprite_id, center_x_coord + 16, 104, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(tglup_sprite_id, center_x_coord + 32, 104, BACKGROUND_ZINDEX);
+	jo_font_print(game_black_font, center_x_coord-1, 117, 0.99f, "A");
+	jo_font_print(game_white_font, center_x_coord, 116, 0.99f, "A");		
+	jo_font_print(game_black_font, center_x_coord+16-1, 117, 0.99f, "A");
+	jo_font_print(game_white_font, center_x_coord + 16, 116, 0.99f, "A");		
+	jo_font_print(game_black_font, center_x_coord+32-1, 117, 0.99f, "A");
+	jo_font_print(game_white_font, center_x_coord + 32, 116, 0.99f, "A");		
 	jo_sprite_change_sprite_scale_xy(0.50f, 0.50f);
-	jo_sprite_draw3D2(end_sprite_id, center_x_coord + 36, 94, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(end_sprite_id, center_x_coord + 36, 110, BACKGROUND_ZINDEX);
 	jo_sprite_restore_sprite_scale();
+	jo_sprite_draw3D2(tgldn_sprite_id, center_x_coord, 140, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(tgldn_sprite_id, center_x_coord + 16, 140, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(tgldn_sprite_id, center_x_coord + 32, 140, BACKGROUND_ZINDEX);
 
 // 	fade_out(4);
 
