@@ -48,7 +48,8 @@ typedef enum
 	MODE_INSTRUCTIONS,
 	MODE_CREDITS,
 	MODE_HIGH_SCORES,
-	MODE_GAME
+	MODE_GAME,
+	MODE_HOF
 }mode;
 
 typedef enum

@@ -140,6 +140,7 @@ static int player21_sprite_id;
 static int notkn_sprite_id;
 static int dust001_sprite_id;
 static int dust002_sprite_id;
+static int end_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_white_font;
@@ -164,7 +165,8 @@ static short rotate_sound_id;
 static int title_menu_x, title_menu_y;
 static int token_count = 0;
 static int stone_count = 0;
-
+static int hof_p = 0;
+static int hof_score = 0;
 
 static const char* intro_text[] =
 {
@@ -456,6 +458,7 @@ void init()
 	dust001_sprite_id = jo_sprite_add_tga(NULL, "DUST001.TGA", JO_COLOR_Transparent);
 	dust002_sprite_id = jo_sprite_add_tga(NULL, "DUST002.TGA", JO_COLOR_Transparent);
 	hint_sprite_id = jo_sprite_add_tga(NULL, "HINT.TGA", JO_COLOR_Black);
+	end_sprite_id = jo_sprite_add_tga(NULL, "END.TGA", JO_COLOR_RGB(255,0,255));
 	jo_fs_cd("..");
 
 	token_sprite_ids[0] = emptytkn_sprite_id;
@@ -668,6 +671,11 @@ void make_bg() {
 int get_right_aligned_x_coord(const jo_font *font, int right_x, float scale, char *text)
 {
 	return right_x - (strlen(text) * font->spacing * scale);
+}
+
+int get_center_aligned_x_coord(const jo_font *font, float scale, char *text)
+{
+	return JO_TV_WIDTH_2 - (strlen(text) * font->spacing * scale)/2;
 }
 
 void set_pointer_position(input_type current_input)
@@ -1376,23 +1384,7 @@ void check_board(byte player)
 }
 
 void draw_high_scores() {
-	int i;
-
-// 	// draw header
-// 	draw_character(swap_screen, data[TITLE].dat, 8, 21, 1);
-// 	draw_sprite(swap_screen,data[TITLE].dat,7,20);
-// 	draw_rle_sprite(swap_screen,data[AA2].dat,250,10);
-// 	color_map = &trans_table;
-// 	draw_trans_sprite(swap_screen,data[TITLE].dat,7,20);
-// 	textout_centre(swap_screen,data[MYFONT].dat,"ALL TIME HIGH",161,51,1);
-// 	textout_centre(swap_screen,data[MYFONT].dat,"ALL TIME HIGH",160,50,-1);
-
-// 	for(i=0;i<MAX_SCORES;i++) {
-// 		textout(swap_screen,data[MYFONT2].dat,hisc[i].name,41,81+i*12,1);
-// 		textout(swap_screen,data[MYFONT2].dat,hisc[i].name,40,80+i*12,-1);
-// 		textprintf_right(swap_screen,data[MYFONT2].dat,281,81+i*12,1,"%5d",hisc[i].score);
-// 		textprintf_right(swap_screen,data[MYFONT2].dat,280,80+i*12,-1,"%5d",hisc[i].score);
-// 	}	
+	int i;	
 
 	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
 	jo_sprite_enable_half_transparency();
@@ -1452,23 +1444,85 @@ void high_scores() {
 // 	clear(screen);
 }
 
-// void enterHof(Thisc post, int p) {
+void hof()
+{
 // 	int i,kp;
 
-// 	fade_out(4);
-// 	clear_to_color(screen,(p==1?34:37));
-// 	draw_character(screen, data[TITLE].dat, 8, 21, 1);
-// 	draw_sprite(screen,data[TITLE].dat,7,20);
-// 	draw_rle_sprite(screen,data[AA2].dat,250,10);
-// 	color_map = &trans_table;
-// 	draw_trans_sprite(screen,data[TITLE].dat,7,20);
-// 	textout_centre(screen,data[MYFONT].dat,"ALL TIME HIGH",161,51,1);
-// 	textout_centre(screen,data[MYFONT].dat,"ALL TIME HIGH",160,50,-1);
+	// check player 1 and player 2 to figure out who needs to enter their score
+	// we might need to enter one and then the other
+	// when we are done we need to switch to high score mode
+	if (action_counter <= 1)
+	{
+		Thisc tmp;
+		hof_score = 0;
+		hof_p = 1;
+		if (ply[1].score>=ply[2].score) 
+		{
+			tmp.score = ply[1].score;
+			if (qualify_table(hisc, tmp) && cpu!=1) 
+			{
+				hof_p = 1;
+				hof_score = tmp.score;
+			}
+			else
+			{
+				tmp.score = ply[2].score;
+				if (qualify_table(hisc, tmp) && cpu!=2) 
+				{
+					hof_p = 2;
+					hof_score = tmp.score;
+				}
+			}
+		}
+		else 
+		{
+			tmp.score = ply[2].score;
+			if (qualify_table(hisc, tmp) && cpu!=2)
+			{
+				hof_p = 2;
+				hof_score = tmp.score;
+			}
+			else
+			{
+				tmp.score = ply[1].score;
+				if (qualify_table(hisc, tmp) && cpu!=1) 
+				{
+					hof_p = 1;
+					hof_score = tmp.score;
+				}
+			}
+		}
 
-// 	draw_sprite(screen, data[TOKEN000+p].dat, 0, 80);
-// 	draw_sprite(screen, data[TOKEN000+p].dat, 319-23, 80);
-// 	textprintf_centre(screen,data[MYFONT2].dat,161,81,1,"Player %d, you got a high score!",p);
-// 	textprintf_centre(screen,data[MYFONT2].dat,160,80,-1,"Player %d, you got a high score!",p);
+		jo_clear_screen();
+		int background_color = (hof_p==1 ? JO_COLOR_RGB(73,97,40) : JO_COLOR_RGB(40,81,97));
+		jo_set_default_background_color(background_color);
+	}
+
+	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
+	jo_sprite_enable_half_transparency();
+	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, 450);
+	jo_sprite_disable_half_transparency();
+
+	int title_y = -60;
+	jo_font_print_centered(game_black_font, -1, title_y+1, 0.99f, "ALL TIME HIGH");
+	jo_font_print_centered(game_white_font, 0, title_y, 0.99f, "ALL TIME HIGH");
+
+	jo_sprite_draw3D2(token_sprite_ids[hof_p], 0, 80, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(token_sprite_ids[hof_p], 320-24, 80, BACKGROUND_ZINDEX);
+	char score_string[35];
+	sprintf(score_string, "PLAYER %d, YOU GOT A HIGH SCORE!", hof_p);
+	jo_font_print_centered(game_black_font, -1, -28+1, 0.50f, score_string);
+	jo_font_print_centered(game_white_font, 0, -28, 0.50f, score_string);
+
+	int center_x_coord = get_center_aligned_x_coord(game_white_font, 0.99f, "AAAA");
+	jo_font_print(game_white_font, center_x_coord, 100, 0.99f, "A");		
+	jo_font_print(game_white_font, center_x_coord + 16, 100, 0.99f, "A");		
+	jo_font_print(game_white_font, center_x_coord + 32, 100, 0.99f, "A");		
+	jo_sprite_change_sprite_scale_xy(0.50f, 0.50f);
+	jo_sprite_draw3D2(end_sprite_id, center_x_coord + 36, 94, BACKGROUND_ZINDEX);
+	jo_sprite_restore_sprite_scale();
+
+// 	fade_out(4);
 
 // 	rectfill(screen,0,130,320,160,(p==1?37:34));
 // 	strcpy(post.name,"*");
@@ -1518,7 +1572,7 @@ void high_scores() {
 // 	while (key[KEY_Y] || key[KEY_ENTER] || key[KEY_N] || key[KEY_ESC]);
 // 	if (ok==2) return 0;
 // 	return 1;
-// }
+}
 
 int loser_warning(int player, int pos_score) {
 	int p = player;
@@ -1866,7 +1920,8 @@ int play() {
 // 		while(!game_count);
 	}
 
-	if (winner) {
+	if (winner) 
+	{
 		char buf[128];
 		Thisc tmp;
 
@@ -1920,24 +1975,38 @@ int play() {
 // 		fade_out(4);
 // 		if (ply[1].score>=ply[2].score) {
 // 			tmp.score = ply[1].score;
-// 			if (qualifyTable(hisc, tmp) && cpu!=1) enterHof(tmp,1);
+// 			if (qualify_table(hisc, tmp) && cpu!=1) hof(tmp,1);
 // 			tmp.score = ply[2].score;
-// 			if (qualifyTable(hisc, tmp) && cpu!=2) enterHof(tmp,2);
+// 			if (qualify_table(hisc, tmp) && cpu!=2) hof(tmp,2);
 // 		}
 // 		else {
 // 			tmp.score = ply[2].score;
-// 			if (qualifyTable(hisc, tmp) && cpu!=2) enterHof(tmp,2);
+// 			if (qualifyTable(hisc, tmp) && cpu!=2) hof(tmp,2);
 // 			tmp.score = ply[1].score;
-// 			if (qualifyTable(hisc, tmp) && cpu!=1) enterHof(tmp,1);
+// 			if (qualifyTable(hisc, tmp) && cpu!=1) hof(tmp,1);
 // 		}
 // 		showHighscores();
 		if (done)
 		{
-			// user wants to return to title
-			game_mode = MODE_TITLE;
-			reset_title_props();
-			CDDA_Stop();
-			CDDA_PlaySingle(TITLE_TRACKID, true);
+			// prepare to prompt for initials or display high scores
+			action_counter = 0;
+			bool player_hof_qualified = false;
+			tmp.score = ply[1].score;
+			if (qualify_table(hisc, tmp) && cpu!=1) player_hof_qualified = true;
+			if (!player_hof_qualified)
+			{
+				tmp.score = ply[2].score;
+				if (qualify_table(hisc, tmp) && cpu!=2) player_hof_qualified = true;
+			}
+			
+			if (player_hof_qualified)
+			{
+				game_mode = MODE_HOF;
+			}
+			else
+			{
+				game_mode = MODE_HIGH_SCORES;
+			}
 		}
 	}
 
@@ -2323,6 +2392,10 @@ void update_game()
 
 		case MODE_HIGH_SCORES:
 			high_scores();
+			break;
+
+		case MODE_HOF:
+			hof();
 			break;
 
 		case MODE_GAME:

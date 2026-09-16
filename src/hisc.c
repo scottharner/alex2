@@ -19,15 +19,16 @@ Thisc* make_table() {
 	return tmp;
 }
 
-// /*
-//  *  Check if provided score is allowd to enter the table
-//  */
-// int qualifyTable(Thisc *table, Thisc post) {
-// 	int i;
-// 	for (i=0;i<MAX_SCORES;i++)
-// 		if (post.score >= table[i].score) return 1;
-// 	return 0;
-// }
+/*
+ *  Check if provided score is allowd to enter the table
+ */
+int qualify_table(Thisc *table, Thisc post) 
+{
+	int i;
+	for (i=0;i<MAX_SCORES;i++)
+		if (post.score >= table[i].score) return 1;
+	return 0;
+}
 
 // /* 
 //  * Sorts the table
