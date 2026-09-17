@@ -23,6 +23,7 @@ saturn
   - jo_font_print_centered(game_font, 0, 0, 0.99f, intro_text[current_intro_text_index]);
 - if your sprite is showing up as garbage data, check that the dimensions are evenly divisible by 8
 - you get faster load times if you change to tex sub dir before loading all graphics and then change back after
+- if you want something to display before a long load, make certain to output to screen and wait for the current game loop cycle to complete before doing the load
 
 general
 -------
@@ -52,3 +53,4 @@ todo
 - screen transitioning code cleanup
 - tracking previous mode?
 - next player should wait until sound is done?
+- clean up hof screen

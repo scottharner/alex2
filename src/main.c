@@ -141,8 +141,11 @@ static int notkn_sprite_id;
 static int dust001_sprite_id;
 static int dust002_sprite_id;
 static int end_sprite_id;
+static int endh_sprite_id;
 static int tglup_sprite_id;
+static int tgluph_sprite_id;
 static int tgldn_sprite_id;
+static int tgldnh_sprite_id;
 static int action_counter;
 static int fade_counter;
 static jo_font *game_white_font;
@@ -169,6 +172,8 @@ static int token_count = 0;
 static int stone_count = 0;
 static int hof_p = 0;
 static int hof_score = 0;
+static int hof_selected_index = 0;
+static bool game_sprites_loaded = false;
 
 static const char* intro_text[] =
 {
@@ -414,6 +419,79 @@ void reset_game()
 	reset_title_props();
 }
 
+void load_intro_sprites()
+{
+	shlogo_sprite_id = jo_sprite_add_tga(NULL, "SHLOGO.TGA", JO_COLOR_Transparent);
+}
+
+void unload_intro_sprites()
+{
+	jo_sprite_free_from(shlogo_sprite_id);
+}
+
+void load_pregame_sprites()
+{
+	jo_fs_cd("TEX");
+	load_title_sprites();
+	load_intro_sprites(); // load last since we will unload these which frees memory after
+	jo_fs_cd("..");
+}
+
+void load_title_sprites()
+{
+	title_sprite_id = jo_sprite_add_tga(NULL, "TITLE.TGA", JO_COLOR_Transparent);
+	aa2_sprite_id = jo_sprite_add_tga(NULL, "AA2.TGA", JO_COLOR_Black);
+	aalogo_sprite_id = jo_sprite_add_tga(NULL, "AALOGO.TGA", JO_COLOR_RGB(255,0,255));
+	vol1_sprite_id = jo_sprite_add_tga(NULL, "VOL1.TGA", JO_COLOR_Black);
+	vol2_sprite_id = jo_sprite_add_tga(NULL, "VOL2.TGA", JO_COLOR_Black);
+	vol3_sprite_id = jo_sprite_add_tga(NULL, "VOL3.TGA", JO_COLOR_Black);
+	pointer_sprite_id = jo_sprite_add_tga(NULL, "POINTER.TGA", JO_COLOR_Black);
+}
+
+void load_game_sprites()
+{
+	if (!game_sprites_loaded)
+	{
+		jo_fs_cd("TEX");
+		emptytkn_sprite_id = jo_sprite_add_tga(NULL, "EMPTYTKN.TGA", JO_COLOR_Black);
+		greentkn_sprite_id = jo_sprite_add_tga(NULL, "GREENTKN.TGA", JO_COLOR_Transparent);
+		bluetkn_sprite_id = jo_sprite_add_tga(NULL, "BLUETKN.TGA", JO_COLOR_Transparent);
+		multitkn_sprite_id = jo_sprite_add_tga(NULL, "MULTITKN.TGA", JO_COLOR_Black);
+		deadtkn_sprite_id = jo_sprite_add_tga(NULL, "DEADTKN.TGA", JO_COLOR_Black);
+		board_sprite_id = jo_sprite_add_tga(NULL, "BOARD.TGA", JO_COLOR_Transparent);
+		p1status_sprite_id = jo_sprite_add_tga(NULL, "P1STATUS.TGA", JO_COLOR_Transparent);
+		p2status_sprite_id = jo_sprite_add_tga(NULL, "P2STATUS.TGA", JO_COLOR_Transparent);
+		arrow1_sprite_id = jo_sprite_add_tga(NULL, "ARROW1.TGA", JO_COLOR_Black);
+		arrow2_sprite_id = jo_sprite_add_tga(NULL, "ARROW2.TGA", JO_COLOR_Black);
+		arrow3_sprite_id = jo_sprite_add_tga(NULL, "ARROW3.TGA", JO_COLOR_Black);
+		arrow4_sprite_id = jo_sprite_add_tga(NULL, "ARROW4.TGA", JO_COLOR_Black);
+		darrow1_sprite_id = jo_sprite_add_tga(NULL, "DARROW1.TGA", JO_COLOR_Black);
+		darrow2_sprite_id = jo_sprite_add_tga(NULL, "DARROW2.TGA", JO_COLOR_Black);
+		darrow3_sprite_id = jo_sprite_add_tga(NULL, "DARROW3.TGA", JO_COLOR_Black);
+		darrow4_sprite_id = jo_sprite_add_tga(NULL, "DARROW4.TGA", JO_COLOR_Black);
+		player11_sprite_id = jo_sprite_add_tga(NULL, "PLAYER11.TGA", JO_COLOR_Black);
+		player21_sprite_id = jo_sprite_add_tga(NULL, "PLAYER21.TGA", JO_COLOR_Black);
+		notkn_sprite_id = jo_sprite_add_tga(NULL, "NOTKN.TGA", JO_COLOR_Black);
+		dust001_sprite_id = jo_sprite_add_tga(NULL, "DUST001.TGA", JO_COLOR_Transparent);
+		dust002_sprite_id = jo_sprite_add_tga(NULL, "DUST002.TGA", JO_COLOR_Transparent);
+		hint_sprite_id = jo_sprite_add_tga(NULL, "HINT.TGA", JO_COLOR_Black);
+		end_sprite_id = jo_sprite_add_tga(NULL, "END.TGA", JO_COLOR_RGB(255,0,255));
+		tglup_sprite_id = jo_sprite_add_tga(NULL, "TGLUP.TGA", JO_COLOR_RGB(255,0,255));
+		tgldn_sprite_id = jo_sprite_add_tga(NULL, "TGLDN.TGA", JO_COLOR_RGB(255,0,255));
+		endh_sprite_id = jo_sprite_add_tga(NULL, "ENDH.TGA", JO_COLOR_RGB(255,0,255));
+		tgluph_sprite_id = jo_sprite_add_tga(NULL, "TGLUPH.TGA", JO_COLOR_RGB(255,0,255));
+		tgldnh_sprite_id = jo_sprite_add_tga(NULL, "TGLDNH.TGA", JO_COLOR_RGB(255,0,255));
+		jo_fs_cd("..");
+		game_sprites_loaded = true;
+
+		token_sprite_ids[0] = emptytkn_sprite_id;
+		token_sprite_ids[1] = greentkn_sprite_id;
+		token_sprite_ids[2] = bluetkn_sprite_id;
+		token_sprite_ids[3] = multitkn_sprite_id;
+		token_sprite_ids[4] = deadtkn_sprite_id; 
+	}
+}
+
 void init() 
 {
 	jo_core_init(JO_COLOR_Black);
@@ -428,49 +506,6 @@ void init()
 	remove_sound_id = load_8bit_pcm((Sint8 *)"REMOVE.PCM", 15360);
 	rotate_sound_id = load_8bit_pcm((Sint8 *)"ROTATE.PCM", 15360);
 
-	// initialize graphics
-	jo_fs_cd("TEX");
-	shlogo_sprite_id = jo_sprite_add_tga(NULL, "SHLOGO.TGA", JO_COLOR_Transparent);
-	title_sprite_id = jo_sprite_add_tga(NULL, "TITLE.TGA", JO_COLOR_Transparent);
-	aa2_sprite_id = jo_sprite_add_tga(NULL, "AA2.TGA", JO_COLOR_Black);
-	aalogo_sprite_id = jo_sprite_add_tga(NULL, "AALOGO.TGA", JO_COLOR_RGB(255,0,255));
-	vol1_sprite_id = jo_sprite_add_tga(NULL, "VOL1.TGA", JO_COLOR_Black);
-	vol2_sprite_id = jo_sprite_add_tga(NULL, "VOL2.TGA", JO_COLOR_Black);
-	vol3_sprite_id = jo_sprite_add_tga(NULL, "VOL3.TGA", JO_COLOR_Black);
-	pointer_sprite_id = jo_sprite_add_tga(NULL, "POINTER.TGA", JO_COLOR_Black);
-	emptytkn_sprite_id = jo_sprite_add_tga(NULL, "EMPTYTKN.TGA", JO_COLOR_Black);
-	greentkn_sprite_id = jo_sprite_add_tga(NULL, "GREENTKN.TGA", JO_COLOR_Transparent);
-	bluetkn_sprite_id = jo_sprite_add_tga(NULL, "BLUETKN.TGA", JO_COLOR_Transparent);
-	multitkn_sprite_id = jo_sprite_add_tga(NULL, "MULTITKN.TGA", JO_COLOR_Black);
-	deadtkn_sprite_id = jo_sprite_add_tga(NULL, "DEADTKN.TGA", JO_COLOR_Black);
-	board_sprite_id = jo_sprite_add_tga(NULL, "BOARD.TGA", JO_COLOR_Transparent);
-	p1status_sprite_id = jo_sprite_add_tga(NULL, "P1STATUS.TGA", JO_COLOR_Transparent);
-	p2status_sprite_id = jo_sprite_add_tga(NULL, "P2STATUS.TGA", JO_COLOR_Transparent);
-	arrow1_sprite_id = jo_sprite_add_tga(NULL, "ARROW1.TGA", JO_COLOR_Black);
-	arrow2_sprite_id = jo_sprite_add_tga(NULL, "ARROW2.TGA", JO_COLOR_Black);
-	arrow3_sprite_id = jo_sprite_add_tga(NULL, "ARROW3.TGA", JO_COLOR_Black);
-	arrow4_sprite_id = jo_sprite_add_tga(NULL, "ARROW4.TGA", JO_COLOR_Black);
-	darrow1_sprite_id = jo_sprite_add_tga(NULL, "DARROW1.TGA", JO_COLOR_Black);
-	darrow2_sprite_id = jo_sprite_add_tga(NULL, "DARROW2.TGA", JO_COLOR_Black);
-	darrow3_sprite_id = jo_sprite_add_tga(NULL, "DARROW3.TGA", JO_COLOR_Black);
-	darrow4_sprite_id = jo_sprite_add_tga(NULL, "DARROW4.TGA", JO_COLOR_Black);
-	player11_sprite_id = jo_sprite_add_tga(NULL, "PLAYER11.TGA", JO_COLOR_Black);
-	player21_sprite_id = jo_sprite_add_tga(NULL, "PLAYER21.TGA", JO_COLOR_Black);
-	notkn_sprite_id = jo_sprite_add_tga(NULL, "NOTKN.TGA", JO_COLOR_Black);
-	dust001_sprite_id = jo_sprite_add_tga(NULL, "DUST001.TGA", JO_COLOR_Transparent);
-	dust002_sprite_id = jo_sprite_add_tga(NULL, "DUST002.TGA", JO_COLOR_Transparent);
-	hint_sprite_id = jo_sprite_add_tga(NULL, "HINT.TGA", JO_COLOR_Black);
-	end_sprite_id = jo_sprite_add_tga(NULL, "END.TGA", JO_COLOR_RGB(255,0,255));
-	tglup_sprite_id = jo_sprite_add_tga(NULL, "TGLUP.TGA", JO_COLOR_RGB(255,0,255));
-	tgldn_sprite_id = jo_sprite_add_tga(NULL, "TGLDN.TGA", JO_COLOR_RGB(255,0,255));
-	jo_fs_cd("..");
-
-	token_sprite_ids[0] = emptytkn_sprite_id;
-	token_sprite_ids[1] = greentkn_sprite_id;
-	token_sprite_ids[2] = bluetkn_sprite_id;
-	token_sprite_ids[3] = multitkn_sprite_id;
-	token_sprite_ids[4] = deadtkn_sprite_id; 
-
 	// initialize fonts
 	jo_fs_cd("FNT");
 	game_white_font = jo_font_load(NULL, "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
@@ -478,6 +513,10 @@ void init()
 	game_black_font = jo_font_load(NULL, "GAMEBLK.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
 	game_black_font->z_index = BACKGROUND_ZINDEX;
 	jo_fs_cd("..");
+
+	// initialize graphics
+	load_pregame_sprites();
+
 // 	allegro_init();
 
 // 	set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
@@ -1460,6 +1499,7 @@ void hof()
 		Thisc tmp;
 		hof_score = 0;
 		hof_p = 1;
+		hof_selected_index = 0;
 		if (ply[1].score>=ply[2].score) 
 		{
 			tmp.score = ply[1].score;
@@ -1519,21 +1559,21 @@ void hof()
 	jo_font_print_centered(game_white_font, 0, -28, 0.50f, score_string);
 
 	int center_x_coord = get_center_aligned_x_coord(game_white_font, 0.99f, "AAAA");
-	jo_sprite_draw3D2(tglup_sprite_id, center_x_coord, 104, BACKGROUND_ZINDEX);
-	jo_sprite_draw3D2(tglup_sprite_id, center_x_coord + 16, 104, BACKGROUND_ZINDEX);
-	jo_sprite_draw3D2(tglup_sprite_id, center_x_coord + 32, 104, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 0 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord, 104, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 1 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord + 18, 104, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 2 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord + 36, 104, BACKGROUND_ZINDEX);
 	jo_font_print(game_black_font, center_x_coord-1, 117, 0.99f, "A");
 	jo_font_print(game_white_font, center_x_coord, 116, 0.99f, "A");		
-	jo_font_print(game_black_font, center_x_coord+16-1, 117, 0.99f, "A");
-	jo_font_print(game_white_font, center_x_coord + 16, 116, 0.99f, "A");		
-	jo_font_print(game_black_font, center_x_coord+32-1, 117, 0.99f, "A");
-	jo_font_print(game_white_font, center_x_coord + 32, 116, 0.99f, "A");		
+	jo_font_print(game_black_font, center_x_coord+18-1, 117, 0.99f, "A");
+	jo_font_print(game_white_font, center_x_coord + 18, 116, 0.99f, "A");		
+	jo_font_print(game_black_font, center_x_coord+36-1, 117, 0.99f, "A");
+	jo_font_print(game_white_font, center_x_coord + 36, 116, 0.99f, "A");		
 	jo_sprite_change_sprite_scale_xy(0.50f, 0.50f);
-	jo_sprite_draw3D2(end_sprite_id, center_x_coord + 36, 110, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 3 ? endh_sprite_id : end_sprite_id, center_x_coord + 42, 110, BACKGROUND_ZINDEX);
 	jo_sprite_restore_sprite_scale();
-	jo_sprite_draw3D2(tgldn_sprite_id, center_x_coord, 140, BACKGROUND_ZINDEX);
-	jo_sprite_draw3D2(tgldn_sprite_id, center_x_coord + 16, 140, BACKGROUND_ZINDEX);
-	jo_sprite_draw3D2(tgldn_sprite_id, center_x_coord + 32, 140, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 0 ? tgldnh_sprite_id : tgldn_sprite_id, center_x_coord, 140, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 1 ? tgldnh_sprite_id : tgldn_sprite_id, center_x_coord + 18, 140, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 2 ? tgldnh_sprite_id : tgldn_sprite_id, center_x_coord + 36, 140, BACKGROUND_ZINDEX);
 
 // 	fade_out(4);
 
@@ -1769,7 +1809,7 @@ int get_hint(int player, int recurse)
 	return best_score;
 }
 
-int play() {
+void play() {
 	int done = 0;
 	int x,y;
 	int mx,my;
@@ -1777,10 +1817,18 @@ int play() {
 
 	if (action_counter <= 1)
 	{
-		thinking = 0;
+		CDDA_Stop();
 		jo_clear_screen();
 		jo_set_default_background_color(JO_COLOR_INDEX_Black);
-		CDDA_Stop();
+		jo_font_print_centered(game_white_font, 0, 0, 0.99f, "LOADING...");
+		return; // give the screen a chance to clear before we do sprite loading
+	}
+	else if (action_counter == 2)
+	{
+		unload_intro_sprites(); // dump the intro sprites to save on memory
+		load_game_sprites();
+
+		thinking = 0;
 		
 		int song_choice = get_random(4);
 		switch (song_choice)
