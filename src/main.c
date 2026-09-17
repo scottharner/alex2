@@ -431,10 +431,8 @@ void unload_intro_sprites()
 
 void load_pregame_sprites()
 {
-	jo_fs_cd("TEX");
 	load_title_sprites();
 	load_intro_sprites(); // load last since we will unload these which frees memory after
-	jo_fs_cd("..");
 }
 
 void load_title_sprites()
@@ -452,7 +450,6 @@ void load_game_sprites()
 {
 	if (!game_sprites_loaded)
 	{
-		jo_fs_cd("TEX");
 		emptytkn_sprite_id = jo_sprite_add_tga(NULL, "EMPTYTKN.TGA", JO_COLOR_Black);
 		greentkn_sprite_id = jo_sprite_add_tga(NULL, "GREENTKN.TGA", JO_COLOR_Transparent);
 		bluetkn_sprite_id = jo_sprite_add_tga(NULL, "BLUETKN.TGA", JO_COLOR_Transparent);
@@ -481,7 +478,6 @@ void load_game_sprites()
 		endh_sprite_id = jo_sprite_add_tga(NULL, "ENDH.TGA", JO_COLOR_RGB(255,0,255));
 		tgluph_sprite_id = jo_sprite_add_tga(NULL, "TGLUPH.TGA", JO_COLOR_RGB(255,0,255));
 		tgldnh_sprite_id = jo_sprite_add_tga(NULL, "TGLDNH.TGA", JO_COLOR_RGB(255,0,255));
-		jo_fs_cd("..");
 		game_sprites_loaded = true;
 
 		token_sprite_ids[0] = emptytkn_sprite_id;
@@ -507,12 +503,10 @@ void init()
 	rotate_sound_id = load_8bit_pcm((Sint8 *)"ROTATE.PCM", 15360);
 
 	// initialize fonts
-	jo_fs_cd("FNT");
 	game_white_font = jo_font_load(NULL, "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
 	game_white_font->z_index = BACKGROUND_ZINDEX;
 	game_black_font = jo_font_load(NULL, "GAMEBLK.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
 	game_black_font->z_index = BACKGROUND_ZINDEX;
-	jo_fs_cd("..");
 
 	// initialize graphics
 	load_pregame_sprites();
