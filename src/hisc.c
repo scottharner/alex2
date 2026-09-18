@@ -30,42 +30,44 @@ int qualify_table(Thisc *table, Thisc post)
 	return 0;
 }
 
-// /* 
-//  * Sorts the table
-//  */
-// void sortTable(Thisc *table) {
-// 	int i,j;
-// 	Thisc tmp;
+/* 
+ * Sorts the table
+ */
+void sort_table(Thisc *table) 
+{
+	int i,j;
+	Thisc tmp;
 
-// 	for (i=1;i<MAX_SCORES;i++) {
-// 		j=i;
-// 		tmp = table[i];
-// 		while (j!=0 && tmp.score > table[j-1].score) {
-// 			table[j]= table[j-1];
-// 			j--;
-// 		}
-// 		table[j] = tmp;
-// 	}
-// }
+	for (i=1;i<MAX_SCORES;i++) {
+		j=i;
+		tmp = table[i];
+		while (j!=0 && tmp.score > table[j-1].score) {
+			table[j]= table[j-1];
+			j--;
+		}
+		table[j] = tmp;
+	}
+}
 
-// /* 
-//  * Replaces the lowest score with the specified
-//  */
-// void enterTable(Thisc *table, Thisc post) { 
-// 	unsigned int lo=10000000;
-// 	int loID=-1;
-// 	int i;
+/* 
+ * Replaces the lowest score with the specified
+ */
+void enter_table(Thisc *table, Thisc post) 
+{ 
+	unsigned int lo=10000000;
+	int lo_id=-1;
+	int i;
 
-// 	// find lowest score
-// 	for (i=0;i<MAX_SCORES;i++) {
-// 		if (table[i].score < lo) {
-// 			loID = i;
-// 			lo = table[i].score;
-// 		}
-// 	}
+	// find lowest score
+	for (i=0;i<MAX_SCORES;i++) {
+		if (table[i].score < lo) {
+			lo_id = i;
+			lo = table[i].score;
+		}
+	}
 
-// 	if (loID>=0) table[loID] = post;
-// }
+	if (lo_id>=0) table[lo_id] = post;
+}
 
 // /* 
 //  * Resets the table to the values specified

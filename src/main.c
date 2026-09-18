@@ -176,6 +176,7 @@ static int hof_p = 0;
 static int hof_score = 0;
 static int hof_selected_index = 0;
 static bool game_sprites_loaded = false;
+static bool did_play_game = false;
 
 static const char hof_chars[] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','.',' ',};
 
@@ -412,16 +413,14 @@ void load_sound_config()
 void reset_title_props()
 {
 	current_game_type = GAME_TYPE_HVC;
-	action_counter = 0;
-
 	title_menu_x=-200, title_menu_y=144;
 	is_showing_start_game_options = false;
 }
 
 void reset_game()
 {
+	action_counter = 0;
 	game_mode = MODE_LOAD;
-	reset_title_props();
 }
 
 void load_intro_sprites()
@@ -1041,7 +1040,17 @@ void title() {
 
 	if (action_counter <= 1)
 	{
-	 	pointer_x=JO_TV_WIDTH_2;
+		if (did_play_game)
+		{
+			// we are coming off a play of the game where other music was playing
+			// stop game music and start title music
+			CDDA_Stop();
+			CDDA_PlaySingle(TITLE_TRACKID, true);
+			did_play_game = false;
+		}
+
+		reset_title_props();
+		pointer_x=JO_TV_WIDTH_2;
 		pointer_y=JO_TV_HEIGHT_2; 
 		//clicked;
 	}
@@ -1561,9 +1570,20 @@ void hof()
 			current_input == INPUT_TYPE_A || 
 			current_input == INPUT_TYPE_C)
 		{
-			// todo - check for end and take action
-			// action_counter = 0;
-			// game_mode = MODE_TITLE;
+			if (hof_selected_index == HOF_MAX_INDEX)
+			{
+				Thisc post;
+				post.score = hof_score;
+				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+				post.name[0] = hof_chars[hof_char_indexes[0]];
+				post.name[1] = hof_chars[hof_char_indexes[1]];
+				post.name[2] = hof_chars[hof_char_indexes[2]];
+				post.name[3] = '\0';
+				enter_table(hisc,post);
+				sort_table(hisc);
+				game_mode = MODE_HIGH_SCORES;
+				action_counter = 0;
+			}
 		}
 		else if (current_input == INPUT_TYPE_LEFT)
 		{
@@ -1655,7 +1675,7 @@ void hof()
 // 	play_sample(data[REMOVE].dat,soundvol,128,1000,0);
 // 	post.name[i]='\0';
 
-// 	enterTable(hisc,post);
+// 	enter_table(hisc,post);
 // 	sortTable(hisc);
 // 	fade_out(4);
 // }
@@ -1866,6 +1886,7 @@ void play() {
 
 	if (action_counter <= 1)
 	{
+		did_play_game = true;
 		CDDA_Stop();
 		jo_clear_screen();
 		jo_set_default_background_color(JO_COLOR_INDEX_Black);

@@ -1,0 +1,6 @@
+hof
+---
+- store score when user presses button on end - done
+- support p1 + p2 hof
+- move to high score after and then title - done
+- update display to underline selected letter and end with a checkbox the style of the x

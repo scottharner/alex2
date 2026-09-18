@@ -12,8 +12,8 @@ typedef struct {
 
 Thisc* make_table();
 int qualify_table(Thisc *table, Thisc post);
-void sortTable(Thisc *table);
-void enterTable(Thisc *table, Thisc post);
+void sort_table(Thisc *table);
+void enter_table(Thisc *table, Thisc post);
 void reset_table(Thisc *table, char *name, int hi, int lo);
 int loadTable(Thisc *table, char *fname);
 void saveTable(Thisc *table, char *fname);
