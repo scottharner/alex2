@@ -58,8 +58,7 @@ game.iso
 game.raw
 
 # cd build files
-/build/cd/tex/
-/build/cd/fnt/
+/build/cd/*.TGA
 /build/cd/*.PCM
 /build/cd/*.bin
 !/build/cd/sdrv.bin
