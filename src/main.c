@@ -68,6 +68,7 @@
 #define GAME_FONT_WIDTH 16
 #define GAME_FONT_HEIGHT 32
 #define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
+#define HOF_MAX_INDEX 3
 
  // BITMAP *swap_screen;
 // BITMAP *bg_screen;
@@ -614,6 +615,7 @@ input_type get_input_types(mode game_mode, bool current_input_states[INPUT_TYPE_
                 break;
 
             case MODE_INSTRUCTIONS:
+			case MODE_HOF:
                 if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;  
 				else if (input_pressed(INPUT_TYPE_A)) current_input = INPUT_TYPE_A;
 				else if (input_pressed(INPUT_TYPE_C)) current_input = INPUT_TYPE_C;
@@ -1533,6 +1535,30 @@ void hof()
 		jo_clear_screen();
 		int background_color = (hof_p==1 ? JO_COLOR_RGB(73,97,40) : JO_COLOR_RGB(40,81,97));
 		jo_set_default_background_color(background_color);
+	}
+	else
+	{
+		input_type current_input = get_input_types(game_mode, current_input_states);
+
+		if (current_input == INPUT_TYPE_START ||
+			current_input == INPUT_TYPE_A || 
+			current_input == INPUT_TYPE_C)
+		{
+			// todo - check for end and take action
+			// action_counter = 0;
+			// game_mode = MODE_TITLE;
+		}
+		else if (current_input == INPUT_TYPE_LEFT)
+		{
+			if (hof_selected_index > 0)
+				hof_selected_index--;
+		}
+		else if (current_input == INPUT_TYPE_RIGHT)
+		{
+			if (hof_selected_index < HOF_MAX_INDEX)
+				hof_selected_index++;
+		}
+
 	}
 
 	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
