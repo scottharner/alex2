@@ -69,6 +69,7 @@
 #define GAME_FONT_HEIGHT 32
 #define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
 #define HOF_MAX_INDEX 3
+#define HOF_CHARS_COUNT 28
 
  // BITMAP *swap_screen;
 // BITMAP *bg_screen;
@@ -175,6 +176,8 @@ static int hof_p = 0;
 static int hof_score = 0;
 static int hof_selected_index = 0;
 static bool game_sprites_loaded = false;
+
+static const char hof_chars[] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','.',' ',};
 
 static const char* intro_text[] =
 {
@@ -326,6 +329,7 @@ static const char* instructions_lines[INSTRUCTIONS_PAGE_COUNT][INSTRUCTIONS_LINE
 };
 
 static int token_sprite_ids[5];
+static int hof_char_indexes[3];
 
 // track button changes for better title menu input handling
 static bool current_input_states[INPUT_TYPE_COUNT];
@@ -615,12 +619,22 @@ input_type get_input_types(mode game_mode, bool current_input_states[INPUT_TYPE_
                 break;
 
             case MODE_INSTRUCTIONS:
+                if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;  
+				else if (input_pressed(INPUT_TYPE_A)) current_input = INPUT_TYPE_A;
+				else if (input_pressed(INPUT_TYPE_C)) current_input = INPUT_TYPE_C;
+				else if (input_pressed(INPUT_TYPE_LEFT)) current_input = INPUT_TYPE_LEFT;
+				else if (input_pressed(INPUT_TYPE_RIGHT)) current_input = INPUT_TYPE_RIGHT;
+
+				break;
+
 			case MODE_HOF:
                 if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;  
 				else if (input_pressed(INPUT_TYPE_A)) current_input = INPUT_TYPE_A;
 				else if (input_pressed(INPUT_TYPE_C)) current_input = INPUT_TYPE_C;
 				else if (input_pressed(INPUT_TYPE_LEFT)) current_input = INPUT_TYPE_LEFT;
 				else if (input_pressed(INPUT_TYPE_RIGHT)) current_input = INPUT_TYPE_RIGHT;
+				else if (input_pressed(INPUT_TYPE_UP)) current_input = INPUT_TYPE_UP;
+				else if (input_pressed(INPUT_TYPE_DOWN)) current_input = INPUT_TYPE_DOWN;
 
 				break;
 
@@ -1495,6 +1509,9 @@ void hof()
 		hof_score = 0;
 		hof_p = 1;
 		hof_selected_index = 0;
+		hof_char_indexes[0] = 0;
+		hof_char_indexes[1] = 0;
+		hof_char_indexes[2] = 0;
 		if (ply[1].score>=ply[2].score) 
 		{
 			tmp.score = ply[1].score;
@@ -1558,7 +1575,20 @@ void hof()
 			if (hof_selected_index < HOF_MAX_INDEX)
 				hof_selected_index++;
 		}
-
+		else if (current_input == INPUT_TYPE_DOWN && hof_selected_index < HOF_MAX_INDEX)
+		{
+			if (hof_char_indexes[hof_selected_index] > 0)
+				hof_char_indexes[hof_selected_index]--;
+			else
+				hof_char_indexes[hof_selected_index] = HOF_CHARS_COUNT - 1;
+		}
+		else if (current_input == INPUT_TYPE_UP && hof_selected_index < HOF_MAX_INDEX)
+		{
+			if (hof_char_indexes[hof_selected_index] == (HOF_CHARS_COUNT - 1))
+				hof_char_indexes[hof_selected_index] = 0;
+			else
+				hof_char_indexes[hof_selected_index]++;
+		}
 	}
 
 	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
@@ -1581,12 +1611,12 @@ void hof()
 	jo_sprite_draw3D2(hof_selected_index == 0 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord, 104, BACKGROUND_ZINDEX);
 	jo_sprite_draw3D2(hof_selected_index == 1 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord + 18, 104, BACKGROUND_ZINDEX);
 	jo_sprite_draw3D2(hof_selected_index == 2 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord + 36, 104, BACKGROUND_ZINDEX);
-	jo_font_print(game_black_font, center_x_coord-1, 117, 0.99f, "A");
-	jo_font_print(game_white_font, center_x_coord, 116, 0.99f, "A");		
-	jo_font_print(game_black_font, center_x_coord+18-1, 117, 0.99f, "A");
-	jo_font_print(game_white_font, center_x_coord + 18, 116, 0.99f, "A");		
-	jo_font_print(game_black_font, center_x_coord+36-1, 117, 0.99f, "A");
-	jo_font_print(game_white_font, center_x_coord + 36, 116, 0.99f, "A");		
+	jo_font_printf(game_black_font, center_x_coord-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[0]]);
+	jo_font_printf(game_white_font, center_x_coord, 116, 0.99f, "%c", hof_chars[hof_char_indexes[0]]);		
+	jo_font_printf(game_black_font, center_x_coord+18-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[1]]);
+	jo_font_printf(game_white_font, center_x_coord + 18, 116, 0.99f, "%c", hof_chars[hof_char_indexes[1]]);		
+	jo_font_printf(game_black_font, center_x_coord+36-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[2]]);
+	jo_font_printf(game_white_font, center_x_coord + 36, 116, 0.99f, "%c", hof_chars[hof_char_indexes[2]]);		
 	jo_sprite_change_sprite_scale_xy(0.50f, 0.50f);
 	jo_sprite_draw3D2(hof_selected_index == 3 ? endh_sprite_id : end_sprite_id, center_x_coord + 42, 110, BACKGROUND_ZINDEX);
 	jo_sprite_restore_sprite_scale();
