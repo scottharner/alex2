@@ -415,7 +415,7 @@ void reset_title_props()
 
 void reset_game()
 {
-	game_mode = MODE_INTRO;
+	game_mode = MODE_LOAD;
 	reset_title_props();
 }
 
@@ -429,8 +429,17 @@ void unload_intro_sprites()
 	jo_sprite_free_from(shlogo_sprite_id);
 }
 
-void load_pregame_sprites()
+void load_pregame_assets()
 {
+	select_sound_id = load_8bit_pcm((Sint8 *)"SELECT.PCM", 15360); // using ponesound due to issues with jo engine audio
+	plmulti_sound_id = load_8bit_pcm((Sint8 *)"PLMULTI.PCM", 15360);
+	pldead_sound_id = load_8bit_pcm((Sint8 *)"PLDEAD.PCM", 15360);
+	remove_sound_id = load_8bit_pcm((Sint8 *)"REMOVE.PCM", 15360);
+	rotate_sound_id = load_8bit_pcm((Sint8 *)"ROTATE.PCM", 15360);
+
+	game_black_font = jo_font_load(NULL, "GAMEBLK.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
+	game_black_font->z_index = BACKGROUND_ZINDEX;
+
 	load_title_sprites();
 	load_intro_sprites(); // load last since we will unload these which frees memory after
 }
@@ -496,20 +505,10 @@ void init()
 	// initialize sound
 	load_drv(ADX_MASTER_2304);
 	CDDA_SetVolume(4);
-	select_sound_id = load_8bit_pcm((Sint8 *)"SELECT.PCM", 15360); // using ponesound due to issues with jo engine audio
-	plmulti_sound_id = load_8bit_pcm((Sint8 *)"PLMULTI.PCM", 15360);
-	pldead_sound_id = load_8bit_pcm((Sint8 *)"PLDEAD.PCM", 15360);
-	remove_sound_id = load_8bit_pcm((Sint8 *)"REMOVE.PCM", 15360);
-	rotate_sound_id = load_8bit_pcm((Sint8 *)"ROTATE.PCM", 15360);
 
-	// initialize fonts
+	// initialize fonts - load just what's needed for loading screen
 	game_white_font = jo_font_load(NULL, "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
 	game_white_font->z_index = BACKGROUND_ZINDEX;
-	game_black_font = jo_font_load(NULL, "GAMEBLK.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
-	game_black_font->z_index = BACKGROUND_ZINDEX;
-
-	// initialize graphics
-	load_pregame_sprites();
 
 // 	allegro_init();
 
@@ -2213,6 +2212,23 @@ static void process_intro_graphic_scale()
 #endif
 }
 
+void load()
+{
+	if (action_counter <= 1)
+	{
+		jo_clear_screen();
+		jo_set_default_background_color(JO_COLOR_INDEX_Black);
+		jo_font_print_centered(game_white_font, 0, 0, 0.99f, "LOADING...");
+		return; // give the screen a chance to clear before we do sprite loading
+	}
+	else if (action_counter == 2)
+	{
+		load_pregame_assets();
+		game_mode = MODE_INTRO;
+		action_counter = 0;
+	}
+}
+
 void intro() 
 {
 	if (game_mode != previous_game_mode)
@@ -2455,6 +2471,10 @@ void update_game()
 
 		case MODE_GAME:
 			play();
+			break;
+
+		case MODE_LOAD:
+			load();
 			break;
 
 		default:
