@@ -1505,6 +1505,21 @@ void high_scores() {
 // 	clear(screen);
 }
 
+bool does_any_score_hof_qualify()
+{
+	Thisc tmp;
+	bool player_hof_qualified = false;
+	tmp.score = ply[1].score;
+	if (qualify_table(hisc, tmp) && cpu!=1) player_hof_qualified = true;
+	if (!player_hof_qualified)
+	{
+		tmp.score = ply[2].score;
+		if (qualify_table(hisc, tmp) && cpu!=2) player_hof_qualified = true;
+	}
+
+	return player_hof_qualified;
+}
+
 void hof()
 {
 // 	int i,kp;
@@ -1581,8 +1596,16 @@ void hof()
 				post.name[3] = '\0';
 				enter_table(hisc,post);
 				sort_table(hisc);
-				game_mode = MODE_HIGH_SCORES;
+				ply[hof_p].score = 0; // reset player score so we dont register it again
 				action_counter = 0;
+				if (does_any_score_hof_qualify())
+				{
+					game_mode = MODE_HOF;
+				}
+				else
+				{
+					game_mode = MODE_HIGH_SCORES;
+				}
 			}
 		}
 		else if (current_input == INPUT_TYPE_LEFT)
@@ -2054,7 +2077,6 @@ void play() {
 	if (winner) 
 	{
 		char buf[128];
-		Thisc tmp;
 
 		winner = (ply[1].score>ply[2].score ? 1:2);
 		done = 0;
@@ -2121,16 +2143,8 @@ void play() {
 		{
 			// prepare to prompt for initials or display high scores
 			action_counter = 0;
-			bool player_hof_qualified = false;
-			tmp.score = ply[1].score;
-			if (qualify_table(hisc, tmp) && cpu!=1) player_hof_qualified = true;
-			if (!player_hof_qualified)
-			{
-				tmp.score = ply[2].score;
-				if (qualify_table(hisc, tmp) && cpu!=2) player_hof_qualified = true;
-			}
 			
-			if (player_hof_qualified)
+			if (does_any_score_hof_qualify())
 			{
 				game_mode = MODE_HOF;
 			}
