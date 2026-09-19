@@ -335,6 +335,8 @@ static int hof_char_indexes[3];
 // track button changes for better title menu input handling
 static bool current_pad1_input_states[INPUT_TYPE_COUNT];
 static bool previous_pad1_input_states[INPUT_TYPE_COUNT];
+static bool current_pad2_input_states[INPUT_TYPE_COUNT];
+static bool previous_pad2_input_states[INPUT_TYPE_COUNT];
 static bool is_pad2_available = false;
 
 // void fps_counter(void) {
@@ -563,105 +565,188 @@ void init()
 }
 
 // check if input was newly pressed
-bool pad1_input_pressed(input_type candidate_input)
+bool pad_input_pressed(int pad, input_type candidate_input)
 {
-    return current_pad1_input_states[candidate_input] && !previous_pad1_input_states[candidate_input];
+    switch (pad)
+	{
+		case 2:
+			return current_pad2_input_states[candidate_input] && !previous_pad2_input_states[candidate_input];
+
+			break;
+
+		default:
+			return current_pad1_input_states[candidate_input] && !previous_pad1_input_states[candidate_input];
+		
+			break;
+	}
 }
 
-void reset_pad1_input_states()
+void reset_pad_input_states(int pad)
 {
-    for (int i = 0; i < INPUT_TYPE_COUNT; i++)
-    {
-        previous_pad1_input_states[i] = false;
-        current_pad1_input_states[i] = false;
-    }
+    switch (pad)
+	{
+		case 2:
+			for (int i = 0; i < INPUT_TYPE_COUNT; i++)
+			{
+				previous_pad2_input_states[i] = false;
+				current_pad2_input_states[i] = false;
+			}
 
+			break;
+
+		default:
+			for (int i = 0; i < INPUT_TYPE_COUNT; i++)
+			{
+				previous_pad1_input_states[i] = false;
+				current_pad1_input_states[i] = false;
+			}
+
+			break;
+	}
 }
 
-void save_previous_pad1_inputstates()
+void save_previous_pad_inputstates(int pad)
 {
     // save previous state
-    for (int i = 0; i < INPUT_TYPE_COUNT; i++)
-        previous_pad1_input_states[i] = current_pad1_input_states[i];
+	switch (pad)
+	{
+		case 2: 
+			for (int i = 0; i < INPUT_TYPE_COUNT; i++)
+				previous_pad2_input_states[i] = current_pad2_input_states[i];
+
+			break;
+
+		default:
+			for (int i = 0; i < INPUT_TYPE_COUNT; i++)
+				previous_pad1_input_states[i] = current_pad1_input_states[i];
+
+			break;
+	}
 }
 
 // track all current and previous input states so we can check on input presses
-static void update_pad1_input_states(bool current_pad1_input_states[INPUT_TYPE_COUNT])
+static void update_pad_input_states(int pad)
 {
-    save_previous_pad1_inputstates();
+    save_previous_pad_inputstates(pad);
 
     // read current state
-    current_pad1_input_states[INPUT_TYPE_UP] = jo_is_pad1_key_pressed(JO_KEY_UP);
-    current_pad1_input_states[INPUT_TYPE_DOWN] = jo_is_pad1_key_pressed(JO_KEY_DOWN);
-    current_pad1_input_states[INPUT_TYPE_LEFT] = jo_is_pad1_key_pressed(JO_KEY_LEFT);
-    current_pad1_input_states[INPUT_TYPE_RIGHT] = jo_is_pad1_key_pressed(JO_KEY_RIGHT);
-    current_pad1_input_states[INPUT_TYPE_START] = jo_is_pad1_key_pressed(JO_KEY_START);    
-	current_pad1_input_states[INPUT_TYPE_A] = jo_is_pad1_key_pressed(JO_KEY_A);
-	current_pad1_input_states[INPUT_TYPE_C] = jo_is_pad1_key_pressed(JO_KEY_C);
-	current_pad1_input_states[INPUT_TYPE_Z] = jo_is_pad1_key_pressed(JO_KEY_Z);
+    switch (pad)
+	{
+		case 2:
+			current_pad2_input_states[INPUT_TYPE_UP] = jo_is_input_key_pressed(6, JO_KEY_UP);
+			current_pad2_input_states[INPUT_TYPE_DOWN] = jo_is_input_key_pressed(6,JO_KEY_DOWN);
+			current_pad2_input_states[INPUT_TYPE_LEFT] = jo_is_input_key_pressed(6,JO_KEY_LEFT);
+			current_pad2_input_states[INPUT_TYPE_RIGHT] = jo_is_input_key_pressed(6,JO_KEY_RIGHT);
+			current_pad2_input_states[INPUT_TYPE_START] = jo_is_input_key_pressed(6,JO_KEY_START);    
+			current_pad2_input_states[INPUT_TYPE_A] = jo_is_input_key_pressed(6,JO_KEY_A);
+			current_pad2_input_states[INPUT_TYPE_C] = jo_is_input_key_pressed(6,JO_KEY_C);
+			current_pad2_input_states[INPUT_TYPE_Z] = jo_is_input_key_pressed(6,JO_KEY_Z);
+
+			break;
+
+		default:
+			current_pad1_input_states[INPUT_TYPE_UP] = jo_is_pad1_key_pressed(JO_KEY_UP);
+			current_pad1_input_states[INPUT_TYPE_DOWN] = jo_is_pad1_key_pressed(JO_KEY_DOWN);
+			current_pad1_input_states[INPUT_TYPE_LEFT] = jo_is_pad1_key_pressed(JO_KEY_LEFT);
+			current_pad1_input_states[INPUT_TYPE_RIGHT] = jo_is_pad1_key_pressed(JO_KEY_RIGHT);
+			current_pad1_input_states[INPUT_TYPE_START] = jo_is_pad1_key_pressed(JO_KEY_START);    
+			current_pad1_input_states[INPUT_TYPE_A] = jo_is_pad1_key_pressed(JO_KEY_A);
+			current_pad1_input_states[INPUT_TYPE_C] = jo_is_pad1_key_pressed(JO_KEY_C);
+			current_pad1_input_states[INPUT_TYPE_Z] = jo_is_pad1_key_pressed(JO_KEY_Z);
+
+			break;
+	}
+}
+
+bool is_pad_key_pressed(int pad, int key)
+{
+	switch(pad)
+	{
+		case 2:
+			return jo_is_input_key_pressed(6,key);
+			break;
+
+		default:
+			return jo_is_pad1_key_pressed(key);
+			break;
+	}
+}
+
+bool is_pad_available(int pad)
+{
+	switch (pad)
+	{
+		case 2:
+			return jo_is_input_available(6); // seems that port 1 is 0-5 and port 2 is probably 6-11
+			break;
+
+		default:
+			return jo_is_pad1_available();
+			break;
+	}
 }
 
 // retrieve the input type from the user
-input_type get_pad1_input_types(mode game_mode, bool current_pad1_input_states[INPUT_TYPE_COUNT])
+input_type get_pad_input_type(mode game_mode, int pad)
 {
-    input_type current_pad1_input = INPUT_TYPE_NOTHING;
-    if (jo_is_pad1_available())
-    {
-        update_pad1_input_states(current_pad1_input_states);
-        switch(game_mode)
-        {
-            case MODE_INTRO:
+    input_type current_pad_input = INPUT_TYPE_NOTHING;
+	if (is_pad_available(pad))
+	{
+		update_pad_input_states(pad);
+		switch(game_mode)
+		{
+			case MODE_INTRO:
 
-                if (pad1_input_pressed(INPUT_TYPE_START)) current_pad1_input = INPUT_TYPE_START;
-				else if (pad1_input_pressed(INPUT_TYPE_A)) current_pad1_input = INPUT_TYPE_A;
-				else if (pad1_input_pressed(INPUT_TYPE_C)) current_pad1_input = INPUT_TYPE_C;
+				if (pad_input_pressed(pad, INPUT_TYPE_START)) current_pad_input = INPUT_TYPE_START;
+				else if (pad_input_pressed(pad, INPUT_TYPE_A)) current_pad_input = INPUT_TYPE_A;
+				else if (pad_input_pressed(pad, INPUT_TYPE_C)) current_pad_input = INPUT_TYPE_C;
 
-                break;
+				break;
 
-            case MODE_INSTRUCTIONS:
-                if (pad1_input_pressed(INPUT_TYPE_START)) current_pad1_input = INPUT_TYPE_START;  
-				else if (pad1_input_pressed(INPUT_TYPE_A)) current_pad1_input = INPUT_TYPE_A;
-				else if (pad1_input_pressed(INPUT_TYPE_C)) current_pad1_input = INPUT_TYPE_C;
-				else if (pad1_input_pressed(INPUT_TYPE_LEFT)) current_pad1_input = INPUT_TYPE_LEFT;
-				else if (pad1_input_pressed(INPUT_TYPE_RIGHT)) current_pad1_input = INPUT_TYPE_RIGHT;
+			case MODE_INSTRUCTIONS:
+				if (pad_input_pressed(pad, INPUT_TYPE_START)) current_pad_input = INPUT_TYPE_START;  
+				else if (pad_input_pressed(pad, INPUT_TYPE_A)) current_pad_input = INPUT_TYPE_A;
+				else if (pad_input_pressed(pad, INPUT_TYPE_C)) current_pad_input = INPUT_TYPE_C;
+				else if (pad_input_pressed(pad, INPUT_TYPE_LEFT)) current_pad_input = INPUT_TYPE_LEFT;
+				else if (pad_input_pressed(pad, INPUT_TYPE_RIGHT)) current_pad_input = INPUT_TYPE_RIGHT;
 
 				break;
 
 			case MODE_HOF:
-                if (pad1_input_pressed(INPUT_TYPE_START)) current_pad1_input = INPUT_TYPE_START;  
-				else if (pad1_input_pressed(INPUT_TYPE_A)) current_pad1_input = INPUT_TYPE_A;
-				else if (pad1_input_pressed(INPUT_TYPE_C)) current_pad1_input = INPUT_TYPE_C;
-				else if (pad1_input_pressed(INPUT_TYPE_LEFT)) current_pad1_input = INPUT_TYPE_LEFT;
-				else if (pad1_input_pressed(INPUT_TYPE_RIGHT)) current_pad1_input = INPUT_TYPE_RIGHT;
-				else if (pad1_input_pressed(INPUT_TYPE_UP)) current_pad1_input = INPUT_TYPE_UP;
-				else if (pad1_input_pressed(INPUT_TYPE_DOWN)) current_pad1_input = INPUT_TYPE_DOWN;
+				if (pad_input_pressed(pad, INPUT_TYPE_START)) current_pad_input = INPUT_TYPE_START;  
+				else if (pad_input_pressed(pad, INPUT_TYPE_A)) current_pad_input = INPUT_TYPE_A;
+				else if (pad_input_pressed(pad, INPUT_TYPE_C)) current_pad_input = INPUT_TYPE_C;
+				else if (pad_input_pressed(pad, INPUT_TYPE_LEFT)) current_pad_input = INPUT_TYPE_LEFT;
+				else if (pad_input_pressed(pad, INPUT_TYPE_RIGHT)) current_pad_input = INPUT_TYPE_RIGHT;
+				else if (pad_input_pressed(pad, INPUT_TYPE_UP)) current_pad_input = INPUT_TYPE_UP;
+				else if (pad_input_pressed(pad, INPUT_TYPE_DOWN)) current_pad_input = INPUT_TYPE_DOWN;
 
 				break;
 
 			default:
 
-                if (pad1_input_pressed(INPUT_TYPE_START)) current_pad1_input = INPUT_TYPE_START;  
-				else if (pad1_input_pressed(INPUT_TYPE_A)) current_pad1_input = INPUT_TYPE_A;
-				else if (pad1_input_pressed(INPUT_TYPE_C)) current_pad1_input = INPUT_TYPE_C;
-				else if (pad1_input_pressed(INPUT_TYPE_Z)) current_pad1_input = INPUT_TYPE_Z;
-                else if (jo_is_pad1_key_pressed(JO_KEY_UP) && jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_pad1_input = INPUT_TYPE_UP_LEFT;
-                else if (jo_is_pad1_key_pressed(JO_KEY_UP) && jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_pad1_input = INPUT_TYPE_UP_RIGHT;
-                else if (jo_is_pad1_key_pressed(JO_KEY_DOWN) && jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_pad1_input = INPUT_TYPE_DOWN_LEFT;
-                else if (jo_is_pad1_key_pressed(JO_KEY_DOWN) && jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_pad1_input = INPUT_TYPE_DOWN_RIGHT;
-				else if (jo_is_pad1_key_pressed(JO_KEY_DOWN)) current_pad1_input = INPUT_TYPE_DOWN;
-                else if (jo_is_pad1_key_pressed(JO_KEY_UP)) current_pad1_input = INPUT_TYPE_UP;
-                else if (jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_pad1_input = INPUT_TYPE_LEFT;
-                else if (jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_pad1_input = INPUT_TYPE_RIGHT;
+				if (pad_input_pressed(pad, INPUT_TYPE_START)) current_pad_input = INPUT_TYPE_START;  
+				else if (pad_input_pressed(pad, INPUT_TYPE_A)) current_pad_input = INPUT_TYPE_A;
+				else if (pad_input_pressed(pad, INPUT_TYPE_C)) current_pad_input = INPUT_TYPE_C;
+				else if (pad_input_pressed(pad, INPUT_TYPE_Z)) current_pad_input = INPUT_TYPE_Z;
+				else if (is_pad_key_pressed(pad, JO_KEY_UP) && is_pad_key_pressed(pad, JO_KEY_LEFT)) current_pad_input = INPUT_TYPE_UP_LEFT;
+				else if (is_pad_key_pressed(pad, JO_KEY_UP) && is_pad_key_pressed(pad, JO_KEY_RIGHT)) current_pad_input = INPUT_TYPE_UP_RIGHT;
+				else if (is_pad_key_pressed(pad, JO_KEY_DOWN) && is_pad_key_pressed(pad, JO_KEY_LEFT)) current_pad_input = INPUT_TYPE_DOWN_LEFT;
+				else if (is_pad_key_pressed(pad, JO_KEY_DOWN) && is_pad_key_pressed(pad, JO_KEY_RIGHT)) current_pad_input = INPUT_TYPE_DOWN_RIGHT;
+				else if (is_pad_key_pressed(pad, JO_KEY_DOWN)) current_pad_input = INPUT_TYPE_DOWN;
+				else if (is_pad_key_pressed(pad, JO_KEY_UP)) current_pad_input = INPUT_TYPE_UP;
+				else if (is_pad_key_pressed(pad, JO_KEY_LEFT)) current_pad_input = INPUT_TYPE_LEFT;
+				else if (is_pad_key_pressed(pad, JO_KEY_RIGHT)) current_pad_input = INPUT_TYPE_RIGHT;
 
-                break;
-        }
-    }
-    else
-    {
-        reset_pad1_input_states();
-    }
+				break;
+		}
+	}
+	else
+	{
+		reset_pad_input_states(pad);
+	}
 
-    return current_pad1_input;
+    return current_pad_input;
 }
 
 // void etchedBox(int x1, int y1, int x2, int y2, int up) {
@@ -730,30 +815,30 @@ int get_center_aligned_x_coord(const jo_font *font, float scale, char *text)
 	return JO_TV_WIDTH_2 - (strlen(text) * font->spacing * scale)/2;
 }
 
-void set_pointer_position(input_type current_pad1_input)
+void set_pointer_position(input_type current_pad_input)
 {
-	if (current_pad1_input == INPUT_TYPE_LEFT || current_pad1_input == INPUT_TYPE_UP_LEFT || current_pad1_input == INPUT_TYPE_DOWN_LEFT)
+	if (current_pad_input == INPUT_TYPE_LEFT || current_pad_input == INPUT_TYPE_UP_LEFT || current_pad_input == INPUT_TYPE_DOWN_LEFT)
 	{
 		pointer_x -= 2;
 		if (pointer_x < 0)
 			pointer_x = 0;
 	}
 	
-	if (current_pad1_input == INPUT_TYPE_RIGHT || current_pad1_input == INPUT_TYPE_UP_RIGHT || current_pad1_input == INPUT_TYPE_DOWN_RIGHT)
+	if (current_pad_input == INPUT_TYPE_RIGHT || current_pad_input == INPUT_TYPE_UP_RIGHT || current_pad_input == INPUT_TYPE_DOWN_RIGHT)
 	{
 		pointer_x += 2;
 		if (pointer_x > (JO_TV_WIDTH - 1 - POINTER_WIDTH))
 			pointer_x = JO_TV_WIDTH - 1 - POINTER_WIDTH;
 	}
 	
-	if (current_pad1_input == INPUT_TYPE_UP || current_pad1_input == INPUT_TYPE_UP_LEFT || current_pad1_input == INPUT_TYPE_UP_RIGHT)
+	if (current_pad_input == INPUT_TYPE_UP || current_pad_input == INPUT_TYPE_UP_LEFT || current_pad_input == INPUT_TYPE_UP_RIGHT)
 	{
 		pointer_y -= 2;
 		if (pointer_y < 0)
 			pointer_y = 0;
 	}
 
-	if (current_pad1_input == INPUT_TYPE_DOWN || current_pad1_input == INPUT_TYPE_DOWN_LEFT || current_pad1_input == INPUT_TYPE_DOWN_RIGHT)
+	if (current_pad_input == INPUT_TYPE_DOWN || current_pad_input == INPUT_TYPE_DOWN_LEFT || current_pad_input == INPUT_TYPE_DOWN_RIGHT)
 	{
 		pointer_y += 2;
 		if (pointer_y > (JO_TV_HEIGHT - 1 - POINTER_HEIGHT))
@@ -1041,11 +1126,6 @@ void process_game_option_select(game_type selected_game_type)
 	current_game_type = selected_game_type;
 }
 
-bool game_is_pad2_available()
-{
-	return jo_is_input_available(6); // seems that port 1 is 0-5 and port 2 is probably 6-11
-}
-
 void title() {
 	int x=320, y=10;
 // 	int done=0;
@@ -1068,8 +1148,8 @@ void title() {
 		//clicked;
 	}
 
-	is_pad2_available = game_is_pad2_available();
-	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
+	is_pad2_available = is_pad_available(2);
+	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
 	set_pointer_position(current_pad1_input);
 
 // 	if (!playingMidi) {
@@ -1489,7 +1569,7 @@ void high_scores() {
 		jo_set_default_background_color(JO_COLOR_RGB(40,81,97)); // blue
 	}
 	
-	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
+	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
 
 	if (current_pad1_input == INPUT_TYPE_START ||
 		current_pad1_input == INPUT_TYPE_A || 
@@ -1593,7 +1673,7 @@ void hof()
 	}
 	else
 	{
-		input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
+		input_type current_pad1_input = get_pad_input_type(game_mode, 1);
 
 		if (current_pad1_input == INPUT_TYPE_START ||
 			current_pad1_input == INPUT_TYPE_A || 
@@ -1958,7 +2038,8 @@ void play() {
 
 	make_bg();
 	
-	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
+	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
+
 	set_pointer_position(current_pad1_input);
 	draw_game(1);
 // 	fade_in(data[GAMEPAL].dat,4);
@@ -2315,7 +2396,7 @@ void intro()
 		CDDA_PlaySingle(TITLE_TRACKID, true);
 	}
 
-	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
+	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
 
 	if (current_pad1_input == INPUT_TYPE_START || 
 		current_pad1_input == INPUT_TYPE_A || 
@@ -2404,7 +2485,7 @@ void instructions()
 		current_instructions_page_index = 0;
 	}
 	
-	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
+	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
 
 	if (current_pad1_input == INPUT_TYPE_START ||
 		current_pad1_input == INPUT_TYPE_A || 
@@ -2478,7 +2559,7 @@ void credits()
 		jo_set_default_background_color(JO_COLOR_RGB(140,110,75)); // brown
 	}
 	
-	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
+	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
 
 	if (current_pad1_input == INPUT_TYPE_START ||
 		current_pad1_input == INPUT_TYPE_A || 
