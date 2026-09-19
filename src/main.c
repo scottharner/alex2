@@ -333,8 +333,8 @@ static int token_sprite_ids[5];
 static int hof_char_indexes[3];
 
 // track button changes for better title menu input handling
-static bool current_input_states[INPUT_TYPE_COUNT];
-static bool previous_input_states[INPUT_TYPE_COUNT];
+static bool current_pad1_input_states[INPUT_TYPE_COUNT];
+static bool previous_pad1_input_states[INPUT_TYPE_COUNT];
 
 // void fps_counter(void) {
 // 	fps=frame_count;
@@ -562,105 +562,105 @@ void init()
 }
 
 // check if input was newly pressed
-bool input_pressed(input_type candidate_input)
+bool pad1_input_pressed(input_type candidate_input)
 {
-    return current_input_states[candidate_input] && !previous_input_states[candidate_input];
+    return current_pad1_input_states[candidate_input] && !previous_pad1_input_states[candidate_input];
 }
 
-void reset_input_states()
+void reset_pad1_input_states()
 {
     for (int i = 0; i < INPUT_TYPE_COUNT; i++)
     {
-        previous_input_states[i] = false;
-        current_input_states[i] = false;
+        previous_pad1_input_states[i] = false;
+        current_pad1_input_states[i] = false;
     }
 
 }
 
-void save_previous_inputstates()
+void save_previous_pad1_inputstates()
 {
     // save previous state
     for (int i = 0; i < INPUT_TYPE_COUNT; i++)
-        previous_input_states[i] = current_input_states[i];
+        previous_pad1_input_states[i] = current_pad1_input_states[i];
 }
 
 // track all current and previous input states so we can check on input presses
-static void update_input_states(bool current_input_states[INPUT_TYPE_COUNT])
+static void update_pad1_input_states(bool current_pad1_input_states[INPUT_TYPE_COUNT])
 {
-    save_previous_inputstates();
+    save_previous_pad1_inputstates();
 
     // read current state
-    current_input_states[INPUT_TYPE_UP] = jo_is_pad1_key_pressed(JO_KEY_UP);
-    current_input_states[INPUT_TYPE_DOWN] = jo_is_pad1_key_pressed(JO_KEY_DOWN);
-    current_input_states[INPUT_TYPE_LEFT] = jo_is_pad1_key_pressed(JO_KEY_LEFT);
-    current_input_states[INPUT_TYPE_RIGHT] = jo_is_pad1_key_pressed(JO_KEY_RIGHT);
-    current_input_states[INPUT_TYPE_START] = jo_is_pad1_key_pressed(JO_KEY_START);    
-	current_input_states[INPUT_TYPE_A] = jo_is_pad1_key_pressed(JO_KEY_A);
-	current_input_states[INPUT_TYPE_C] = jo_is_pad1_key_pressed(JO_KEY_C);
-	current_input_states[INPUT_TYPE_Z] = jo_is_pad1_key_pressed(JO_KEY_Z);
+    current_pad1_input_states[INPUT_TYPE_UP] = jo_is_pad1_key_pressed(JO_KEY_UP);
+    current_pad1_input_states[INPUT_TYPE_DOWN] = jo_is_pad1_key_pressed(JO_KEY_DOWN);
+    current_pad1_input_states[INPUT_TYPE_LEFT] = jo_is_pad1_key_pressed(JO_KEY_LEFT);
+    current_pad1_input_states[INPUT_TYPE_RIGHT] = jo_is_pad1_key_pressed(JO_KEY_RIGHT);
+    current_pad1_input_states[INPUT_TYPE_START] = jo_is_pad1_key_pressed(JO_KEY_START);    
+	current_pad1_input_states[INPUT_TYPE_A] = jo_is_pad1_key_pressed(JO_KEY_A);
+	current_pad1_input_states[INPUT_TYPE_C] = jo_is_pad1_key_pressed(JO_KEY_C);
+	current_pad1_input_states[INPUT_TYPE_Z] = jo_is_pad1_key_pressed(JO_KEY_Z);
 }
 
 // retrieve the input type from the user
-input_type get_input_types(mode game_mode, bool current_input_states[INPUT_TYPE_COUNT])
+input_type get_pad1_input_types(mode game_mode, bool current_pad1_input_states[INPUT_TYPE_COUNT])
 {
-    input_type current_input = INPUT_TYPE_NOTHING;
+    input_type current_pad1_input = INPUT_TYPE_NOTHING;
     if (jo_is_pad1_available())
     {
-        update_input_states(current_input_states);
+        update_pad1_input_states(current_pad1_input_states);
         switch(game_mode)
         {
             case MODE_INTRO:
 
-                if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;
-				else if (input_pressed(INPUT_TYPE_A)) current_input = INPUT_TYPE_A;
-				else if (input_pressed(INPUT_TYPE_C)) current_input = INPUT_TYPE_C;
+                if (pad1_input_pressed(INPUT_TYPE_START)) current_pad1_input = INPUT_TYPE_START;
+				else if (pad1_input_pressed(INPUT_TYPE_A)) current_pad1_input = INPUT_TYPE_A;
+				else if (pad1_input_pressed(INPUT_TYPE_C)) current_pad1_input = INPUT_TYPE_C;
 
                 break;
 
             case MODE_INSTRUCTIONS:
-                if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;  
-				else if (input_pressed(INPUT_TYPE_A)) current_input = INPUT_TYPE_A;
-				else if (input_pressed(INPUT_TYPE_C)) current_input = INPUT_TYPE_C;
-				else if (input_pressed(INPUT_TYPE_LEFT)) current_input = INPUT_TYPE_LEFT;
-				else if (input_pressed(INPUT_TYPE_RIGHT)) current_input = INPUT_TYPE_RIGHT;
+                if (pad1_input_pressed(INPUT_TYPE_START)) current_pad1_input = INPUT_TYPE_START;  
+				else if (pad1_input_pressed(INPUT_TYPE_A)) current_pad1_input = INPUT_TYPE_A;
+				else if (pad1_input_pressed(INPUT_TYPE_C)) current_pad1_input = INPUT_TYPE_C;
+				else if (pad1_input_pressed(INPUT_TYPE_LEFT)) current_pad1_input = INPUT_TYPE_LEFT;
+				else if (pad1_input_pressed(INPUT_TYPE_RIGHT)) current_pad1_input = INPUT_TYPE_RIGHT;
 
 				break;
 
 			case MODE_HOF:
-                if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;  
-				else if (input_pressed(INPUT_TYPE_A)) current_input = INPUT_TYPE_A;
-				else if (input_pressed(INPUT_TYPE_C)) current_input = INPUT_TYPE_C;
-				else if (input_pressed(INPUT_TYPE_LEFT)) current_input = INPUT_TYPE_LEFT;
-				else if (input_pressed(INPUT_TYPE_RIGHT)) current_input = INPUT_TYPE_RIGHT;
-				else if (input_pressed(INPUT_TYPE_UP)) current_input = INPUT_TYPE_UP;
-				else if (input_pressed(INPUT_TYPE_DOWN)) current_input = INPUT_TYPE_DOWN;
+                if (pad1_input_pressed(INPUT_TYPE_START)) current_pad1_input = INPUT_TYPE_START;  
+				else if (pad1_input_pressed(INPUT_TYPE_A)) current_pad1_input = INPUT_TYPE_A;
+				else if (pad1_input_pressed(INPUT_TYPE_C)) current_pad1_input = INPUT_TYPE_C;
+				else if (pad1_input_pressed(INPUT_TYPE_LEFT)) current_pad1_input = INPUT_TYPE_LEFT;
+				else if (pad1_input_pressed(INPUT_TYPE_RIGHT)) current_pad1_input = INPUT_TYPE_RIGHT;
+				else if (pad1_input_pressed(INPUT_TYPE_UP)) current_pad1_input = INPUT_TYPE_UP;
+				else if (pad1_input_pressed(INPUT_TYPE_DOWN)) current_pad1_input = INPUT_TYPE_DOWN;
 
 				break;
 
 			default:
 
-                if (input_pressed(INPUT_TYPE_START)) current_input = INPUT_TYPE_START;  
-				else if (input_pressed(INPUT_TYPE_A)) current_input = INPUT_TYPE_A;
-				else if (input_pressed(INPUT_TYPE_C)) current_input = INPUT_TYPE_C;
-				else if (input_pressed(INPUT_TYPE_Z)) current_input = INPUT_TYPE_Z;
-                else if (jo_is_pad1_key_pressed(JO_KEY_UP) && jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_input = INPUT_TYPE_UP_LEFT;
-                else if (jo_is_pad1_key_pressed(JO_KEY_UP) && jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_input = INPUT_TYPE_UP_RIGHT;
-                else if (jo_is_pad1_key_pressed(JO_KEY_DOWN) && jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_input = INPUT_TYPE_DOWN_LEFT;
-                else if (jo_is_pad1_key_pressed(JO_KEY_DOWN) && jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_input = INPUT_TYPE_DOWN_RIGHT;
-				else if (jo_is_pad1_key_pressed(JO_KEY_DOWN)) current_input = INPUT_TYPE_DOWN;
-                else if (jo_is_pad1_key_pressed(JO_KEY_UP)) current_input = INPUT_TYPE_UP;
-                else if (jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_input = INPUT_TYPE_LEFT;
-                else if (jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_input = INPUT_TYPE_RIGHT;
+                if (pad1_input_pressed(INPUT_TYPE_START)) current_pad1_input = INPUT_TYPE_START;  
+				else if (pad1_input_pressed(INPUT_TYPE_A)) current_pad1_input = INPUT_TYPE_A;
+				else if (pad1_input_pressed(INPUT_TYPE_C)) current_pad1_input = INPUT_TYPE_C;
+				else if (pad1_input_pressed(INPUT_TYPE_Z)) current_pad1_input = INPUT_TYPE_Z;
+                else if (jo_is_pad1_key_pressed(JO_KEY_UP) && jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_pad1_input = INPUT_TYPE_UP_LEFT;
+                else if (jo_is_pad1_key_pressed(JO_KEY_UP) && jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_pad1_input = INPUT_TYPE_UP_RIGHT;
+                else if (jo_is_pad1_key_pressed(JO_KEY_DOWN) && jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_pad1_input = INPUT_TYPE_DOWN_LEFT;
+                else if (jo_is_pad1_key_pressed(JO_KEY_DOWN) && jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_pad1_input = INPUT_TYPE_DOWN_RIGHT;
+				else if (jo_is_pad1_key_pressed(JO_KEY_DOWN)) current_pad1_input = INPUT_TYPE_DOWN;
+                else if (jo_is_pad1_key_pressed(JO_KEY_UP)) current_pad1_input = INPUT_TYPE_UP;
+                else if (jo_is_pad1_key_pressed(JO_KEY_LEFT)) current_pad1_input = INPUT_TYPE_LEFT;
+                else if (jo_is_pad1_key_pressed(JO_KEY_RIGHT)) current_pad1_input = INPUT_TYPE_RIGHT;
 
                 break;
         }
     }
     else
     {
-        reset_input_states();
+        reset_pad1_input_states();
     }
 
-    return current_input;
+    return current_pad1_input;
 }
 
 // void etchedBox(int x1, int y1, int x2, int y2, int up) {
@@ -729,30 +729,30 @@ int get_center_aligned_x_coord(const jo_font *font, float scale, char *text)
 	return JO_TV_WIDTH_2 - (strlen(text) * font->spacing * scale)/2;
 }
 
-void set_pointer_position(input_type current_input)
+void set_pointer_position(input_type current_pad1_input)
 {
-	if (current_input == INPUT_TYPE_LEFT || current_input == INPUT_TYPE_UP_LEFT || current_input == INPUT_TYPE_DOWN_LEFT)
+	if (current_pad1_input == INPUT_TYPE_LEFT || current_pad1_input == INPUT_TYPE_UP_LEFT || current_pad1_input == INPUT_TYPE_DOWN_LEFT)
 	{
 		pointer_x -= 2;
 		if (pointer_x < 0)
 			pointer_x = 0;
 	}
 	
-	if (current_input == INPUT_TYPE_RIGHT || current_input == INPUT_TYPE_UP_RIGHT || current_input == INPUT_TYPE_DOWN_RIGHT)
+	if (current_pad1_input == INPUT_TYPE_RIGHT || current_pad1_input == INPUT_TYPE_UP_RIGHT || current_pad1_input == INPUT_TYPE_DOWN_RIGHT)
 	{
 		pointer_x += 2;
 		if (pointer_x > (JO_TV_WIDTH - 1 - POINTER_WIDTH))
 			pointer_x = JO_TV_WIDTH - 1 - POINTER_WIDTH;
 	}
 	
-	if (current_input == INPUT_TYPE_UP || current_input == INPUT_TYPE_UP_LEFT || current_input == INPUT_TYPE_UP_RIGHT)
+	if (current_pad1_input == INPUT_TYPE_UP || current_pad1_input == INPUT_TYPE_UP_LEFT || current_pad1_input == INPUT_TYPE_UP_RIGHT)
 	{
 		pointer_y -= 2;
 		if (pointer_y < 0)
 			pointer_y = 0;
 	}
 
-	if (current_input == INPUT_TYPE_DOWN || current_input == INPUT_TYPE_DOWN_LEFT || current_input == INPUT_TYPE_DOWN_RIGHT)
+	if (current_pad1_input == INPUT_TYPE_DOWN || current_pad1_input == INPUT_TYPE_DOWN_LEFT || current_pad1_input == INPUT_TYPE_DOWN_RIGHT)
 	{
 		pointer_y += 2;
 		if (pointer_y > (JO_TV_HEIGHT - 1 - POINTER_HEIGHT))
@@ -1055,8 +1055,8 @@ void title() {
 		//clicked;
 	}
 
-	input_type current_input = get_input_types(game_mode, current_input_states);
-	set_pointer_position(current_input);
+	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
+	set_pointer_position(current_pad1_input);
 
 // 	if (!playingMidi) {
 // 		play_midi(data[TITLESONG].dat,1);
@@ -1113,9 +1113,9 @@ void title() {
 
 	// check if instructions was selected
 	// check if a, c, or start was pressed and the pointer is on instructions
-	if ((current_input == INPUT_TYPE_START || 
-		current_input == INPUT_TYPE_A || 
-		current_input == INPUT_TYPE_C))
+	if ((current_pad1_input == INPUT_TYPE_START || 
+		current_pad1_input == INPUT_TYPE_A || 
+		current_pad1_input == INPUT_TYPE_C))
 	{
 		if (pointer_on_sound_vol())
 		{
@@ -1475,11 +1475,11 @@ void high_scores() {
 		jo_set_default_background_color(JO_COLOR_RGB(40,81,97)); // blue
 	}
 	
-	input_type current_input = get_input_types(game_mode, current_input_states);
+	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
 
-	if (current_input == INPUT_TYPE_START ||
-		current_input == INPUT_TYPE_A || 
-		current_input == INPUT_TYPE_C)
+	if (current_pad1_input == INPUT_TYPE_START ||
+		current_pad1_input == INPUT_TYPE_A || 
+		current_pad1_input == INPUT_TYPE_C)
 	{
 		// user wants to return to title
 		action_counter = 0;
@@ -1579,11 +1579,11 @@ void hof()
 	}
 	else
 	{
-		input_type current_input = get_input_types(game_mode, current_input_states);
+		input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
 
-		if (current_input == INPUT_TYPE_START ||
-			current_input == INPUT_TYPE_A || 
-			current_input == INPUT_TYPE_C)
+		if (current_pad1_input == INPUT_TYPE_START ||
+			current_pad1_input == INPUT_TYPE_A || 
+			current_pad1_input == INPUT_TYPE_C)
 		{
 			if (hof_selected_index == HOF_MAX_INDEX)
 			{
@@ -1608,24 +1608,24 @@ void hof()
 				}
 			}
 		}
-		else if (current_input == INPUT_TYPE_LEFT)
+		else if (current_pad1_input == INPUT_TYPE_LEFT)
 		{
 			if (hof_selected_index > 0)
 				hof_selected_index--;
 		}
-		else if (current_input == INPUT_TYPE_RIGHT)
+		else if (current_pad1_input == INPUT_TYPE_RIGHT)
 		{
 			if (hof_selected_index < HOF_MAX_INDEX)
 				hof_selected_index++;
 		}
-		else if (current_input == INPUT_TYPE_DOWN && hof_selected_index < HOF_MAX_INDEX)
+		else if (current_pad1_input == INPUT_TYPE_DOWN && hof_selected_index < HOF_MAX_INDEX)
 		{
 			if (hof_char_indexes[hof_selected_index] > 0)
 				hof_char_indexes[hof_selected_index]--;
 			else
 				hof_char_indexes[hof_selected_index] = HOF_CHARS_COUNT - 1;
 		}
-		else if (current_input == INPUT_TYPE_UP && hof_selected_index < HOF_MAX_INDEX)
+		else if (current_pad1_input == INPUT_TYPE_UP && hof_selected_index < HOF_MAX_INDEX)
 		{
 			if (hof_char_indexes[hof_selected_index] == (HOF_CHARS_COUNT - 1))
 				hof_char_indexes[hof_selected_index] = 0;
@@ -1944,8 +1944,8 @@ void play() {
 
 	make_bg();
 	
-	input_type current_input = get_input_types(game_mode, current_input_states);
-	set_pointer_position(current_input);
+	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
+	set_pointer_position(current_pad1_input);
 	draw_game(1);
 // 	fade_in(data[GAMEPAL].dat,4);
 
@@ -2014,7 +2014,7 @@ void play() {
 		// check if the user simulated a mouse click
 		if (player != cpu)
 		{
-			if ((current_input == INPUT_TYPE_A || current_input == INPUT_TYPE_C))
+			if ((current_pad1_input == INPUT_TYPE_A || current_pad1_input == INPUT_TYPE_C))
 			{
 				mx = pointer_x;
 				my = pointer_y;
@@ -2057,7 +2057,7 @@ void play() {
 					}
 				}
 			}
-			else if (current_input == INPUT_TYPE_Z)
+			else if (current_pad1_input == INPUT_TYPE_Z)
 			{
 				get_hint(player,3);
 			}
@@ -2106,9 +2106,9 @@ void play() {
 				}
 			}
 			if (winner_presses==2) done = 1;
-			if (current_input == INPUT_TYPE_A || 
-				current_input == INPUT_TYPE_C || 
-				current_input == INPUT_TYPE_START)
+			if (current_pad1_input == INPUT_TYPE_A || 
+				current_pad1_input == INPUT_TYPE_C || 
+				current_pad1_input == INPUT_TYPE_START)
 			{
 				winner_presses++;
 			}
@@ -2301,11 +2301,11 @@ void intro()
 		CDDA_PlaySingle(TITLE_TRACKID, true);
 	}
 
-	input_type current_input = get_input_types(game_mode, current_input_states);
+	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
 
-	if (current_input == INPUT_TYPE_START || 
-		current_input == INPUT_TYPE_A || 
-		current_input == INPUT_TYPE_C)
+	if (current_pad1_input == INPUT_TYPE_START || 
+		current_pad1_input == INPUT_TYPE_A || 
+		current_pad1_input == INPUT_TYPE_C)
 	{
 		// user wants to skip to title
 		action_counter = 0;
@@ -2390,22 +2390,22 @@ void instructions()
 		current_instructions_page_index = 0;
 	}
 	
-	input_type current_input = get_input_types(game_mode, current_input_states);
+	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
 
-	if (current_input == INPUT_TYPE_START ||
-		current_input == INPUT_TYPE_A || 
-		current_input == INPUT_TYPE_C)
+	if (current_pad1_input == INPUT_TYPE_START ||
+		current_pad1_input == INPUT_TYPE_A || 
+		current_pad1_input == INPUT_TYPE_C)
 	{
 		// user wants to return to title
 		action_counter = 0;
 		game_mode = MODE_TITLE;
 	}
-	else if (current_input == INPUT_TYPE_LEFT)
+	else if (current_pad1_input == INPUT_TYPE_LEFT)
 	{
 		if (current_instructions_page_index > 0)
 			current_instructions_page_index--;
 	}
-	else if (current_input == INPUT_TYPE_RIGHT)
+	else if (current_pad1_input == INPUT_TYPE_RIGHT)
 	{
 		if (current_instructions_page_index < (INSTRUCTIONS_PAGE_COUNT-1))
 			current_instructions_page_index++;
@@ -2464,11 +2464,11 @@ void credits()
 		jo_set_default_background_color(JO_COLOR_RGB(140,110,75)); // brown
 	}
 	
-	input_type current_input = get_input_types(game_mode, current_input_states);
+	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
 
-	if (current_input == INPUT_TYPE_START ||
-		current_input == INPUT_TYPE_A || 
-		current_input == INPUT_TYPE_C)
+	if (current_pad1_input == INPUT_TYPE_START ||
+		current_pad1_input == INPUT_TYPE_A || 
+		current_pad1_input == INPUT_TYPE_C)
 	{
 		// user wants to return to title
 		action_counter = 0;
