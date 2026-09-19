@@ -1905,7 +1905,6 @@ void play() {
 	int done = 0;
 	int x,y;
 	int mx,my;
-// 	int clicked = 0;
 
 	if (action_counter <= 1)
 	{
@@ -1948,17 +1947,11 @@ void play() {
 	input_type current_input = get_input_types(game_mode, current_input_states);
 	set_pointer_position(current_input);
 	draw_game(1);
-// 	blitScreen();
 // 	fade_in(data[GAMEPAL].dat,4);
 
 // 	while (!done && !winner) {
 	if (!done && !winner)
 	{
-// 		if (key[KEY_W]) set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
-// 		game_count=0;
-// 		draw_game(1);
-// 		blitScreen();
-
 // 		if (ply[1].anim) ply[1].anim--;
 // 		if (ply[2].anim) ply[2].anim--;
 
@@ -2071,7 +2064,6 @@ void play() {
 		}
 
 // 		if (key[KEY_ESC]) done = confirm("Really quit? (Y/N)");
-// 		while(!game_count);
 	}
 
 	if (winner) 
@@ -2095,7 +2087,6 @@ void play() {
 
 		if (!done)
 		{
-// 			game_count=0;
 			if (winner_presses==0) 
 			{
 				jo_font_print_centered(game_black_font, -1, 1, 0.99f, "BOARD CLEARED!");
@@ -2121,24 +2112,10 @@ void play() {
 			{
 				winner_presses++;
 			}
-// 			if (mouse_b!=1) clicked = 0;
-// 			if (!clicked && mouse_b==1) { x++; clicked = 1; }
-// 			while(!game_count);
+
 		}
 // 		fade_out(4);
-// 		if (ply[1].score>=ply[2].score) {
-// 			tmp.score = ply[1].score;
-// 			if (qualify_table(hisc, tmp) && cpu!=1) hof(tmp,1);
-// 			tmp.score = ply[2].score;
-// 			if (qualify_table(hisc, tmp) && cpu!=2) hof(tmp,2);
-// 		}
-// 		else {
-// 			tmp.score = ply[2].score;
-// 			if (qualifyTable(hisc, tmp) && cpu!=2) hof(tmp,2);
-// 			tmp.score = ply[1].score;
-// 			if (qualifyTable(hisc, tmp) && cpu!=1) hof(tmp,1);
-// 		}
-// 		showHighscores();
+
 		if (done)
 		{
 			// prepare to prompt for initials or display high scores
@@ -2156,10 +2133,6 @@ void play() {
 	}
 
 // 	fade_out(4);
-// 	play_midi(NULL,0);
-// 	playingMidi=0;
-
-// 	return 0;
 }
 
 // int myRest(int msecs) {
