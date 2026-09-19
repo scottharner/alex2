@@ -24,6 +24,10 @@ saturn
 - if your sprite is showing up as garbage data, check that the dimensions are evenly divisible by 8
 - you get faster load times if you change to tex sub dir before loading all graphics and then change back after
 - if you want something to display before a long load, make certain to output to screen and wait for the current game loop cycle to complete before doing the load
+- jo_is_pad2_available() does not work
+  - its looking at index 1 which apparently is actually pad 3
+  - you have to look at index 6 which is the first controller on the 2nd port
+    - jo_is_input_available(6)
 
 general
 -------
