@@ -159,8 +159,10 @@ static bool intro_graphic_shown = false;
 static bool intro_graphic_faded = false;
 static bool intro_text_shown = false;
 static int aa2_x;
-static int pointer_x;
-static int pointer_y;
+static int pointer1_x;
+static int pointer1_y;
+static int pointer2_x;
+static int pointer2_y;
 static bool is_showing_main_menu_options = false;
 static bool is_showing_start_game_options = false;
 static bool title_did_set_seed = false;
@@ -815,34 +817,86 @@ int get_center_aligned_x_coord(const jo_font *font, float scale, char *text)
 	return JO_TV_WIDTH_2 - (strlen(text) * font->spacing * scale)/2;
 }
 
-void set_pointer_position(input_type current_pad_input)
+void set_pointer_position(int pad, input_type current_pad_input)
 {
 	if (current_pad_input == INPUT_TYPE_LEFT || current_pad_input == INPUT_TYPE_UP_LEFT || current_pad_input == INPUT_TYPE_DOWN_LEFT)
 	{
-		pointer_x -= 2;
-		if (pointer_x < 0)
-			pointer_x = 0;
+		switch(pad)
+		{
+			case 2:
+				pointer2_x -= 2;
+				if (pointer2_x < 0)
+					pointer2_x = 0;
+
+				break;
+
+			default:
+				pointer1_x -= 2;
+				if (pointer1_x < 0)
+					pointer1_x = 0;
+
+				break;
+		}
 	}
 	
 	if (current_pad_input == INPUT_TYPE_RIGHT || current_pad_input == INPUT_TYPE_UP_RIGHT || current_pad_input == INPUT_TYPE_DOWN_RIGHT)
 	{
-		pointer_x += 2;
-		if (pointer_x > (JO_TV_WIDTH - 1 - POINTER_WIDTH))
-			pointer_x = JO_TV_WIDTH - 1 - POINTER_WIDTH;
+		switch(pad)
+		{
+			case 2:
+				pointer2_x += 2;
+				if (pointer2_x > (JO_TV_WIDTH - 1 - POINTER_WIDTH))
+					pointer2_x = JO_TV_WIDTH - 1 - POINTER_WIDTH;
+
+				break;
+
+			default:
+				pointer1_x += 2;
+				if (pointer1_x > (JO_TV_WIDTH - 1 - POINTER_WIDTH))
+					pointer1_x = JO_TV_WIDTH - 1 - POINTER_WIDTH;
+
+				break;
+		}
 	}
 	
 	if (current_pad_input == INPUT_TYPE_UP || current_pad_input == INPUT_TYPE_UP_LEFT || current_pad_input == INPUT_TYPE_UP_RIGHT)
 	{
-		pointer_y -= 2;
-		if (pointer_y < 0)
-			pointer_y = 0;
+		switch(pad)
+		{
+			case 2: 
+				pointer2_y -= 2;
+				if (pointer2_y < 0)
+					pointer2_y = 0;
+
+				break;
+
+			default:
+				pointer1_y -= 2;
+				if (pointer1_y < 0)
+					pointer1_y = 0;
+
+				break;
+		}
 	}
 
 	if (current_pad_input == INPUT_TYPE_DOWN || current_pad_input == INPUT_TYPE_DOWN_LEFT || current_pad_input == INPUT_TYPE_DOWN_RIGHT)
 	{
-		pointer_y += 2;
-		if (pointer_y > (JO_TV_HEIGHT - 1 - POINTER_HEIGHT))
-			pointer_y = JO_TV_HEIGHT - 1 - POINTER_HEIGHT;
+		switch(pad)
+		{
+			case 2:
+				pointer2_y += 2;
+				if (pointer2_y > (JO_TV_HEIGHT - 1 - POINTER_HEIGHT))
+					pointer2_y = JO_TV_HEIGHT - 1 - POINTER_HEIGHT;
+
+				break;
+			
+			default:
+				pointer1_y += 2;
+				if (pointer1_y > (JO_TV_HEIGHT - 1 - POINTER_HEIGHT))
+					pointer1_y = JO_TV_HEIGHT - 1 - POINTER_HEIGHT;
+
+				break;
+		}
 	}
 }
 
@@ -942,13 +996,25 @@ void draw_game(int show_pointer) {
 
 	if (show_pointer)
 	{
-		int mx = pointer_x;
-		int my = pointer_y;
-		if (ply[1].carry || ply[2].carry)
+		int mx = pointer1_x;
+		int my = pointer1_y;
+		if (ply[1].carry || 
+			(current_game_type == GAME_TYPE_CVH && ply[2].carry)) // pointer1 is 2nd player in this mode
 			jo_sprite_draw3D2(multitkn_sprite_id, mx-11, my-11, POINTER_ZINDEX);
 
 		jo_sprite_draw3D2(pointer_sprite_id, mx-1, my-1, POINTER_ZINDEX);
-		jo_sprite_draw3D2((player == 1)?dust001_sprite_id:dust002_sprite_id, mx+9, my+11, POINTER_ZINDEX);
+		jo_sprite_draw3D2(current_game_type == GAME_TYPE_CVH ? dust002_sprite_id:dust001_sprite_id, mx+9, my+11, POINTER_ZINDEX);
+
+		if (current_game_type == GAME_TYPE_HVH)
+		{
+			mx = pointer2_x;
+			my = pointer2_y;
+			if (ply[2].carry)
+				jo_sprite_draw3D2(multitkn_sprite_id, mx-11, my-11, POINTER_ZINDEX);
+
+			jo_sprite_draw3D2(pointer_sprite_id, mx-1, my-1, POINTER_ZINDEX);
+			jo_sprite_draw3D2(dust002_sprite_id, mx+9, my+11, POINTER_ZINDEX);
+		}
 	}
 }
 
@@ -1046,68 +1112,68 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y)
 
 bool pointer_on_hvc_game_option()
 {
-	return (pointer_x >= title_menu_x && 
-		pointer_x <= (title_menu_x + GAME_FONT_WIDTH * 14)) && // 14 chars
-		(pointer_y >= (144 + 8) && 
-		pointer_y <= (144 + GAME_FONT_HEIGHT - 8));
+	return (pointer1_x >= title_menu_x && 
+		pointer1_x <= (title_menu_x + GAME_FONT_WIDTH * 14)) && // 14 chars
+		(pointer1_y >= (144 + 8) && 
+		pointer1_y <= (144 + GAME_FONT_HEIGHT - 8));
 }
 
 bool pointer_on_cvh_game_option()
 {
-	return (pointer_x >= title_menu_x && 
-		pointer_x <= (title_menu_x + GAME_FONT_WIDTH * 14)) && // 14 chars
-		(pointer_y >= (164 + 8) && 
-		pointer_y <= (164 + GAME_FONT_HEIGHT - 8));
+	return (pointer1_x >= title_menu_x && 
+		pointer1_x <= (title_menu_x + GAME_FONT_WIDTH * 14)) && // 14 chars
+		(pointer1_y >= (164 + 8) && 
+		pointer1_y <= (164 + GAME_FONT_HEIGHT - 8));
 }
 
 bool pointer_on_hvh_game_option()
 {
-	return (pointer_x >= title_menu_x && 
-		pointer_x <= (title_menu_x + GAME_FONT_WIDTH * 14)) && // 14 chars
-		(pointer_y >= (184 + 8) && 
-		pointer_y <= (184 + GAME_FONT_HEIGHT - 8));
+	return (pointer1_x >= title_menu_x && 
+		pointer1_x <= (title_menu_x + GAME_FONT_WIDTH * 14)) && // 14 chars
+		(pointer1_y >= (184 + 8) && 
+		pointer1_y <= (184 + GAME_FONT_HEIGHT - 8));
 }
 
 bool pointer_on_start_game_option(int menu_y)
 {
-	return (pointer_x >= 40 && 
-		pointer_x <= (40 + GAME_FONT_WIDTH * 10)) && // 10 chars
-		(pointer_y >= (menu_y + 8) && 
-		pointer_y <= (menu_y + GAME_FONT_HEIGHT - 8));
+	return (pointer1_x >= 40 && 
+		pointer1_x <= (40 + GAME_FONT_WIDTH * 10)) && // 10 chars
+		(pointer1_y >= (menu_y + 8) && 
+		pointer1_y <= (menu_y + GAME_FONT_HEIGHT - 8));
 }
 
 bool pointer_on_high_scores_option(int menu_y)
 {
-	return (pointer_x >= 40 && 
-		pointer_x <= (40 + GAME_FONT_WIDTH * 11)) && // 11 chars
-		(pointer_y >= (menu_y + 28) && 
-		pointer_y <= (menu_y + 20 + GAME_FONT_HEIGHT - 8));
+	return (pointer1_x >= 40 && 
+		pointer1_x <= (40 + GAME_FONT_WIDTH * 11)) && // 11 chars
+		(pointer1_y >= (menu_y + 28) && 
+		pointer1_y <= (menu_y + 20 + GAME_FONT_HEIGHT - 8));
 }
 
 bool pointer_on_instructions_option(int menu_y)
 {
-	return (pointer_x >= 40 && 
-		pointer_x <= (40 + GAME_FONT_WIDTH * 11)) && // 12 chars but subtract one for going too far
-		(pointer_y >= (menu_y + 48) && 
-		pointer_y <= (menu_y + 40 + GAME_FONT_HEIGHT - 8));
+	return (pointer1_x >= 40 && 
+		pointer1_x <= (40 + GAME_FONT_WIDTH * 11)) && // 12 chars but subtract one for going too far
+		(pointer1_y >= (menu_y + 48) && 
+		pointer1_y <= (menu_y + 40 + GAME_FONT_HEIGHT - 8));
 }
 
 bool pointer_on_credits_option(int menu_y)
 {
-	return (pointer_x >= 40 && 
-		pointer_x <= (40 + GAME_FONT_WIDTH * 7)) && // 7 chars
-		(pointer_y >= (menu_y + 68) && 
-		pointer_y <= (menu_y + 60 + GAME_FONT_HEIGHT - 8));
+	return (pointer1_x >= 40 && 
+		pointer1_x <= (40 + GAME_FONT_WIDTH * 7)) && // 7 chars
+		(pointer1_y >= (menu_y + 68) && 
+		pointer1_y <= (menu_y + 60 + GAME_FONT_HEIGHT - 8));
 }
 
 bool pointer_on_sound_vol()
 {
-	return (pointer_x>275 && pointer_x<290 && pointer_y>149 && pointer_y<201);
+	return (pointer1_x>275 && pointer1_x<290 && pointer1_y>149 && pointer1_y<201);
 }
 
 bool pointer_on_music_vol()
 {
-	return (pointer_x>295 && pointer_x<310 && pointer_y>149 && pointer_y<201);
+	return (pointer1_x>295 && pointer1_x<310 && pointer1_y>149 && pointer1_y<201);
 }
 
 void process_game_option_select(game_type selected_game_type)
@@ -1143,14 +1209,16 @@ void title() {
 		}
 
 		reset_title_props();
-		pointer_x=JO_TV_WIDTH_2;
-		pointer_y=JO_TV_HEIGHT_2; 
+		pointer1_x=JO_TV_WIDTH_2;
+		pointer1_y=JO_TV_HEIGHT_2; 
+		pointer2_x=JO_TV_WIDTH_2;
+		pointer2_y=JO_TV_HEIGHT_2;
 		//clicked;
 	}
 
 	is_pad2_available = is_pad_available(2);
 	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
-	set_pointer_position(current_pad1_input);
+	set_pointer_position(1, current_pad1_input);
 
 // 	if (!playingMidi) {
 // 		play_midi(data[TITLESONG].dat,1);
@@ -1170,7 +1238,7 @@ void title() {
 // 		clear_to_color(swap_screen,34);
 //	draw_donkeys();
 // 		draw_title(swap_screen,x,y,mode,menuX,menuY);
-	jo_sprite_draw3D2(pointer_sprite_id, pointer_x, pointer_y, POINTER_ZINDEX);
+	jo_sprite_draw3D2(pointer_sprite_id, pointer1_x, pointer1_y, POINTER_ZINDEX);
 
 // 		if (rand()%500<5) createDonkey(-40,rand()%220+20,rand()%4);
 // 		if (mode && menuX<40) menuX+=4;
@@ -1214,7 +1282,7 @@ void title() {
 		if (pointer_on_sound_vol())
 		{
 			int sv=sound_vol;
-			sound_vol=(pointer_y >= 197) ? 0 : (int)((197 - pointer_y) / 7);	// fx
+			sound_vol=(pointer1_y >= 197) ? 0 : (int)((197 - pointer1_y) / 7);	// fx
 			if (sound_vol!=sv) 
 			{
 				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
@@ -1223,7 +1291,7 @@ void title() {
 		else if (pointer_on_music_vol())
 		{
 			int mv=music_vol;
-			music_vol=(pointer_y >= 197) ? 0 : (int)((197 - pointer_y) / 7);	// music
+			music_vol=(pointer1_y >= 197) ? 0 : (int)((197 - pointer1_y) / 7);	// music
 			if (mv!=music_vol) {
 				CDDA_SetVolume(music_vol);
 			}
@@ -2039,8 +2107,14 @@ void play() {
 	make_bg();
 	
 	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
+	input_type current_pad2_input = get_pad_input_type(game_mode, 2);
 
-	set_pointer_position(current_pad1_input);
+	set_pointer_position(1, current_pad1_input);
+	if (current_game_type == GAME_TYPE_HVH)
+	{
+		set_pointer_position(2, current_pad2_input);
+	}
+
 	draw_game(1);
 // 	fade_in(data[GAMEPAL].dat,4);
 
@@ -2109,10 +2183,15 @@ void play() {
 		// check if the user simulated a mouse click
 		if (player != cpu)
 		{
-			if ((current_pad1_input == INPUT_TYPE_A || current_pad1_input == INPUT_TYPE_C))
+			if ((player == 1 && current_pad1_input == INPUT_TYPE_A) || // non cpu player 1 is always pad1
+				(player == 1 && current_pad1_input == INPUT_TYPE_C) || 
+				(player == 2 && current_game_type == GAME_TYPE_CVH && current_pad1_input == INPUT_TYPE_A) || // player 2 is pad1 in cvh
+				(player == 2 && current_game_type == GAME_TYPE_CVH && current_pad1_input == INPUT_TYPE_C) ||
+				(player == 2 && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_A) || // player 2 is pad2 in hvh
+				(player == 2 && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_C))
 			{
-				mx = pointer_x;
-				my = pointer_y;
+				mx = (player == 1 ? pointer1_x : pointer2_x);
+				my = (player == 1 ? pointer1_y : pointer2_y);
 				if (playing)
 				{
 					// check board
@@ -2152,7 +2231,9 @@ void play() {
 					}
 				}
 			}
-			else if (current_pad1_input == INPUT_TYPE_Z)
+			else if ((player == 1 && current_pad1_input == INPUT_TYPE_Z) || 
+				(player == 2 && current_game_type == GAME_TYPE_CVH && current_pad1_input == INPUT_TYPE_Z) || 
+				(player == 2 && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_Z))
 			{
 				get_hint(player,3);
 			}
@@ -2203,7 +2284,10 @@ void play() {
 			if (winner_presses==2) done = 1;
 			if (current_pad1_input == INPUT_TYPE_A || 
 				current_pad1_input == INPUT_TYPE_C || 
-				current_pad1_input == INPUT_TYPE_START)
+				current_pad1_input == INPUT_TYPE_START || 
+				(current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_A) || 
+				(current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_C) || 
+				(current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_START))
 			{
 				winner_presses++;
 			}
