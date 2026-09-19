@@ -335,6 +335,7 @@ static int hof_char_indexes[3];
 // track button changes for better title menu input handling
 static bool current_pad1_input_states[INPUT_TYPE_COUNT];
 static bool previous_pad1_input_states[INPUT_TYPE_COUNT];
+static bool is_pad2_available = false;
 
 // void fps_counter(void) {
 // 	fps=frame_count;
@@ -910,10 +911,17 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y)
 	{
 		jo_font_print(game_black_font, menu_x-1, 144 + 1, 0.99f, "HUMAN VS AARON");
 		jo_font_print(game_black_font, menu_x-1, 164 + 1, 0.99f, "ALEX VS HUMAN");
-		jo_font_print(game_black_font, menu_x-1, 184 + 1, 0.99f, "HUMAN VS HUMAN");
 		jo_font_print(game_white_font, menu_x, 144, 0.99f, "HUMAN VS AARON");
 		jo_font_print(game_white_font, menu_x, 164, 0.99f, "ALEX VS HUMAN");
+		
+		if (!is_pad2_available)
+			jo_sprite_enable_half_transparency();
+		
+		jo_font_print(game_black_font, menu_x-1, 184 + 1, 0.99f, "HUMAN VS HUMAN");
 		jo_font_print(game_white_font, menu_x, 184, 0.99f, "HUMAN VS HUMAN");
+		
+		if (!is_pad2_available)
+			jo_sprite_disable_half_transparency();
 	}
 
 	// volume controls
@@ -1033,6 +1041,11 @@ void process_game_option_select(game_type selected_game_type)
 	current_game_type = selected_game_type;
 }
 
+bool game_is_pad2_available()
+{
+	return jo_is_input_available(6); // seems that port 1 is 0-5 and port 2 is probably 6-11
+}
+
 void title() {
 	int x=320, y=10;
 // 	int done=0;
@@ -1055,6 +1068,7 @@ void title() {
 		//clicked;
 	}
 
+	is_pad2_available = game_is_pad2_available();
 	input_type current_pad1_input = get_pad1_input_types(game_mode, current_pad1_input_states);
 	set_pointer_position(current_pad1_input);
 
@@ -1173,7 +1187,7 @@ void title() {
 				process_game_option_select(GAME_TYPE_CVH);
 				cpu = 1;
 			}
-			else if (pointer_on_hvh_game_option(title_menu_y))
+			else if (pointer_on_hvh_game_option(title_menu_y) && is_pad2_available)
 			{
 				process_game_option_select(GAME_TYPE_HVH);
 				cpu = 0;
