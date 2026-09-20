@@ -1741,11 +1741,11 @@ void hof()
 	}
 	else
 	{
-		input_type current_pad1_input = get_pad_input_type(game_mode, 1);
+		input_type current_pad_input = get_pad_input_type(game_mode, current_game_type == GAME_TYPE_HVH && hof_p == 2 ? 2 : 1);
 
-		if (current_pad1_input == INPUT_TYPE_START ||
-			current_pad1_input == INPUT_TYPE_A || 
-			current_pad1_input == INPUT_TYPE_C)
+		if (current_pad_input == INPUT_TYPE_START ||
+			current_pad_input == INPUT_TYPE_A || 
+			current_pad_input == INPUT_TYPE_C)
 		{
 			if (hof_selected_index == HOF_MAX_INDEX)
 			{
@@ -1770,24 +1770,24 @@ void hof()
 				}
 			}
 		}
-		else if (current_pad1_input == INPUT_TYPE_LEFT)
+		else if (current_pad_input == INPUT_TYPE_LEFT)
 		{
 			if (hof_selected_index > 0)
 				hof_selected_index--;
 		}
-		else if (current_pad1_input == INPUT_TYPE_RIGHT)
+		else if (current_pad_input == INPUT_TYPE_RIGHT)
 		{
 			if (hof_selected_index < HOF_MAX_INDEX)
 				hof_selected_index++;
 		}
-		else if (current_pad1_input == INPUT_TYPE_DOWN && hof_selected_index < HOF_MAX_INDEX)
+		else if (current_pad_input == INPUT_TYPE_DOWN && hof_selected_index < HOF_MAX_INDEX)
 		{
 			if (hof_char_indexes[hof_selected_index] > 0)
 				hof_char_indexes[hof_selected_index]--;
 			else
 				hof_char_indexes[hof_selected_index] = HOF_CHARS_COUNT - 1;
 		}
-		else if (current_pad1_input == INPUT_TYPE_UP && hof_selected_index < HOF_MAX_INDEX)
+		else if (current_pad_input == INPUT_TYPE_UP && hof_selected_index < HOF_MAX_INDEX)
 		{
 			if (hof_char_indexes[hof_selected_index] == (HOF_CHARS_COUNT - 1))
 				hof_char_indexes[hof_selected_index] = 0;
