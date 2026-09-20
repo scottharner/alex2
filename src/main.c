@@ -1638,10 +1638,13 @@ void high_scores() {
 	}
 	
 	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
-
+	input_type current_pad2_input = get_pad_input_type(game_mode, 2);
 	if (current_pad1_input == INPUT_TYPE_START ||
 		current_pad1_input == INPUT_TYPE_A || 
-		current_pad1_input == INPUT_TYPE_C)
+		current_pad1_input == INPUT_TYPE_C || 
+		(did_play_game && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_START) || 
+		(did_play_game && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_A) || 
+		(did_play_game && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_C))
 	{
 		// user wants to return to title
 		action_counter = 0;
