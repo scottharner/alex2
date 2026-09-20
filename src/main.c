@@ -998,6 +998,10 @@ void draw_game(int show_pointer) {
 	{
 		int mx = pointer1_x;
 		int my = pointer1_y;
+		bool is_player_turn = (player == 1 || (current_game_type == GAME_TYPE_CVH && player == 2));
+		if (!is_player_turn)
+			jo_sprite_enable_half_transparency();
+
 		if (ply[1].carry || 
 			(current_game_type == GAME_TYPE_CVH && ply[2].carry)) // pointer1 is 2nd player in this mode
 			jo_sprite_draw3D2(multitkn_sprite_id, mx-11, my-11, POINTER_ZINDEX);
@@ -1005,15 +1009,25 @@ void draw_game(int show_pointer) {
 		jo_sprite_draw3D2(pointer_sprite_id, mx-1, my-1, POINTER_ZINDEX);
 		jo_sprite_draw3D2(current_game_type == GAME_TYPE_CVH ? dust002_sprite_id:dust001_sprite_id, mx+9, my+11, POINTER_ZINDEX);
 
+		if (!is_player_turn)
+			jo_sprite_disable_half_transparency();
+
 		if (current_game_type == GAME_TYPE_HVH)
 		{
+			is_player_turn = (player == 2);
 			mx = pointer2_x;
 			my = pointer2_y;
+			if (!is_player_turn)
+				jo_sprite_enable_half_transparency();
+
 			if (ply[2].carry)
 				jo_sprite_draw3D2(multitkn_sprite_id, mx-11, my-11, POINTER_ZINDEX);
 
 			jo_sprite_draw3D2(pointer_sprite_id, mx-1, my-1, POINTER_ZINDEX);
 			jo_sprite_draw3D2(dust002_sprite_id, mx+9, my+11, POINTER_ZINDEX);
+
+			if (!is_player_turn)
+				jo_sprite_disable_half_transparency();
 		}
 	}
 }
