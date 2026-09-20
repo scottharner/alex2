@@ -2275,8 +2275,8 @@ void play() {
 			{ 
 				if (winner<3) 
 				{
-					jo_font_print_centered(game_black_font, -1, 1, 0.99f, buf);
-					jo_font_print_centered(game_white_font, 0, 0, 0.99f, buf);
+					jo_font_print_centered(game_black_font, -1, 1, 0.50f, buf);
+					jo_font_print_centered(game_white_font, 0, 0, 0.50f, buf);
 				}
 				else 
 				{

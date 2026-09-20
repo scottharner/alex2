@@ -58,4 +58,3 @@ todo
 - tracking previous mode?
 - next player should wait until sound is done?
 - clean up hof screen
-- support 2p on hof and on high score screens after hvh game
