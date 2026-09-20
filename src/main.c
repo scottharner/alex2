@@ -138,7 +138,13 @@ static int darrow2_sprite_id;
 static int darrow3_sprite_id;
 static int darrow4_sprite_id;
 static int player11_sprite_id;
+static int player12_sprite_id;
+static int player13_sprite_id;
+static int player14_sprite_id;
 static int player21_sprite_id;
+static int player22_sprite_id;
+static int player23_sprite_id;
+static int player24_sprite_id;
 static int notkn_sprite_id;
 static int dust001_sprite_id;
 static int dust002_sprite_id;
@@ -332,6 +338,8 @@ static const char* instructions_lines[INSTRUCTIONS_PAGE_COUNT][INSTRUCTIONS_LINE
 };
 
 static int token_sprite_ids[5];
+static int p1_anim_sprite_ids[4];
+static int p2_anim_sprite_ids[4];
 static int hof_char_indexes[3];
 
 // track button changes for better title menu input handling
@@ -485,7 +493,13 @@ void load_game_sprites()
 		darrow3_sprite_id = jo_sprite_add_tga(NULL, "DARROW3.TGA", JO_COLOR_Black);
 		darrow4_sprite_id = jo_sprite_add_tga(NULL, "DARROW4.TGA", JO_COLOR_Black);
 		player11_sprite_id = jo_sprite_add_tga(NULL, "PLAYER11.TGA", JO_COLOR_Black);
+		player12_sprite_id = jo_sprite_add_tga(NULL, "PLAYER12.TGA", JO_COLOR_Black);
+		player13_sprite_id = jo_sprite_add_tga(NULL, "PLAYER13.TGA", JO_COLOR_Black);
+		player14_sprite_id = jo_sprite_add_tga(NULL, "PLAYER14.TGA", JO_COLOR_Black);
 		player21_sprite_id = jo_sprite_add_tga(NULL, "PLAYER21.TGA", JO_COLOR_Black);
+		player22_sprite_id = jo_sprite_add_tga(NULL, "PLAYER22.TGA", JO_COLOR_Black);
+		player23_sprite_id = jo_sprite_add_tga(NULL, "PLAYER23.TGA", JO_COLOR_Black);
+		player24_sprite_id = jo_sprite_add_tga(NULL, "PLAYER24.TGA", JO_COLOR_Black);
 		notkn_sprite_id = jo_sprite_add_tga(NULL, "NOTKN.TGA", JO_COLOR_Black);
 		dust001_sprite_id = jo_sprite_add_tga(NULL, "DUST001.TGA", JO_COLOR_Transparent);
 		dust002_sprite_id = jo_sprite_add_tga(NULL, "DUST002.TGA", JO_COLOR_Transparent);
@@ -503,6 +517,16 @@ void load_game_sprites()
 		token_sprite_ids[2] = bluetkn_sprite_id;
 		token_sprite_ids[3] = multitkn_sprite_id;
 		token_sprite_ids[4] = deadtkn_sprite_id; 
+		
+		p1_anim_sprite_ids[0] = player11_sprite_id;
+		p1_anim_sprite_ids[1] = player12_sprite_id;
+		p1_anim_sprite_ids[2] = player13_sprite_id;
+		p1_anim_sprite_ids[3] = player14_sprite_id;
+
+		p2_anim_sprite_ids[0] = player21_sprite_id;
+		p2_anim_sprite_ids[1] = player22_sprite_id;
+		p2_anim_sprite_ids[2] = player23_sprite_id;
+		p2_anim_sprite_ids[3] = player24_sprite_id;
 	}
 }
 
@@ -969,12 +993,24 @@ void draw_game(int show_pointer) {
 	jo_font_print(game_white_font, right_aligned_x,121,0.99f, score_string);
 
 	// draw characters
-	jo_sprite_draw3D2(player11_sprite_id, 280, 68, BACKGROUND_ZINDEX);
-	jo_sprite_draw3D2(player21_sprite_id, 280, 180, BACKGROUND_ZINDEX);
-// 	if (ply[1].anim) draw_sprite(swap_screen,data[PLAYER11+ply[1].anim_offset+(ply[1].anim&8?1:0)].dat,280,68);
-// 	else draw_sprite(swap_screen,data[PLAYER11].dat,280,68);
-// 	if (ply[2].anim) draw_sprite(swap_screen,data[PLAYER21+ply[2].anim_offset+(ply[2].anim&8?0:1)].dat,280,180);
-// 	else draw_sprite(swap_screen,data[PLAYER21].dat,280,180);
+	if (ply[1].anim && !winner) 
+	{
+		int p1_anim_sprite = ply[1].anim_offset + (ply[1].anim&8?0:1);
+		jo_sprite_draw3D2(p1_anim_sprite_ids[p1_anim_sprite], 280, 68, BACKGROUND_ZINDEX);
+	}
+	else 
+	{
+		jo_sprite_draw3D2(player11_sprite_id, 280, 68, BACKGROUND_ZINDEX);
+	}
+	if (ply[2].anim && !winner)
+	{
+		int p2_anim_sprite = ply[2].anim_offset + (ply[2].anim&8?0:1);
+		jo_sprite_draw3D2(p2_anim_sprite_ids[p2_anim_sprite], 280, 180, BACKGROUND_ZINDEX);
+	}
+	else 
+	{
+		jo_sprite_draw3D2(player21_sprite_id, 280, 180, BACKGROUND_ZINDEX);
+	}
 
 	// draw avail. multi tokens
 	jo_sprite_draw3D2((ply[1].multi?multitkn_sprite_id:notkn_sprite_id),245,73, BACKGROUND_ZINDEX);
@@ -2138,8 +2174,8 @@ void play() {
 // 	while (!done && !winner) {
 	if (!done && !winner)
 	{
-// 		if (ply[1].anim) ply[1].anim--;
-// 		if (ply[2].anim) ply[2].anim--;
+		if (ply[1].anim) ply[1].anim--;
+		if (ply[2].anim) ply[2].anim--;
 
 		if (hint && !jo_is_pad1_key_pressed(JO_KEY_Z)) hint--; // hold hint steady if z is held
 
@@ -2266,7 +2302,7 @@ void play() {
 		winner = (ply[1].score>ply[2].score ? 1:2);
 		done = 0;
 		if (ply[1].score == ply[2].score) winner = 3;
-// 		else ply[winner].anim = 100000;
+		else ply[winner].anim = 100000;
 		if (!cpu) sprintf(buf,"PLAYER %d WON THE GAME!",winner);
 		else 
 		{
