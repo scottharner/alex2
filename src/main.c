@@ -146,8 +146,11 @@ static int player22_sprite_id;
 static int player23_sprite_id;
 static int player24_sprite_id;
 static int notkn_sprite_id;
+static int dust000_sprite_id;
 static int dust001_sprite_id;
 static int dust002_sprite_id;
+static int dust003_sprite_id;
+static int dust004_sprite_id;
 static int end_sprite_id;
 static int endh_sprite_id;
 static int tglup_sprite_id;
@@ -341,6 +344,7 @@ static int token_sprite_ids[5];
 static int p1_anim_sprite_ids[4];
 static int p2_anim_sprite_ids[4];
 static int hof_char_indexes[3];
+static int dust_sprite_ids[5];
 
 // track button changes for better title menu input handling
 static bool current_pad1_input_states[INPUT_TYPE_COUNT];
@@ -501,8 +505,11 @@ void load_game_sprites()
 		player23_sprite_id = jo_sprite_add_tga(NULL, "PLAYER23.TGA", JO_COLOR_Black);
 		player24_sprite_id = jo_sprite_add_tga(NULL, "PLAYER24.TGA", JO_COLOR_Black);
 		notkn_sprite_id = jo_sprite_add_tga(NULL, "NOTKN.TGA", JO_COLOR_Black);
+		dust000_sprite_id = jo_sprite_add_tga(NULL, "DUST000.TGA", JO_COLOR_Transparent);
 		dust001_sprite_id = jo_sprite_add_tga(NULL, "DUST001.TGA", JO_COLOR_Transparent);
 		dust002_sprite_id = jo_sprite_add_tga(NULL, "DUST002.TGA", JO_COLOR_Transparent);
+		dust003_sprite_id = jo_sprite_add_tga(NULL, "DUST003.TGA", JO_COLOR_Transparent);
+		dust004_sprite_id = jo_sprite_add_tga(NULL, "DUST004.TGA", JO_COLOR_Transparent);
 		hint_sprite_id = jo_sprite_add_tga(NULL, "HINT.TGA", JO_COLOR_Black);
 		end_sprite_id = jo_sprite_add_tga(NULL, "END.TGA", JO_COLOR_RGB(255,0,255));
 		tglup_sprite_id = jo_sprite_add_tga(NULL, "TGLUP.TGA", JO_COLOR_RGB(255,0,255));
@@ -527,6 +534,12 @@ void load_game_sprites()
 		p2_anim_sprite_ids[1] = player22_sprite_id;
 		p2_anim_sprite_ids[2] = player23_sprite_id;
 		p2_anim_sprite_ids[3] = player24_sprite_id;
+
+		dust_sprite_ids[0] = dust000_sprite_id;
+		dust_sprite_ids[1] = dust001_sprite_id;
+		dust_sprite_ids[2] = dust002_sprite_id;
+		dust_sprite_ids[3] = dust003_sprite_id;
+		dust_sprite_ids[4] = dust004_sprite_id;
 	}
 }
 
@@ -804,32 +817,33 @@ void make_bg() {
 	}
 }
 
-// void createParticle(int x,int y,int im) {
-//    int i=0;
+void create_particle(int x,int y,int im) 
+{	
+   int i=0;
+   while(dust[i].exist && i<MAX_PARTICLES-1) i++;  // find available i
 
-//    while(dust[i].exist && i<MAX_PARTICLES-1) i++;  // find available i
+   dust[i].x = jo_int2fixed(x); 
+   dust[i].y = jo_int2fixed(y);
+   dust[i].dx = jo_fixed_cos(jo_int2fixed(get_random(256)-1));
+   dust[i].dy = jo_fixed_sin(jo_int2fixed(get_random(256)-1));
+   dust[i].image = im;
+   dust[i].exist = 1;
+}
 
-//    dust[i].x = itofix(x); 
-//    dust[i].y = itofix(y);
-//    dust[i].dx = fcos(itofix(rand()%256));
-//    dust[i].dy = fsin(itofix(rand()%256));
-//    dust[i].image = im;
-//    dust[i].exist = 1;
-// }
+void draw_particles() {
+	int i,y;
 
-// void drawParticles() {
-// 	int i,y;
-
-// 	for(i=0;i<MAX_PARTICLES;i++)
-// 		if (dust[i].exist) {
-// 			draw_sprite(swap_screen, data[DUST000+dust[i].image].dat, fixtoi(dust[i].x)-2, fixtoi(dust[i].y)-2);
-// 			dust[i].x += dust[i].dx;
-// 			dust[i].y += dust[i].dy;
-// 			dust[i].dy += fsin(itofix(2));
-// 			y = fixtoi(dust[i].y);
-// 			if (y > 240) dust[i].exist = 0;
-// 		}
-// }
+	for(i=0;i<MAX_PARTICLES;i++)
+		if (dust[i].exist) {
+			jo_sprite_draw3D2(dust_sprite_ids[dust[i].image], jo_fixed2int(dust[i].x)-2, jo_fixed2int(dust[i].y)-2, BACKGROUND_ZINDEX);
+			// draw_sprite(swap_screen, data[DUST000+dust[i].image].dat, jo_fixed2int(dust[i].x)-2, jo_fixed2int(dust[i].y)-2);
+			dust[i].x += dust[i].dx;
+			dust[i].y += dust[i].dy;
+			dust[i].dy += jo_fixed_sin(jo_int2fixed(2));
+			y = jo_fixed2int(dust[i].y);
+			if (y > 240) dust[i].exist = 0;
+		}
+}
 
 int get_right_aligned_x_coord(const jo_font *font, int right_x, float scale, char *text)
 {
@@ -1028,7 +1042,7 @@ void draw_game(int show_pointer) {
 		jo_font_print(game_white_font, 245, 188, 0.5f, score_string);
 	}
 
-	// 	if (show_pointer) drawParticles();
+		if (show_pointer) draw_particles();
 
 	if (show_pointer)
 	{
@@ -1068,7 +1082,8 @@ void draw_game(int show_pointer) {
 	}
 }
 
-void reset_particles() {
+void reset_particles() 
+{
 	int i;
 	for(i=0;i<MAX_PARTICLES;i++)
 		dust[i].exist = 0;
@@ -1627,7 +1642,7 @@ void check_board(byte player)
 		for(y=0;y<8;y++) 
 			if (board[x][y].flag) 
 			{
-// 				for(i=0;i<10;i++) createParticle(20+x*24+rand()%24,20+y*24+rand()%24,board[x][y].token);
+				for(i=0;i<10;i++) create_particle(20+x*24+(get_random(24)-1),20+y*24+(get_random(24)-1),board[x][y].token);
 				board[x][y] = empty_square;
 				me++;
 			}
