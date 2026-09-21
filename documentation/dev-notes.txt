@@ -58,4 +58,3 @@ todo
 - tracking previous mode?
 - next player should wait until sound is done?
 - clean up hof screen
-- cvh tile placement bug

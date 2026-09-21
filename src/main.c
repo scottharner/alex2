@@ -2258,8 +2258,8 @@ void play() {
 				(player == 2 && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_A) || // player 2 is pad2 in hvh
 				(player == 2 && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_C))
 			{
-				mx = (player == 1 ? pointer1_x : pointer2_x);
-				my = (player == 1 ? pointer1_y : pointer2_y);
+				mx = ((player == 1 || current_game_type == GAME_TYPE_CVH) ? pointer1_x : pointer2_x);
+				my = ((player == 1 || current_game_type == GAME_TYPE_CVH) ? pointer1_y : pointer2_y);
 				if (playing)
 				{
 					// check board
