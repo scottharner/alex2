@@ -45,6 +45,8 @@ todo
 - put input methods into separate file
 - screen fades
 - flying donkeys
+  - movement wrong
+  - zindex wrong
 - move instructions text to separate file
 - shutdown + cleanup mallocs
   - hisc malloc table
@@ -61,3 +63,6 @@ todo
 - remove unneeded commented code
 - enable all hint logic (hint method and play game mehthod)
 - allow quitting game
+- test on real hardware
+- publish to sega retro
+- publish to sega xtreme

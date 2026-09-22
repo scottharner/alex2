@@ -134,6 +134,10 @@ static int dust001_sprite_id;
 static int dust002_sprite_id;
 static int dust003_sprite_id;
 static int dust004_sprite_id;
+static int donkey1_sprite_id;
+static int donkey2_sprite_id;
+static int donkey3_sprite_id;
+static int donkey4_sprite_id;
 static int end_sprite_id;
 static int endh_sprite_id;
 static int tglup_sprite_id;
@@ -328,6 +332,7 @@ static int p1_anim_sprite_ids[4];
 static int p2_anim_sprite_ids[4];
 static int hof_char_indexes[3];
 static int dust_sprite_ids[5];
+static int donkey_sprite_ids[4];
 
 // track button changes for better title menu input handling
 static bool current_pad1_input_states[INPUT_TYPE_COUNT];
@@ -413,6 +418,15 @@ void load_title_sprites()
 	vol2_sprite_id = jo_sprite_add_tga(NULL, "VOL2.TGA", JO_COLOR_Black);
 	vol3_sprite_id = jo_sprite_add_tga(NULL, "VOL3.TGA", JO_COLOR_Black);
 	pointer_sprite_id = jo_sprite_add_tga(NULL, "POINTER.TGA", JO_COLOR_Black);
+	donkey1_sprite_id = jo_sprite_add_tga(NULL, "DONKEY1.TGA", JO_COLOR_Black);
+	donkey2_sprite_id = jo_sprite_add_tga(NULL, "DONKEY2.TGA", JO_COLOR_Black);
+	donkey3_sprite_id = jo_sprite_add_tga(NULL, "DONKEY3.TGA", JO_COLOR_Black);
+	donkey4_sprite_id = jo_sprite_add_tga(NULL, "DONKEY4.TGA", JO_COLOR_Black);
+
+	donkey_sprite_ids[0] = donkey1_sprite_id;
+	donkey_sprite_ids[1] = donkey2_sprite_id;
+	donkey_sprite_ids[2] = donkey3_sprite_id;
+	donkey_sprite_ids[3] = donkey4_sprite_id;
 }
 
 void load_game_sprites()
@@ -1074,33 +1088,35 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y)
 	jo_sprite_draw3D2(vol2_sprite_id, 300, 197-(music_vol*7), 500);
 }
 
-// void draw_donkeys() {
-// 	int i,x;
+void draw_donkeys() 
+{
+	int i,x;
 
-// 	for(i=0;i<MAX_PARTICLES;i++)
-// 		if (dust[i].exist) {
-// 			draw_sprite(swap_screen, data[DONKEY1+dust[i].image].dat, fixtoi(dust[i].x), fixtoi(dust[i].y));
-// 			dust[i].x += dust[i].dx;
-// 			dust[i].y += dust[i].dy;
-// 			dust[i].dy += fsin(itofix(2));
-// 			if (dust[i].dy > itofix(2)) dust[i].dy = -dust[i].dy;
-// 			x = fixtoi(dust[i].x);
-// 			if (x > 320) dust[i].exist = 0;
-// 		}
-// }
+	for(i=0;i<MAX_PARTICLES;i++)
+		if (dust[i].exist) {
+			jo_sprite_draw3D2(donkey_sprite_ids[dust[i].image], jo_fixed2int(dust[i].x), jo_fixed2int(dust[i].y), BACKGROUND_ZINDEX);
+			dust[i].x += dust[i].dx;
+			dust[i].y += dust[i].dy;
+			dust[i].dy += jo_fixed_sin(jo_int2fixed(2));
+			if (dust[i].dy > jo_int2fixed(2)) dust[i].dy = -dust[i].dy;
+			x = jo_fixed2int(dust[i].x);
+			if (x > 320) dust[i].exist = 0;
+		}
+}
 
-// void createDonkey(int x,int y,int im) {
-//    int i=0;
+void create_donkey(int x,int y,int im) 
+{
+   int i=0;
 
-//    while(dust[i].exist && i<MAX_PARTICLES-1) i++;  // find available i
+   while(dust[i].exist && i<MAX_PARTICLES-1) i++;  // find available i
 
-//    dust[i].x = itofix(x); 
-//    dust[i].y = itofix(y);
-//    dust[i].dx = itofix(rand()%2+2);
-//    dust[i].dy = itofix(rand()%2+1);
-//    dust[i].image = im;
-//    dust[i].exist = 1;
-// }
+   dust[i].x = jo_int2fixed(x); 
+   dust[i].y = jo_int2fixed(y);
+   dust[i].dx = jo_int2fixed(get_random(2)+1); // 2 or 3
+   dust[i].dy = jo_int2fixed(get_random(2)); // 1 or 2
+   dust[i].image = im;
+   dust[i].exist = 1;
+}
 
 bool pointer_on_hvc_game_option()
 {
@@ -1206,13 +1222,13 @@ void title() {
 		pointer2_x=JO_TV_WIDTH_2;
 		pointer2_y=JO_TV_HEIGHT_2;
 		//clicked;
+		reset_particles();
 	}
 
 	is_pad2_available = is_pad_available(2);
 	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
 	set_pointer_position(1, current_pad1_input);
 
-	reset_particles();
 	if (is_showing_start_game_options && title_menu_y<JO_TV_HEIGHT) title_menu_y+=4;
 	if (is_showing_start_game_options && title_menu_x < 40) title_menu_x+= 4;
 
@@ -1223,11 +1239,11 @@ void title() {
 // 		my = mouse_y;
 // 		if (x != 250) x-=2;
 // 		clear_to_color(swap_screen,34);
-//	draw_donkeys();
+	draw_donkeys();
 // 		draw_title(swap_screen,x,y,mode,menuX,menuY);
 	jo_sprite_draw3D2(pointer_sprite_id, pointer1_x, pointer1_y, POINTER_ZINDEX);
 
-// 		if (rand()%500<5) createDonkey(-40,rand()%220+20,rand()%4);
+	if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
 // 		if (mode && menuX<40) menuX+=4;
 // 		if (mode && menuY<400) menuY+=4;
 
@@ -1639,10 +1655,10 @@ void high_scores() {
 
 // 	while(!key[KEY_ESC] && !key[KEY_ENTER] && !key[KEY_SPACE] && !mouse_b) {
 // 		clear_to_color(swap_screen,37);
-// 		draw_donkeys();
+	draw_donkeys();
 // 		drawHiScores();
 // 		blitScreen();
-// 		if (rand()%500<5) createDonkey(-40,rand()%220+20,rand()%4);
+	if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
 // 	}
 
 // 	fade_out(4);
@@ -2504,6 +2520,7 @@ void instructions()
 		jo_clear_screen();
 		jo_set_default_background_color(JO_COLOR_RGB(121,52,52)); // pink
 		current_instructions_page_index = 0;
+		reset_particles();
 	}
 	
 	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
@@ -2550,7 +2567,6 @@ void instructions()
 // 	char *txt = data[INSTRUCTIONS].dat;
 // 	int pressed=0;
 
-// 	reset_particles();
 
 // 	clear_to_color(swap_screen,40);
 // 	printPage(txt, currPage);
@@ -2559,10 +2575,10 @@ void instructions()
 // 	fade_in(data[GAMEPAL].dat,4);
 // 	while(!key[KEY_ESC]) {
 // 		clear_to_color(swap_screen,40);
-// 		draw_donkeys();
+	draw_donkeys();
 // 		printPage(txt, currPage);
 // 		blitScreen();
-// 		if (rand()%500<5) createDonkey(-40,rand()%220+20,rand()%4);
+	if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
 // 		if (!pressed && key[KEY_LEFT] && currPage>0) { currPage--; pressed = 1; }
 // 		if (!pressed && key[KEY_RIGHT] && currPage<8) { currPage++; pressed = 1; }
 // 		if (!key[KEY_LEFT] && !key[KEY_RIGHT]) pressed = 0;
@@ -2578,6 +2594,7 @@ void credits()
 	{
 		jo_clear_screen();
 		jo_set_default_background_color(JO_COLOR_RGB(140,110,75)); // brown
+		reset_particles();
 	}
 	
 	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
@@ -2608,6 +2625,8 @@ void credits()
 		jo_font_print(game_white_font, 4, credit_start_y+i*16, 0.50f, credits_text[i]);		
 	}
 
+	draw_donkeys();
+	if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
 }
 
 void update_game()
