@@ -71,22 +71,10 @@
 #define HOF_MAX_INDEX 3
 #define HOF_CHARS_COUNT 28
 
- // BITMAP *swap_screen;
-// BITMAP *bg_screen;
-// BITMAP *scroller = NULL;
-// DATAFILE *data;
 Thisc *hisc;						// a hiscore table
 Ttoken board[8][8];					// the board
 Tparticle dust[MAX_PARTICLES];		// particles for the particle engine
 Tplayer ply[3];						// 2 players, ignore ply[0]
-
-// // RGB -> color mapping table. Not needed, but speeds things up 
-// RGB_MAP rgb_table;
-
-// // lighting and translucency color mapping tables
-// COLOR_MAP dark_table;
-// COLOR_MAP light_table;
-// COLOR_MAP trans_table;
 
 // // global stuff
 int playing;			// can the player interact?
@@ -98,16 +86,10 @@ byte player;			// current player
 int winner;				// who won? 3=draw
 int winner_presses;			// button presses after winner message is shown
 byte sound_vol, music_vol;
-// int playingMidi = 0;
 int locked_row, locked_col; // current locked row/col
 int hint, hint_x, hint_y;   // hint stuff
 int cpu;				  // 0 = none, 1 = ply1, 2= ply2
 int thinking;				// cpu moves counter
-
-// // timer variables
-// volatile int frame_count;
-// volatile int fps;
-// volatile int game_count;
 
 static mode game_mode;
 static mode previous_game_mode;
@@ -353,21 +335,6 @@ static bool current_pad2_input_states[INPUT_TYPE_COUNT];
 static bool previous_pad2_input_states[INPUT_TYPE_COUNT];
 static bool is_pad2_available = false;
 
-// void fps_counter(void) {
-// 	fps=frame_count;
-// 	frame_count=0;
-// }
-// END_OF_FUNCTION(fps_counter);
-
-// void game_counter(void) {
-// 	game_count++;
-// }
-// END_OF_FUNCTION(game_counter);
-
-// void myAlert(char *txt) {
-// 	alert("A L E X   I I", NULL, txt, "Cool", "Yeah", 'y', 27);
-// }
-
 void reset_scores(Thisc *table) {
 	reset_table(table,"JOHAN PEITZ",1000,0);
 	strcpy(table[0].name, "ALEX THE ALLEGATOR");
@@ -382,15 +349,6 @@ void reset_scores(Thisc *table) {
 	strcpy(table[9].name, "WE TAKE VISA.");
 }
 
-// int loadData() {
-// 	int ok=1;
-
-// 	data = load_datafile("../assets/alex2.dat");
-// 	if (!data) ok=0;
-
-// 	return ok;
-// }
-
 int get_random(int max)
 {
     if (max <= 0) return 0;
@@ -399,33 +357,13 @@ int get_random(int max)
 
 void load_sound_config() 
 {
-// 	PACKFILE *fp;
-
-// 	fp = pack_fopen("sound.sav", "rp");
-// 	if (!fp) {
- 		
 	// start sound at full volume and music at half volume
 	// sound and music are on a different scale with ponesound
 	// sound is 0-7
 	// music is 0-7
 	sound_vol=6;
  	music_vol=4;
-// 	} 
-// 	else {
-// 		pack_fread(&soundvol, 1, fp);
-// 		pack_fread(&musicvol, 1, fp);
-// 		pack_fclose(fp);
-// 	}	
 }
-
-// void saveSoundCFG() {
-// 	PACKFILE *fp;
-
-// 	fp = pack_fopen("sound.sav", "wp");
-// 	pack_fwrite(&soundvol, 1, fp);
-// 	pack_fwrite(&musicvol, 1, fp);
-// 	pack_fclose(fp);
-// }
 
 void reset_title_props()
 {
@@ -556,49 +494,9 @@ void init()
 	game_white_font = jo_font_load(NULL, "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
 	game_white_font->z_index = BACKGROUND_ZINDEX;
 
-// 	allegro_init();
-
-// 	set_gfx_mode(GFX_GDI, 320, 240, 0, 0);
-
-// 	packfile_password("speedhack");
-
-// 	install_keyboard();
-// 	install_mouse();
-// 	install_timer();
-// 	LOCK_VARIABLE(game_count);
-// 	LOCK_VARIABLE(fps);
-// 	LOCK_VARIABLE(frame_count);
-// 	LOCK_FUNCTION(fps_counter);
-// 	install_int(fps_counter,1000);
-// 	fps=0;
-// 	frame_count=0;
-// 	LOCK_FUNCTION(game_counter);
-// 	install_int(game_counter,15);
-// 	game_count=0;
-
-// 	swap_screen  = create_bitmap(320,240);
-// 	bg_screen  = create_bitmap(320,240);
-
-// 	if (!loadData()) { allegro_message("Failed to load data."); exit(1); }
-
-// 	install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL);
-
-// 	text_mode(-1);
-
-// 	create_rgb_table(&rgb_table, data[GAMEPAL].dat, NULL);
-// 	rgb_map = &rgb_table;
-// 	create_light_table(&dark_table, data[GAMEPAL].dat, 0, 0, 0, NULL);
-// 	create_light_table(&light_table, data[GAMEPAL].dat, 63, 63, 63, NULL);
-// 	create_trans_table(&trans_table, data[GAMEPAL].dat, 0, 64, 0, NULL);
-
-// 	soundvol=200;
-// 	musicvol=200;
-
 	hisc = make_table();
-// 	if (!loadTable(hisc,"hiscores.sav")) resetScores(hisc);
 	reset_scores(hisc);
 	load_sound_config();
-// 	set_volume(soundvol,musicvol);
 
 	reset_game();
 }
@@ -788,17 +686,6 @@ input_type get_pad_input_type(mode game_mode, int pad)
     return current_pad_input;
 }
 
-// void etchedBox(int x1, int y1, int x2, int y2, int up) {
-// 	line(bg_screen, x1-2, y1-1, x2, y1-1, (up?38:40));
-// 	line(bg_screen, x1-2, y1-2, x2+1, y1-2, (up?38:40));
-// 	line(bg_screen, x1-1, y1-1, x1-1, y2, (up?38:40));
-// 	line(bg_screen, x1-2, y1-2, x1-2, y2+1, (up?38:40));
-// 	line(bg_screen, x1, y2+1, x2+1, y2+1, (up?40:38));
-// 	line(bg_screen, x1-1, y2+2, x2+2, y2+2, (up?40:38)); 
-// 	line(bg_screen, x2+1, y2+1, x2+1, y1, (up?40:38));
-// 	line(bg_screen, x2+2, y2+2, x2+2, y1-1, (up?40:38));
-// }
-
 void make_bg() {
 	int x;
 
@@ -943,11 +830,6 @@ void draw_game(int show_pointer) {
 	int anim_col = -1;
 	int anim_row = -1;
 
-// 	// fps...
-// 	frame_count++;
-
-// 	blit(bg_screen, swap_screen, 0, 0, 0, 0, 320, 240);
-	
 // 	if (placeing) {
 // 		rectfill(swap_screen, 21+24*place_x, 21+24*place_y, 21+24*place_x+22, 21+24*place_y+22, 12);
 // 		stretch_sprite(swap_screen, data[TOKEN000+place_type].dat, 21+24*place_x+(placeing>>1), 21+24*place_y+(placeing>>1), 23-placeing, 23-placeing);
@@ -1319,11 +1201,6 @@ void title() {
 	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
 	set_pointer_position(1, current_pad1_input);
 
-// 	if (!playingMidi) {
-// 		play_midi(data[TITLESONG].dat,1);
-// 		playingMidi=1;
-// 	}
-
 	reset_particles();
 	if (is_showing_start_game_options && title_menu_y<JO_TV_HEIGHT) title_menu_y+=4;
 	if (is_showing_start_game_options && title_menu_x < 40) title_menu_x+= 4;
@@ -1489,12 +1366,8 @@ int rotate_row(int row, int go_left) {
 
 int anim_rotate_row(int row, int go_left) {
 	// setup scrolling area
-// 	if (scroller != NULL) destroy_bitmap(scroller);
-// 	scroller = create_bitmap(194,23);
 	scroll_dir = (go_left?4:2);
 
-// 	draw_game(0);
-// 	blit(swap_screen, scroller, 20, 21+row*24, 0, 0, 194, 23);
 	scroll_x = 20;
 	scroll_y = 21+row*24;
 	scrolling = 24;
@@ -1532,12 +1405,8 @@ int rotate_column(int col, int go_up)
 int anim_rotate_column(int col, int go_up) 
 {
 	// setup scrolling area
-// 	if (scroller != NULL) destroy_bitmap(scroller);
-// 	scroller = create_bitmap(23,194);
 	scroll_dir = (go_up?1:3);
 
-// 	draw_game(0);
-// 	blit(swap_screen, scroller, 21+col*24, 20, 0, 0, 23, 194);
 	scroll_x = 21+col*24;
 	scroll_y = 20;
 	scrolling = 24;
@@ -2416,14 +2285,6 @@ void play() {
 // 	fade_out(4);
 }
 
-// int myRest(int msecs) {
-// 	int gclick = msecs/15;
-// 	game_count=0;
-// 	while(game_count<gclick && !key[KEY_ESC]);
-// 	if (key[KEY_ESC]) return 1;
-// 	return 0;
-// }
-
 // int fadeText(char *txt, int msecs) {
 // 	int i;
 // 	set_palette(black_palette);
@@ -2625,43 +2486,6 @@ void intro()
 // 	allegro_exit();
 // }
 
-// void printPage(char *txt, int page) {
-// 	int i,p,x,y;
-// 	char buf[2] = {' ','\0'};
-
-// 	// draw header
-// 	draw_character(swap_screen, data[TITLE].dat, 8, 21, 1);
-// 	draw_sprite(swap_screen,data[TITLE].dat,7,20);
-// 	draw_rle_sprite(swap_screen,data[AA2].dat,250,10);
-// 	color_map = &trans_table;
-// 	draw_trans_sprite(swap_screen,data[TITLE].dat,7,20);
-
-// 	// find page
-// 	i=0; p=0;
-// 	while(p!=page) {
-// 		if (txt[i] == '@') p++;
-// 		i++;
-// 	}
-// 	if (i) i+=2;
-
-// 	// print text
-// 	x=10; y=70;
-// 	while(txt[i] != '@') {
-// 		if (txt[i+1] == '\n') {
-// 			y += 12;
-// 			x = 10;
-// 			i += 2;
-// 		}
-// 		else {
-// 			buf[0] = txt[i];
-// 			textout(swap_screen,data[MYFONT2].dat, buf, x+1, y+1, 1);
-// 			textout(swap_screen,data[MYFONT2].dat, buf, x, y, -1);
-// 			x += text_length(data[MYFONT2].dat,buf);
-// 			i++;
-// 		}
-// 	}
-// }
-
 void instructions() 
 {
 	if (action_counter <= 1)
@@ -2783,7 +2607,6 @@ void update_game()
 	// 	if (playGame==2) showHighscores();
 	// 	if (playGame==1) instructions();
 	// }
-	// outro();
 	// shutdown();
 	if (action_counter < MAX_ACTION_CYCLES)
 		action_counter++;
