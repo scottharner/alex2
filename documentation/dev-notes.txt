@@ -46,15 +46,19 @@ todo
 - screen fades
 - flying donkeys
 - move instructions text to separate file
-- cleanup hisc malloc table
-- do i need malloc for other string structures?
+- shutdown + cleanup mallocs
+  - hisc malloc table
+  - do other string structures need malloc?
 - output to bin/cue format
 - build up ss utils file
 - improve load times?
-- animate alligators
-- deal with particles on token removal
 - cleanup black font
 - screen transitioning code cleanup
 - tracking previous mode?
 - next player should wait until sound is done?
 - clean up hof screen
+- update readme with port notes
+- remove unneeded commented code
+- tile placement animation
+- enable all hint logic (hint method and play game mehthod)
+- allow quitting game
