@@ -50,6 +50,10 @@
 #define SONG3_TRACKID 4
 #define SONG4_TRACKID 5
 #define BACKGROUND_ZINDEX 500
+#define DONKEY_ZINDEX 450
+#define TEXT_ZINDEX 400
+#define AA2_ZINDEX 390
+#define LOGO_ZINDEX 380
 #define PLACEING_ZINDEX 400
 #define POINTER_ZINDEX 350
 #define INTRO_SCALE_GRAPHIC_TIME 120
@@ -403,7 +407,7 @@ void load_pregame_assets()
 	rotate_sound_id = load_8bit_pcm((Sint8 *)"ROTATE.PCM", 15360);
 
 	game_black_font = jo_font_load(NULL, "GAMEBLK.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
-	game_black_font->z_index = BACKGROUND_ZINDEX;
+	game_black_font->z_index = TEXT_ZINDEX;
 
 	load_title_sprites();
 	load_intro_sprites(); // load last since we will unload these which frees memory after
@@ -507,7 +511,7 @@ void init()
 
 	// initialize fonts - load just what's needed for loading screen
 	game_white_font = jo_font_load(NULL, "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
-	game_white_font->z_index = BACKGROUND_ZINDEX;
+	game_white_font->z_index = TEXT_ZINDEX;
 
 	hisc = make_table();
 	reset_scores(hisc);
@@ -1045,11 +1049,11 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y)
 	}
 
 	// title logos and text
-	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(title_sprite_id, 0, 16, TEXT_ZINDEX);
 	jo_sprite_enable_half_transparency();
-	jo_sprite_draw3D2(aa2_sprite_id, aa2_x, 8, 450);
+	jo_sprite_draw3D2(aa2_sprite_id, aa2_x, 8, AA2_ZINDEX);
 	jo_sprite_disable_half_transparency();
-	jo_sprite_draw3D2(aalogo_sprite_id, 64, 48, 400);
+	jo_sprite_draw3D2(aalogo_sprite_id, 64, 48, LOGO_ZINDEX);
 
 	// title menu options
 	if (is_showing_main_menu_options || menu_y < JO_TV_HEIGHT)
@@ -1082,10 +1086,10 @@ void draw_title(int x, int y, int m, int menu_x, int menu_y)
 	}
 
 	// volume controls
-	jo_sprite_draw3D2(vol3_sprite_id, 280, 152, 500);
-	jo_sprite_draw3D2(vol3_sprite_id, 304, 152, 500);
-	jo_sprite_draw3D2(vol1_sprite_id, 276, 197-(sound_vol*7), 500);
-	jo_sprite_draw3D2(vol2_sprite_id, 300, 197-(music_vol*7), 500);
+	jo_sprite_draw3D2(vol3_sprite_id, 280, 152, TEXT_ZINDEX);
+	jo_sprite_draw3D2(vol3_sprite_id, 304, 152, TEXT_ZINDEX);
+	jo_sprite_draw3D2(vol1_sprite_id, 276, 197-(sound_vol*7), TEXT_ZINDEX);
+	jo_sprite_draw3D2(vol2_sprite_id, 300, 197-(music_vol*7), TEXT_ZINDEX);
 }
 
 void draw_donkeys() 
@@ -1094,7 +1098,7 @@ void draw_donkeys()
 
 	for(i=0;i<MAX_PARTICLES;i++)
 		if (dust[i].exist) {
-			jo_sprite_draw3D2(donkey_sprite_ids[dust[i].image], jo_fixed2int(dust[i].x), jo_fixed2int(dust[i].y), BACKGROUND_ZINDEX);
+			jo_sprite_draw3D2(donkey_sprite_ids[dust[i].image], jo_fixed2int(dust[i].x), jo_fixed2int(dust[i].y), DONKEY_ZINDEX);
 			dust[i].x += dust[i].dx;
 			dust[i].y += dust[i].dy;
 			dust[i].dy += jo_fixed_sin(jo_int2fixed(2));
@@ -1604,9 +1608,9 @@ void check_board(byte player)
 void draw_high_scores() {
 	int i;	
 
-	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(title_sprite_id, 0, 16, TEXT_ZINDEX);
 	jo_sprite_enable_half_transparency();
-	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, 450);
+	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, AA2_ZINDEX);
 	jo_sprite_disable_half_transparency();
 
 	int title_y = -60;
@@ -1794,26 +1798,26 @@ void hof()
 		}
 	}
 
-	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(title_sprite_id, 0, 16, TEXT_ZINDEX);
 	jo_sprite_enable_half_transparency();
-	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, 450);
+	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, AA2_ZINDEX);
 	jo_sprite_disable_half_transparency();
 
 	int title_y = -60;
 	jo_font_print_centered(game_black_font, -1, title_y+1, 0.99f, "ALL TIME HIGH");
 	jo_font_print_centered(game_white_font, 0, title_y, 0.99f, "ALL TIME HIGH");
 
-	jo_sprite_draw3D2(token_sprite_ids[hof_p], 0, 80, BACKGROUND_ZINDEX);
-	jo_sprite_draw3D2(token_sprite_ids[hof_p], 320-24, 80, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(token_sprite_ids[hof_p], 0, 80, TEXT_ZINDEX);
+	jo_sprite_draw3D2(token_sprite_ids[hof_p], 320-24, 80, TEXT_ZINDEX);
 	char score_string[35];
 	sprintf(score_string, "PLAYER %d, YOU GOT A HIGH SCORE!", hof_p);
 	jo_font_print_centered(game_black_font, -1, -28+1, 0.50f, score_string);
 	jo_font_print_centered(game_white_font, 0, -28, 0.50f, score_string);
 
 	int center_x_coord = get_center_aligned_x_coord(game_white_font, 0.99f, "AAAA");
-	jo_sprite_draw3D2(hof_selected_index == 0 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord, 104, BACKGROUND_ZINDEX);
-	jo_sprite_draw3D2(hof_selected_index == 1 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord + 18, 104, BACKGROUND_ZINDEX);
-	jo_sprite_draw3D2(hof_selected_index == 2 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord + 36, 104, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 0 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord, 104, TEXT_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 1 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord + 18, 104, TEXT_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 2 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord + 36, 104, TEXT_ZINDEX);
 	jo_font_printf(game_black_font, center_x_coord-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[0]]);
 	jo_font_printf(game_white_font, center_x_coord, 116, 0.99f, "%c", hof_chars[hof_char_indexes[0]]);		
 	jo_font_printf(game_black_font, center_x_coord+18-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[1]]);
@@ -1821,11 +1825,11 @@ void hof()
 	jo_font_printf(game_black_font, center_x_coord+36-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[2]]);
 	jo_font_printf(game_white_font, center_x_coord + 36, 116, 0.99f, "%c", hof_chars[hof_char_indexes[2]]);		
 	jo_sprite_change_sprite_scale_xy(0.50f, 0.50f);
-	jo_sprite_draw3D2(hof_selected_index == 3 ? endh_sprite_id : end_sprite_id, center_x_coord + 42, 110, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 3 ? endh_sprite_id : end_sprite_id, center_x_coord + 42, 110, TEXT_ZINDEX);
 	jo_sprite_restore_sprite_scale();
-	jo_sprite_draw3D2(hof_selected_index == 0 ? tgldnh_sprite_id : tgldn_sprite_id, center_x_coord, 140, BACKGROUND_ZINDEX);
-	jo_sprite_draw3D2(hof_selected_index == 1 ? tgldnh_sprite_id : tgldn_sprite_id, center_x_coord + 18, 140, BACKGROUND_ZINDEX);
-	jo_sprite_draw3D2(hof_selected_index == 2 ? tgldnh_sprite_id : tgldn_sprite_id, center_x_coord + 36, 140, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 0 ? tgldnh_sprite_id : tgldn_sprite_id, center_x_coord, 140, TEXT_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 1 ? tgldnh_sprite_id : tgldn_sprite_id, center_x_coord + 18, 140, TEXT_ZINDEX);
+	jo_sprite_draw3D2(hof_selected_index == 2 ? tgldnh_sprite_id : tgldn_sprite_id, center_x_coord + 36, 140, TEXT_ZINDEX);
 
 // 	fade_out(4);
 
@@ -2544,9 +2548,9 @@ void instructions()
 			current_instructions_page_index++;
 	}
 
-	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(title_sprite_id, 0, 16, TEXT_ZINDEX);
 	jo_sprite_enable_half_transparency();
-	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, 450);
+	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, AA2_ZINDEX);
 	jo_sprite_disable_half_transparency();
 
 	int title_y = 50;
@@ -2608,9 +2612,9 @@ void credits()
 		game_mode = MODE_TITLE;
 	}
 
-	jo_sprite_draw3D2(title_sprite_id, 0, 16, BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(title_sprite_id, 0, 16, TEXT_ZINDEX);
 	jo_sprite_enable_half_transparency();
-	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, 450);
+	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, AA2_ZINDEX);
 	jo_sprite_disable_half_transparency();
 
 	int title_y = -60;

@@ -46,7 +46,6 @@ todo
 - screen fades
 - flying donkeys
   - movement wrong
-  - zindex wrong
 - move instructions text to separate file
 - shutdown + cleanup mallocs
   - hisc malloc table
