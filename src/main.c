@@ -50,6 +50,7 @@
 #define SONG3_TRACKID 4
 #define SONG4_TRACKID 5
 #define BACKGROUND_ZINDEX 500
+#define PLACEING_ZINDEX 400
 #define POINTER_ZINDEX 350
 #define INTRO_SCALE_GRAPHIC_TIME 120
 #define INTRO_STILL_GRAPHIC_TIME 120
@@ -830,17 +831,27 @@ void draw_game(int show_pointer) {
 	int anim_col = -1;
 	int anim_row = -1;
 
-// 	if (placeing) {
-// 		rectfill(swap_screen, 21+24*place_x, 21+24*place_y, 21+24*place_x+22, 21+24*place_y+22, 12);
-// 		stretch_sprite(swap_screen, data[TOKEN000+place_type].dat, 21+24*place_x+(placeing>>1), 21+24*place_y+(placeing>>1), 23-placeing, 23-placeing);
-// 	}
+	if (placeing) 
+	{
+		// draw animation when placing tile
+		// draw small square centered and progressively get bigger
+		float scale = (23.0f - placeing) / 23.0f;
+		jo_sprite_change_sprite_scale_xy(scale, scale);
+		int size = (int)(23.0f * scale);
+		size = size > 11 ? 11 : size;
+		int sprite_x = (21 + place_x * 24) + (11 - size) / 2;
+		int sprite_y = (21 + place_y * 24) + (11 - size) / 2;
+		jo_sprite_draw3D2(token_sprite_ids[place_type], sprite_x, sprite_y, PLACEING_ZINDEX);
+		jo_sprite_restore_sprite_scale();
+	}
 
 	if (scrolling) 
 	{
+		// draw animation when scrolling column or row
 		// scrolling is countdown offset to draw at
 		// scroll_x is starting point for current column or row
 		// scroll_y is starting point for current column or row
-		jo_sprite_set_clipping_area(21, 21, 191, 191, 500);
+		jo_sprite_set_clipping_area(21, 21, 191, 191, BACKGROUND_ZINDEX);
 		jo_sprite_enable_clipping(false);
 		if (scroll_dir==1) { // up - drawing a column
 			anim_col = (scroll_x-21)/24;
@@ -848,7 +859,7 @@ void draw_game(int show_pointer) {
 			{
 				if (board[anim_col][y].token)
 				{
-					jo_sprite_draw3D2(token_sprite_ids[board[anim_col][y].token], scroll_x, 21+y*24+scrolling, 500);
+					jo_sprite_draw3D2(token_sprite_ids[board[anim_col][y].token], scroll_x, 21+y*24+scrolling, BACKGROUND_ZINDEX);
 				}
 			}
 		}
@@ -858,7 +869,7 @@ void draw_game(int show_pointer) {
 			{
 				if (board[x][anim_row].token)
 				{
-					jo_sprite_draw3D2(token_sprite_ids[board[x][anim_row].token], 21+x*24-scrolling, scroll_y, 500);
+					jo_sprite_draw3D2(token_sprite_ids[board[x][anim_row].token], 21+x*24-scrolling, scroll_y, BACKGROUND_ZINDEX);
 				}
 			}
 		}
@@ -868,7 +879,7 @@ void draw_game(int show_pointer) {
 			{
 				if (board[anim_col][y].token)
 				{
-					jo_sprite_draw3D2(token_sprite_ids[board[anim_col][y].token], scroll_x, 21+y*24-scrolling, 500);
+					jo_sprite_draw3D2(token_sprite_ids[board[anim_col][y].token], scroll_x, 21+y*24-scrolling, BACKGROUND_ZINDEX);
 				}
 			}
 		}
@@ -878,7 +889,7 @@ void draw_game(int show_pointer) {
 			{
 				if (board[x][anim_row].token)
 				{
-					jo_sprite_draw3D2(token_sprite_ids[board[x][anim_row].token], 21+x*24+scrolling, scroll_y, 500);
+					jo_sprite_draw3D2(token_sprite_ids[board[x][anim_row].token], 21+x*24+scrolling, scroll_y, BACKGROUND_ZINDEX);
 				}
 			}
 		}
@@ -890,7 +901,7 @@ void draw_game(int show_pointer) {
 		for(y=0;y<8;y++)
 			if (board[x][y].token)
 			{
-				if (x != anim_col && y != anim_row)
+				if (x != anim_col && y != anim_row && (!placeing || (!(x == place_x && y == place_y))))
 					jo_sprite_draw3D2(token_sprite_ids[board[x][y].token], 21+x*24, 21+y*24, BACKGROUND_ZINDEX);
 			}
 

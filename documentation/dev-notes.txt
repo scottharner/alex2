@@ -59,6 +59,5 @@ todo
 - clean up hof screen
 - update readme with port notes
 - remove unneeded commented code
-- tile placement animation
 - enable all hint logic (hint method and play game mehthod)
 - allow quitting game
