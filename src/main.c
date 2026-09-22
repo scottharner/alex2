@@ -940,43 +940,77 @@ void set_pointer_position(int pad, input_type current_pad_input)
 
 void draw_game(int show_pointer) {
 	int x,y;
+	int anim_col = -1;
+	int anim_row = -1;
 
 // 	// fps...
 // 	frame_count++;
 
 // 	blit(bg_screen, swap_screen, 0, 0, 0, 0, 320, 240);
 	
-	for(x=0;x<8;x++)
-		for(y=0;y<8;y++)
-			if (board[x][y].token)
-			{
-				jo_sprite_draw3D2(token_sprite_ids[board[x][y].token], 21+x*24, 21+y*24, BACKGROUND_ZINDEX);
-			}
-
 // 	if (placeing) {
 // 		rectfill(swap_screen, 21+24*place_x, 21+24*place_y, 21+24*place_x+22, 21+24*place_y+22, 12);
 // 		stretch_sprite(swap_screen, data[TOKEN000+place_type].dat, 21+24*place_x+(placeing>>1), 21+24*place_y+(placeing>>1), 23-placeing, 23-placeing);
 // 	}
 
-// 	if (scrolling) {
-// 		if (scroll_dir==1) {
-// 			blit(scroller, swap_screen, 0, 24-scrolling, scroll_x, scroll_y, 23, 194-24+scrolling);
-// 			blit(scroller, swap_screen, 0, 0, scroll_x, 212-24+scrolling, 23, 25-scrolling);
-// 		}
-// 		if (scroll_dir==2) {
-// 			blit(scroller, swap_screen, 0, 0, scroll_x+24-scrolling, scroll_y, 194-25+scrolling, 23);
-// 			blit(scroller, swap_screen, 194-26+scrolling, 0, 20, scroll_y, 24-scrolling, 23);
-// 		}
-// 		if (scroll_dir==3) {
-// 			blit(scroller, swap_screen, 0, 0, scroll_x, scroll_y+24-scrolling, 23, 194-25+scrolling);
-// 			blit(scroller, swap_screen, 0, 194-26+scrolling, scroll_x, 20, 23, 24-scrolling);
-// 		}
-// 		if (scroll_dir==4) {
-// 			blit(scroller, swap_screen, 24-scrolling, 0, scroll_x, scroll_y, 194-24+scrolling, 23);
-// 			blit(scroller, swap_screen, 0, 0, 212-24+scrolling, scroll_y, 25-scrolling, 23);
-// 		}
-// 	}
+	if (scrolling) 
+	{
+		// scrolling is countdown offset to draw at
+		// scroll_x is starting point for current column or row
+		// scroll_y is starting point for current column or row
+		jo_sprite_set_clipping_area(21, 21, 191, 191, 500);
+		jo_sprite_enable_clipping(false);
+		if (scroll_dir==1) { // up - drawing a column
+			anim_col = (scroll_x-21)/24;
+			for (y=0;y<8;y++)
+			{
+				if (board[anim_col][y].token)
+				{
+					jo_sprite_draw3D2(token_sprite_ids[board[anim_col][y].token], scroll_x, 21+y*24+scrolling, 500);
+				}
+			}
+		}
+		if (scroll_dir==2) { // right - drawing a row
+			anim_row = (scroll_y-21)/24;
+			for (x=0;x<8;x++)
+			{
+				if (board[x][anim_row].token)
+				{
+					jo_sprite_draw3D2(token_sprite_ids[board[x][anim_row].token], 21+x*24-scrolling, scroll_y, 500);
+				}
+			}
+		}
+		if (scroll_dir==3) { // down - drawing a column
+			anim_col = (scroll_x-21)/24;
+			for (y=0;y<8;y++)
+			{
+				if (board[anim_col][y].token)
+				{
+					jo_sprite_draw3D2(token_sprite_ids[board[anim_col][y].token], scroll_x, 21+y*24-scrolling, 500);
+				}
+			}
+		}
+		if (scroll_dir==4) { // left - drawing a row
+			anim_row = (scroll_y-21)/24;
+			for (x=0;x<8;x++)
+			{
+				if (board[x][anim_row].token)
+				{
+					jo_sprite_draw3D2(token_sprite_ids[board[x][anim_row].token], 21+x*24+scrolling, scroll_y, 500);
+				}
+			}
+		}
 
+		jo_sprite_disable_clipping();
+	}
+
+	for(x=0;x<8;x++)
+		for(y=0;y<8;y++)
+			if (board[x][y].token)
+			{
+				if (x != anim_col && y != anim_row)
+					jo_sprite_draw3D2(token_sprite_ids[board[x][y].token], 21+x*24, 21+y*24, BACKGROUND_ZINDEX);
+			}
 
 	// draw arrows - replace if disabled
 	for(x=0;x<8;x++) {
@@ -1463,7 +1497,7 @@ int anim_rotate_row(int row, int go_left) {
 // 	blit(swap_screen, scroller, 20, 21+row*24, 0, 0, 194, 23);
 	scroll_x = 20;
 	scroll_y = 21+row*24;
-	scrolling = 1; // 24; restore for animation
+	scrolling = 24;
 
 	rotate_row(row,go_left);
 		
@@ -1506,7 +1540,7 @@ int anim_rotate_column(int col, int go_up)
 // 	blit(swap_screen, scroller, 21+col*24, 20, 0, 0, 23, 194);
 	scroll_x = 21+col*24;
 	scroll_y = 20;
-	scrolling = 1; // 24; restore for animation
+	scrolling = 24;
 
 	rotate_column(col,go_up);
 
