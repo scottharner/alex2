@@ -61,5 +61,5 @@ game.raw
 /build/cd/*.TGA
 /build/cd/*.PCM
 /build/cd/*.bin
-!/build/cd/sdrv.bin
+/build/cd/sdrv.bin
 /build/*.wav
