@@ -55,6 +55,14 @@ typedef enum
 
 typedef enum
 {
+	FADE_STATE_IN = 0,
+	FADE_STATE_NONE,
+	FADE_STATE_OUT
+}fade_state;
+
+
+typedef enum
+{
 	GAME_TYPE_HVC = 0,
 	GAME_TYPE_CVH,
 	GAME_TYPE_HVH

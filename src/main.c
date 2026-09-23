@@ -97,6 +97,7 @@ int cpu;				  // 0 = none, 1 = ply1, 2= ply2
 int thinking;				// cpu moves counter
 
 static mode game_mode;
+static fade_state current_fade_state;
 static game_type current_game_type;
 static int shlogo_sprite_id;
 static int title_sprite_id;
@@ -1037,6 +1038,59 @@ void reset_particles()
 	int i;
 	for(i=0;i<MAX_PARTICLES;i++)
 		dust[i].exist = 0;
+}
+
+void reset_fade()
+{
+	current_fade_state = FADE_STATE_IN;
+	fade_counter = 0;
+}
+
+void process_fade(void (*draw)(void), void (*end)(void))
+{
+	switch (current_fade_state)
+	{
+		case FADE_STATE_IN:
+
+			if (action_counter % 8 == 0 && 
+			fade_counter < JO_DEFAULT_BRIGHTNESS)
+				fade_counter++;
+
+			jo_sprite_enable_gouraud_shading();
+			jo_set_gouraud_shading_brightness(fade_counter);
+			(*draw)();
+			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
+			jo_sprite_disable_gouraud_shading();
+
+			if (fade_counter == JO_DEFAULT_BRIGHTNESS)
+				current_fade_state = FADE_STATE_NONE;
+
+			break;
+
+		case FADE_STATE_OUT:
+			if (action_counter % 8 == 0 && 
+			fade_counter > 0)
+				fade_counter--;
+
+			jo_sprite_enable_gouraud_shading();
+			jo_set_gouraud_shading_brightness(fade_counter);
+			(*draw)();
+			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
+			jo_sprite_disable_gouraud_shading();
+
+			if (fade_counter == 0)
+			{
+				current_fade_state = FADE_STATE_NONE;
+				(*end)();
+			}
+
+			break;
+
+		default:
+			(*draw)();
+
+			break;
+	}
 }
 
 void draw_title(int x, int y, int m, int menu_x, int menu_y) 
@@ -2597,25 +2651,8 @@ void instructions()
 // 	clear(screen);
 }
 
-void credits() 
+void draw_credits()
 {
-	if (action_counter <= 1)
-	{
-		jo_clear_screen();
-		jo_set_default_background_color(JO_COLOR_RGB(140,110,75)); // brown
-		reset_particles();
-	}
-	
-	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
-
-	if (current_pad1_input == INPUT_TYPE_START ||
-		current_pad1_input == INPUT_TYPE_A || 
-		current_pad1_input == INPUT_TYPE_C)
-	{
-		// user wants to return to title
-		action_counter = 0;
-		game_mode = MODE_TITLE;
-	}
 
 	jo_sprite_draw3D2(title_sprite_id, 0, 16, TEXT_ZINDEX);
 	jo_sprite_enable_half_transparency();
@@ -2635,7 +2672,40 @@ void credits()
 	}
 
 	draw_donkeys();
-	if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
+}
+
+void end_credits()
+{
+	action_counter = 0;
+	game_mode = MODE_TITLE;
+}
+
+void credits() 
+{
+	if (action_counter <= 1)
+	{
+		jo_clear_screen();
+		jo_set_default_background_color(JO_COLOR_RGB(140,110,75)); // brown
+		reset_particles();
+		reset_fade();
+	}
+	
+	process_fade(draw_credits, end_credits);
+
+	if (current_fade_state == FADE_STATE_NONE)
+	{
+		if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
+
+		input_type current_pad1_input = get_pad_input_type(game_mode, 1);
+
+		if (current_pad1_input == INPUT_TYPE_START ||
+			current_pad1_input == INPUT_TYPE_A || 
+			current_pad1_input == INPUT_TYPE_C)
+		{
+			// user wants to return to title so start fading out
+			current_fade_state = FADE_STATE_OUT;
+		}
+	}
 }
 
 void update_game()
