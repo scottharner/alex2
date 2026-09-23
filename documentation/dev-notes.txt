@@ -63,5 +63,6 @@ todo
 - enable all hint logic (hint method and play game mehthod)
 - allow quitting game
 - test on real hardware
+- screenshots
 - publish to sega retro
 - publish to sega xtreme
