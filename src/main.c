@@ -75,7 +75,7 @@
 #define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
 #define HOF_MAX_INDEX 3
 #define HOF_CHARS_COUNT 28
-#define MAX_COOLDOWN_COUNT 60
+#define MAX_COOLDOWN_COUNT 10
 #define FADE_INTERVAL 3
 
 Thisc *hisc;						// a hiscore table
@@ -1703,48 +1703,46 @@ void draw_high_scores() {
 		int right_aligned_x = get_right_aligned_x_coord(game_white_font, 300, 0.5f, score_string);
 		jo_font_print(game_black_font, right_aligned_x-1,66+i*16,0.5f, score_string);
 		jo_font_print(game_white_font, right_aligned_x,65+i*16,0.5f, score_string);
-	}	
+	}
+	
+	draw_donkeys();
 }
 
-void high_scores() {
+void end_high_scores()
+{
+	action_counter = 0;
+	game_mode = MODE_TITLE;
+}
+
+void high_scores() 
+{
 	if (action_counter <= 1)
 	{
 		reset_particles();
 		jo_clear_screen();
 		jo_set_default_background_color(JO_COLOR_RGB(40,81,97)); // blue
+		reset_fade();
 	}
 	
-	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
-	input_type current_pad2_input = get_pad_input_type(game_mode, 2);
-	if (current_pad1_input == INPUT_TYPE_START ||
-		current_pad1_input == INPUT_TYPE_A || 
-		current_pad1_input == INPUT_TYPE_C || 
-		(did_play_game && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_START) || 
-		(did_play_game && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_A) || 
-		(did_play_game && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_C))
+	process_fade(draw_high_scores, end_high_scores);
+
+	if (current_fade_state == FADE_STATE_NONE)
 	{
-		// user wants to return to title
-		action_counter = 0;
-		game_mode = MODE_TITLE;
+		if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
+
+		input_type current_pad1_input = get_pad_input_type(game_mode, 1);
+		input_type current_pad2_input = get_pad_input_type(game_mode, 2);
+		if (current_pad1_input == INPUT_TYPE_START ||
+			current_pad1_input == INPUT_TYPE_A || 
+			current_pad1_input == INPUT_TYPE_C || 
+			(did_play_game && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_START) || 
+			(did_play_game && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_A) || 
+			(did_play_game && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_C))
+		{
+			// user wants to return to title so start fading out
+			current_fade_state = FADE_STATE_OUT;
+		}
 	}
-
-	draw_high_scores();
-
-// 	clear_to_color(swap_screen,37);
-// 	drawHiScores();
-// 	blitScreen();
-// 	fade_in(data[GAMEPAL].dat,4);
-
-// 	while(!key[KEY_ESC] && !key[KEY_ENTER] && !key[KEY_SPACE] && !mouse_b) {
-// 		clear_to_color(swap_screen,37);
-	draw_donkeys();
-// 		drawHiScores();
-// 		blitScreen();
-	if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
-// 	}
-
-// 	fade_out(4);
-// 	clear(screen);
 }
 
 bool does_any_score_hof_qualify()
