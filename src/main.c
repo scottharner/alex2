@@ -204,7 +204,7 @@ static const char* credits_text[] =
     "AUDIO DRIVER ENGINEER - PONUT64",
     "ADVISOR - HASSMASCHINE",
     "ADVISOR - TREKKIESUNITE118",
-    "",
+    "ADVISOR - REYEME",
 	"",
 	"",
 	"POWERED BY - JO ENGINE"
@@ -1089,7 +1089,6 @@ void process_fade(void (*draw)(void), void (*end)(void))
 			{
 				current_fade_state = FADE_STATE_COOLDOWN;
 				jo_clear_screen();
-				jo_set_default_background_color(JO_COLOR_Black);
 			}
 
 			break;
@@ -1099,7 +1098,7 @@ void process_fade(void (*draw)(void), void (*end)(void))
 				fade_cooldown--;
 			else
 			{
-				current_fade_state = FADE_STATE_NONE;
+				current_fade_state = FADE_STATE_DONE;
 				jo_disable_all_screen_color_filter();
 				(*end)();
 			}
