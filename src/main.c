@@ -2595,37 +2595,8 @@ void intro()
 // 	allegro_exit();
 // }
 
-void instructions() 
+void draw_instructions()
 {
-	if (action_counter <= 1)
-	{
-		jo_clear_screen();
-		jo_set_default_background_color(JO_COLOR_RGB(121,52,52)); // pink
-		current_instructions_page_index = 0;
-		reset_particles();
-	}
-	
-	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
-
-	if (current_pad1_input == INPUT_TYPE_START ||
-		current_pad1_input == INPUT_TYPE_A || 
-		current_pad1_input == INPUT_TYPE_C)
-	{
-		// user wants to return to title
-		action_counter = 0;
-		game_mode = MODE_TITLE;
-	}
-	else if (current_pad1_input == INPUT_TYPE_LEFT)
-	{
-		if (current_instructions_page_index > 0)
-			current_instructions_page_index--;
-	}
-	else if (current_pad1_input == INPUT_TYPE_RIGHT)
-	{
-		if (current_instructions_page_index < (INSTRUCTIONS_PAGE_COUNT-1))
-			current_instructions_page_index++;
-	}
-
 	jo_sprite_draw3D2(title_sprite_id, 0, 16, TEXT_ZINDEX);
 	jo_sprite_enable_half_transparency();
 	jo_sprite_draw3D2(aa2_sprite_id, AA2_FINAL_X, 8, AA2_ZINDEX);
@@ -2644,30 +2615,52 @@ void instructions()
 		jo_font_print(game_white_font, 4, title_y+2+(16*(i+1)), 0.50f, instructions_lines[current_instructions_page_index][i]);		
 	}
 
-
-	// 	int currPage=0;
-// 	char *txt = data[INSTRUCTIONS].dat;
-// 	int pressed=0;
-
-
-// 	clear_to_color(swap_screen,40);
-// 	printPage(txt, currPage);
-// 	blitScreen();
-
-// 	fade_in(data[GAMEPAL].dat,4);
-// 	while(!key[KEY_ESC]) {
-// 		clear_to_color(swap_screen,40);
 	draw_donkeys();
-// 		printPage(txt, currPage);
-// 		blitScreen();
-	if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
-// 		if (!pressed && key[KEY_LEFT] && currPage>0) { currPage--; pressed = 1; }
-// 		if (!pressed && key[KEY_RIGHT] && currPage<8) { currPage++; pressed = 1; }
-// 		if (!key[KEY_LEFT] && !key[KEY_RIGHT]) pressed = 0;
-// 	}
+}
 
-// 	fade_out(4);
-// 	clear(screen);
+void end_instructions()
+{
+	action_counter = 0;
+	game_mode = MODE_TITLE;
+}
+
+void instructions() 
+{
+	if (action_counter <= 1)
+	{
+		jo_clear_screen();
+		jo_set_default_background_color(JO_COLOR_RGB(121,52,52)); // pink
+		current_instructions_page_index = 0;
+		reset_particles();
+		reset_fade();
+	}
+	
+	process_fade(draw_instructions, end_instructions);
+
+	if (current_fade_state == FADE_STATE_NONE)
+	{
+		input_type current_pad1_input = get_pad_input_type(game_mode, 1);
+
+		if (current_pad1_input == INPUT_TYPE_START ||
+			current_pad1_input == INPUT_TYPE_A || 
+			current_pad1_input == INPUT_TYPE_C)
+		{
+			// user wants to return to title
+			current_fade_state = FADE_STATE_OUT;
+		}
+		else if (current_pad1_input == INPUT_TYPE_LEFT)
+		{
+			if (current_instructions_page_index > 0)
+				current_instructions_page_index--;
+		}
+		else if (current_pad1_input == INPUT_TYPE_RIGHT)
+		{
+			if (current_instructions_page_index < (INSTRUCTIONS_PAGE_COUNT-1))
+				current_instructions_page_index++;
+		}
+
+		if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
+	}
 }
 
 void draw_credits()
