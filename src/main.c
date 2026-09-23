@@ -75,6 +75,7 @@
 #define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
 #define HOF_MAX_INDEX 3
 #define HOF_CHARS_COUNT 28
+#define DUST_VELOCITY_CHANGE 3216 // calculation from allegro
 
 Thisc *hisc;						// a hiscore table
 Ttoken board[8][8];					// the board
@@ -462,11 +463,11 @@ void load_game_sprites()
 		player23_sprite_id = jo_sprite_add_tga(NULL, "PLAYER23.TGA", JO_COLOR_Black);
 		player24_sprite_id = jo_sprite_add_tga(NULL, "PLAYER24.TGA", JO_COLOR_Black);
 		notkn_sprite_id = jo_sprite_add_tga(NULL, "NOTKN.TGA", JO_COLOR_Black);
-		dust000_sprite_id = jo_sprite_add_tga(NULL, "DUST000.TGA", JO_COLOR_Transparent);
+		dust000_sprite_id = jo_sprite_add_tga(NULL, "DUST000.TGA", JO_COLOR_White);
 		dust001_sprite_id = jo_sprite_add_tga(NULL, "DUST001.TGA", JO_COLOR_Transparent);
 		dust002_sprite_id = jo_sprite_add_tga(NULL, "DUST002.TGA", JO_COLOR_Transparent);
-		dust003_sprite_id = jo_sprite_add_tga(NULL, "DUST003.TGA", JO_COLOR_Transparent);
-		dust004_sprite_id = jo_sprite_add_tga(NULL, "DUST004.TGA", JO_COLOR_Transparent);
+		dust003_sprite_id = jo_sprite_add_tga(NULL, "DUST003.TGA", JO_COLOR_White);
+		dust004_sprite_id = jo_sprite_add_tga(NULL, "DUST004.TGA", JO_COLOR_White);
 		hint_sprite_id = jo_sprite_add_tga(NULL, "HINT.TGA", JO_COLOR_Black);
 		end_sprite_id = jo_sprite_add_tga(NULL, "END.TGA", JO_COLOR_RGB(255,0,255));
 		tglup_sprite_id = jo_sprite_add_tga(NULL, "TGLUP.TGA", JO_COLOR_RGB(255,0,255));
@@ -730,8 +731,8 @@ void create_particle(int x,int y,int im)
 
    dust[i].x = jo_int2fixed(x); 
    dust[i].y = jo_int2fixed(y);
-   dust[i].dx = jo_fixed_cos(jo_int2fixed(get_random(256)-1));
-   dust[i].dy = jo_fixed_sin(jo_int2fixed(get_random(256)-1));
+   dust[i].dx = jo_fixed_cos(jo_int2fixed(get_random(256)-1)); // this likely does not match what was in allegro
+   dust[i].dy = jo_fixed_sin(jo_int2fixed(get_random(256)-1)); // this likely does not match what was in allegro
    dust[i].image = im;
    dust[i].exist = 1;
 }
@@ -745,7 +746,7 @@ void draw_particles() {
 			// draw_sprite(swap_screen, data[DUST000+dust[i].image].dat, jo_fixed2int(dust[i].x)-2, jo_fixed2int(dust[i].y)-2);
 			dust[i].x += dust[i].dx;
 			dust[i].y += dust[i].dy;
-			dust[i].dy += jo_fixed_sin(jo_int2fixed(2));
+			dust[i].dy += DUST_VELOCITY_CHANGE; //jo engine sin method is not the same as allegro so just use the allegro calculated value
 			y = jo_fixed2int(dust[i].y);
 			if (y > 240) dust[i].exist = 0;
 		}
@@ -1101,7 +1102,7 @@ void draw_donkeys()
 			jo_sprite_draw3D2(donkey_sprite_ids[dust[i].image], jo_fixed2int(dust[i].x), jo_fixed2int(dust[i].y), DONKEY_ZINDEX);
 			dust[i].x += dust[i].dx;
 			dust[i].y += dust[i].dy;
-			dust[i].dy += jo_fixed_sin(jo_int2fixed(2));
+			dust[i].dy += DUST_VELOCITY_CHANGE; //jo engine sin method is not the same as allegro so just use the allegro calculated value
 			if (dust[i].dy > jo_int2fixed(2)) dust[i].dy = -dust[i].dy;
 			x = jo_fixed2int(dust[i].x);
 			if (x > 320) dust[i].exist = 0;
@@ -1237,6 +1238,7 @@ void title() {
 	if (is_showing_start_game_options && title_menu_x < 40) title_menu_x+= 4;
 
 	draw_title(x,y,mode,title_menu_x,title_menu_y);
+    //jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "calc: %d", jo_fixed_sin(jo_int2fixed(2) * ((2 * JO_PI) / 256)));
 
 // 	while(!done) {
 // 		mx = mouse_x;
