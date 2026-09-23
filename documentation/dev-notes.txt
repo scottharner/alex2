@@ -4,6 +4,8 @@ windows
 	- could no longer find a build of these tools so had to search by filename in internet time machine
 - building now with allegro-mingw-4.2.2
 - found original source at https://sourceforge.net/projects/allegator/files/Alex2/
+- allegro and jo engine do not have compatible sin and cos functions
+  - i got things figured out as i had to convert from binary angle to radian angle
 
 saturn
 ------
@@ -44,8 +46,6 @@ todo
 - make opening animation ending smoother
 - put input methods into separate file
 - screen fades
-- flying donkeys
-  - movement wrong
 - move instructions text to separate file
 - shutdown + cleanup mallocs
   - hisc malloc table
