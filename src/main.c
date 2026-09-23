@@ -2111,13 +2111,18 @@ void play() {
 		CDDA_Stop();
 		jo_clear_screen();
 		jo_set_default_background_color(JO_COLOR_INDEX_Black);
-		jo_font_print_centered(game_white_font, 0, 0, 0.99f, "LOADING...");
+		if (!game_sprites_loaded)
+			jo_font_print_centered(game_white_font, 0, 0, 0.99f, "LOADING...");
+			
 		return; // give the screen a chance to clear before we do sprite loading
 	}
 	else if (action_counter == 2)
 	{
-		unload_intro_sprites(); // dump the intro sprites to save on memory
-		load_game_sprites();
+		if (!game_sprites_loaded)
+		{
+			unload_intro_sprites(); // dump the intro sprites to save on memory
+			load_game_sprites();
+		}
 
 		thinking = 0;
 		
@@ -2484,20 +2489,32 @@ static void process_intro_graphic_scale()
 #endif
 }
 
+void draw_load()
+{
+	jo_font_print_centered(game_white_font, 0, 0, 0.99f, "LOADING...");
+}
+
+void end_load()
+{
+	game_mode = MODE_INTRO;
+	action_counter = 0;
+}
+
 void load()
 {
 	if (action_counter <= 1)
 	{
 		jo_clear_screen();
 		jo_set_default_background_color(JO_COLOR_INDEX_Black);
-		jo_font_print_centered(game_white_font, 0, 0, 0.99f, "LOADING...");
-		return; // give the screen a chance to clear before we do sprite loading
+		reset_fade();
 	}
-	else if (action_counter == 2)
+
+	process_fade(draw_load, end_load);
+
+	if (current_fade_state == FADE_STATE_NONE)
 	{
 		load_pregame_assets();
-		game_mode = MODE_INTRO;
-		action_counter = 0;
+		current_fade_state = FADE_STATE_OUT;
 	}
 }
 

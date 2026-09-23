@@ -30,6 +30,9 @@ saturn
   - its looking at index 1 which apparently is actually pad 3
   - you have to look at index 6 which is the first controller on the 2nd port
     - jo_is_input_available(6)
+- use jo_set_screen_color_filter_a for fade in and fade out
+  - range of values from black to normal is -255 to 0
+  - if we want to go white to normal it would be 255 to 0
 
 general
 -------
@@ -46,6 +49,9 @@ todo
 - make opening animation ending smoother
 - put input methods into separate file
 - screen fades
+  - game play load
+  - title
+  - game play
 - move instructions text to separate file
 - shutdown + cleanup mallocs
   - hisc malloc table
