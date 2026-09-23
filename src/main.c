@@ -97,7 +97,6 @@ int cpu;				  // 0 = none, 1 = ply1, 2= ply2
 int thinking;				// cpu moves counter
 
 static mode game_mode;
-static mode previous_game_mode;
 static game_type current_game_type;
 static int shlogo_sprite_id;
 static int title_sprite_id;
@@ -154,6 +153,7 @@ static jo_font *game_white_font;
 static jo_font *game_black_font;
 static int current_intro_text_index = 0;
 static int current_instructions_page_index = 0;
+static bool intro_mode_started = false;
 static bool intro_graphic_scaled = false;
 static bool intro_graphic_shown = false;
 static bool intro_graphic_faded = false;
@@ -509,7 +509,6 @@ jo_fixed get_radian_angle(jo_fixed binary_angle)
 void init() 
 {
 	jo_core_init(JO_COLOR_Black);
-	previous_game_mode = MODE_NONE;
 
 	// initialize sound
 	load_drv(ADX_MASTER_2304);
@@ -2474,10 +2473,10 @@ void load()
 
 void intro() 
 {
-	if (game_mode != previous_game_mode)
+	if (!intro_mode_started)
 	{
-		previous_game_mode = MODE_INTRO;
 		CDDA_PlaySingle(TITLE_TRACKID, true);
+		intro_mode_started = true;
 	}
 
 	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
