@@ -57,7 +57,8 @@ typedef enum
 {
 	FADE_STATE_IN = 0,
 	FADE_STATE_NONE,
-	FADE_STATE_OUT
+	FADE_STATE_OUT,
+	FADE_STATE_COOLDOWN
 }fade_state;
 
 

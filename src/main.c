@@ -75,6 +75,8 @@
 #define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
 #define HOF_MAX_INDEX 3
 #define HOF_CHARS_COUNT 28
+#define MAX_COOLDOWN_COUNT 60
+#define FADE_INTERVAL 3
 
 Thisc *hisc;						// a hiscore table
 Ttoken board[8][8];					// the board
@@ -149,7 +151,8 @@ static int tgluph_sprite_id;
 static int tgldn_sprite_id;
 static int tgldnh_sprite_id;
 static int action_counter;
-static int fade_counter;
+static int fade_brightness;
+static int fade_cooldown;
 static jo_font *game_white_font;
 static jo_font *game_black_font;
 static int current_intro_text_index = 0;
@@ -1043,7 +1046,8 @@ void reset_particles()
 void reset_fade()
 {
 	current_fade_state = FADE_STATE_IN;
-	fade_counter = 0;
+	fade_brightness = -255;
+	fade_cooldown = MAX_COOLDOWN_COUNT;
 }
 
 void process_fade(void (*draw)(void), void (*end)(void))
@@ -1052,35 +1056,51 @@ void process_fade(void (*draw)(void), void (*end)(void))
 	{
 		case FADE_STATE_IN:
 
-			if (action_counter % 8 == 0 && 
-			fade_counter < JO_DEFAULT_BRIGHTNESS)
-				fade_counter++;
+			if (fade_brightness < 0)
+			{
+				fade_brightness+=FADE_INTERVAL;
+				if (fade_brightness > 0)
+					fade_brightness = 0;
+			}
 
-			jo_sprite_enable_gouraud_shading();
-			jo_set_gouraud_shading_brightness(fade_counter);
+			jo_set_screen_color_filter_a(JO_ALL_SCROLL_SCREEN, fade_brightness, fade_brightness, fade_brightness);
 			(*draw)();
-			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
-			jo_sprite_disable_gouraud_shading();
 
-			if (fade_counter == JO_DEFAULT_BRIGHTNESS)
+			if (fade_brightness == 0)
+			{
 				current_fade_state = FADE_STATE_NONE;
+				jo_disable_all_screen_color_filter();
+			}
 
 			break;
 
 		case FADE_STATE_OUT:
-			if (action_counter % 8 == 0 && 
-			fade_counter > 0)
-				fade_counter--;
+			if (fade_brightness > -255)
+			{
+				fade_brightness-=FADE_INTERVAL;
+				if (fade_brightness < -255)
+					fade_brightness = -255;
+			}
 
-			jo_sprite_enable_gouraud_shading();
-			jo_set_gouraud_shading_brightness(fade_counter);
+			jo_set_screen_color_filter_a(JO_ALL_SCROLL_SCREEN, fade_brightness, fade_brightness, fade_brightness);
 			(*draw)();
-			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
-			jo_sprite_disable_gouraud_shading();
 
-			if (fade_counter == 0)
+			if (fade_brightness == -255)
+			{
+				current_fade_state = FADE_STATE_COOLDOWN;
+				jo_clear_screen();
+				jo_set_default_background_color(JO_COLOR_Black);
+			}
+
+			break;
+
+		case FADE_STATE_COOLDOWN:
+			if (fade_cooldown > 0)
+				fade_cooldown--;
+			else
 			{
 				current_fade_state = FADE_STATE_NONE;
+				jo_disable_all_screen_color_filter();
 				(*end)();
 			}
 
@@ -2406,15 +2426,15 @@ static void process_intro_text_display()
 	{
 		if (action_counter <= 1)
 		{
-			fade_counter = 0;
+			fade_brightness = 0;
 		}
-		else if (action_counter % 4 == 0 && fade_counter <= JO_DEFAULT_BRIGHTNESS)
-			fade_counter++;
+		else if (action_counter % 4 == 0 && fade_brightness <= JO_DEFAULT_BRIGHTNESS)
+			fade_brightness++;
 
-		if (fade_counter <= JO_DEFAULT_BRIGHTNESS)
+		if (fade_brightness <= JO_DEFAULT_BRIGHTNESS)
 		{
 			jo_sprite_enable_gouraud_shading();
-			jo_set_gouraud_shading_brightness(fade_counter);
+			jo_set_gouraud_shading_brightness(fade_brightness);
 			jo_font_print_centered(game_white_font, 0, 0, 0.99f, intro_text[current_intro_text_index]);
 			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
 			jo_sprite_disable_gouraud_shading();
@@ -2431,15 +2451,15 @@ static void process_intro_text_display()
 	{
 		if (action_counter == (INTRO_FADE_TEXT_TIME + INTRO_STILL_TEXT_TIME))
 		{
-			fade_counter = JO_DEFAULT_BRIGHTNESS;
+			fade_brightness = JO_DEFAULT_BRIGHTNESS;
 		}
-		else if (action_counter % 4 == 0 && fade_counter >= 0)
-			fade_counter--;
+		else if (action_counter % 4 == 0 && fade_brightness >= 0)
+			fade_brightness--;
 
-		if (fade_counter >= 0)
+		if (fade_brightness >= 0)
 		{
 			jo_sprite_enable_gouraud_shading();
-			jo_set_gouraud_shading_brightness(fade_counter);
+			jo_set_gouraud_shading_brightness(fade_brightness);
 			jo_font_print_centered(game_white_font, 0, 0, 0.99f, intro_text[current_intro_text_index]);
 			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
 			jo_sprite_disable_gouraud_shading();
@@ -2464,15 +2484,15 @@ static void process_intro_graphic_fade()
 {
 	if (action_counter <= 1)
 	{
-		fade_counter = JO_DEFAULT_BRIGHTNESS;
+		fade_brightness = JO_DEFAULT_BRIGHTNESS;
 	}
-	else if (action_counter % 4 == 0 && fade_counter >= 0)
-		fade_counter--;
+	else if (action_counter % 4 == 0 && fade_brightness >= 0)
+		fade_brightness--;
 
-	if (fade_counter >= 0)
+	if (fade_brightness >= 0)
 	{
 		jo_sprite_enable_gouraud_shading();
-		jo_set_gouraud_shading_brightness(fade_counter);
+		jo_set_gouraud_shading_brightness(fade_brightness);
 		jo_sprite_draw3D2(shlogo_sprite_id, 0, 0, BACKGROUND_ZINDEX);
 		jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
 		jo_sprite_disable_gouraud_shading();
