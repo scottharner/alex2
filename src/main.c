@@ -98,9 +98,11 @@ int hint, hint_x, hint_y;   // hint stuff
 int cpu;				  // 0 = none, 1 = ply1, 2= ply2
 int thinking;				// cpu moves counter
 
-static mode game_mode;
+static mode current_game_mode;
 static fade_state current_fade_state;
 static game_type current_game_type;
+static mode load_game_mode;
+static void (*load_action)(void);
 static int shlogo_sprite_id;
 static int title_sprite_id;
 static int aa2_sprite_id;
@@ -398,12 +400,6 @@ void reset_title_props()
 	is_hvh_selected = false;
 }
 
-void reset_game()
-{
-	action_counter = 0;
-	game_mode = MODE_LOAD;
-}
-
 void load_intro_sprites()
 {
 	shlogo_sprite_id = jo_sprite_add_tga(NULL, "SHLOGO.TGA", JO_COLOR_Transparent);
@@ -514,6 +510,14 @@ void load_game_sprites()
 		dust_sprite_ids[3] = dust003_sprite_id;
 		dust_sprite_ids[4] = dust004_sprite_id;
 	}
+}
+
+void reset_game()
+{
+	action_counter = 0;
+	current_game_mode = MODE_LOAD;
+	load_game_mode = MODE_INTRO;
+	load_action = load_pregame_assets;
 }
 
 // some of the logic was written to work with allegro binary angles but we need radian angles for jo engine
@@ -1299,29 +1303,29 @@ void end_title()
 	action_counter = 0;
 	if (is_instructions_selected)
 	{
-		game_mode = MODE_INSTRUCTIONS;
+		current_game_mode = MODE_INSTRUCTIONS;
 	}
 	else if (is_credits_selected)
 	{
-		game_mode = MODE_CREDITS;
+		current_game_mode = MODE_CREDITS;
 	}
 	else if (is_high_scores_selected)
 	{
-		game_mode = MODE_HIGH_SCORES;
+		current_game_mode = MODE_HIGH_SCORES;
 	}
 	else if (is_hvc_selected)
 	{
-		game_mode = MODE_GAME;
+		current_game_mode = MODE_GAME;
 		current_game_type = GAME_TYPE_HVC;
 	}
 	else if (is_cvh_selected)
 	{
-		game_mode = MODE_GAME;
+		current_game_mode = MODE_GAME;
 		current_game_type = GAME_TYPE_CVH;
 	}
 	else if (is_hvh_selected)
 	{
-		game_mode = MODE_GAME;
+		current_game_mode = MODE_GAME;
 		current_game_type = GAME_TYPE_HVH;
 	}
 }
@@ -1356,7 +1360,7 @@ void title()
 	if (current_fade_state == FADE_STATE_NONE)
 	{
 		is_pad2_available = is_pad_available(2);
-		input_type current_pad1_input = get_pad_input_type(game_mode, 1);
+		input_type current_pad1_input = get_pad_input_type(current_game_mode, 1);
 		set_pointer_position(1, current_pad1_input);
 
 		if (is_showing_start_game_options && title_menu_y<JO_TV_HEIGHT) title_menu_y+=4;
@@ -1721,7 +1725,7 @@ void draw_high_scores() {
 void end_high_scores()
 {
 	action_counter = 0;
-	game_mode = MODE_TITLE;
+	current_game_mode = MODE_TITLE;
 }
 
 void high_scores() 
@@ -1740,8 +1744,8 @@ void high_scores()
 	{
 		if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
 
-		input_type current_pad1_input = get_pad_input_type(game_mode, 1);
-		input_type current_pad2_input = get_pad_input_type(game_mode, 2);
+		input_type current_pad1_input = get_pad_input_type(current_game_mode, 1);
+		input_type current_pad2_input = get_pad_input_type(current_game_mode, 2);
 		if (current_pad1_input == INPUT_TYPE_START ||
 			current_pad1_input == INPUT_TYPE_A || 
 			current_pad1_input == INPUT_TYPE_C || 
@@ -1820,11 +1824,11 @@ void end_hof()
 	action_counter = 0;
 	if (does_any_score_hof_qualify())
 	{
-		game_mode = MODE_HOF;
+		current_game_mode = MODE_HOF;
 	}
 	else
 	{
-		game_mode = MODE_HIGH_SCORES;
+		current_game_mode = MODE_HIGH_SCORES;
 	}
 }
 
@@ -1889,7 +1893,7 @@ void hof()
 
 	if (current_fade_state == FADE_STATE_NONE)
 	{
-		input_type current_pad_input = get_pad_input_type(game_mode, current_game_type == GAME_TYPE_HVH && hof_p == 2 ? 2 : 1);
+		input_type current_pad_input = get_pad_input_type(current_game_mode, current_game_type == GAME_TYPE_HVH && hof_p == 2 ? 2 : 1);
 
 		if (current_pad_input == INPUT_TYPE_START ||
 			current_pad_input == INPUT_TYPE_A || 
@@ -2158,8 +2162,8 @@ void play() {
 
 	make_bg();
 	
-	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
-	input_type current_pad2_input = get_pad_input_type(game_mode, 2);
+	input_type current_pad1_input = get_pad_input_type(current_game_mode, 1);
+	input_type current_pad2_input = get_pad_input_type(current_game_mode, 2);
 
 	set_pointer_position(1, current_pad1_input);
 	if (current_game_type == GAME_TYPE_HVH)
@@ -2354,11 +2358,11 @@ void play() {
 			
 			if (does_any_score_hof_qualify())
 			{
-				game_mode = MODE_HOF;
+				current_game_mode = MODE_HOF;
 			}
 			else
 			{
-				game_mode = MODE_HIGH_SCORES;
+				current_game_mode = MODE_HIGH_SCORES;
 			}
 		}
 	}
@@ -2446,7 +2450,7 @@ static void process_intro_text_display()
 		if (current_intro_text_index == INTRO_TEXT_COUNT)
 		{
 			intro_text_shown = true;
-			game_mode = MODE_TITLE;
+			current_game_mode = MODE_TITLE;
 		}
 	}
 }
@@ -2506,10 +2510,13 @@ void draw_load()
 
 void end_load()
 {
-	game_mode = MODE_INTRO;
+	current_game_mode = load_game_mode;
 	action_counter = 0;
 }
 
+// show a loading screen while actions are performed
+// we need to assign load_game_mode which is our target mode
+// we also need to assign load_action which is the action to perform
 void load()
 {
 	if (action_counter <= 1)
@@ -2523,7 +2530,7 @@ void load()
 
 	if (current_fade_state == FADE_STATE_NONE)
 	{
-		load_pregame_assets();
+		load_action();
 		current_fade_state = FADE_STATE_OUT;
 	}
 }
@@ -2536,7 +2543,7 @@ void intro()
 		intro_mode_started = true;
 	}
 
-	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
+	input_type current_pad1_input = get_pad_input_type(current_game_mode, 1);
 
 	if (current_pad1_input == INPUT_TYPE_START || 
 		current_pad1_input == INPUT_TYPE_A || 
@@ -2545,7 +2552,7 @@ void intro()
 		// user wants to skip to title
 		action_counter = 0;
 		intro_text_shown = true;
-		game_mode = MODE_TITLE;
+		current_game_mode = MODE_TITLE;
 	}
 
 	// vertically stretch speedhack logo over time
@@ -2605,7 +2612,7 @@ void draw_instructions()
 void end_instructions()
 {
 	action_counter = 0;
-	game_mode = MODE_TITLE;
+	current_game_mode = MODE_TITLE;
 }
 
 void instructions() 
@@ -2623,7 +2630,7 @@ void instructions()
 
 	if (current_fade_state == FADE_STATE_NONE)
 	{
-		input_type current_pad1_input = get_pad_input_type(game_mode, 1);
+		input_type current_pad1_input = get_pad_input_type(current_game_mode, 1);
 
 		if (current_pad1_input == INPUT_TYPE_START ||
 			current_pad1_input == INPUT_TYPE_A || 
@@ -2673,7 +2680,7 @@ void draw_credits()
 void end_credits()
 {
 	action_counter = 0;
-	game_mode = MODE_TITLE;
+	current_game_mode = MODE_TITLE;
 }
 
 void credits() 
@@ -2692,7 +2699,7 @@ void credits()
 	{
 		if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
 
-		input_type current_pad1_input = get_pad_input_type(game_mode, 1);
+		input_type current_pad1_input = get_pad_input_type(current_game_mode, 1);
 
 		if (current_pad1_input == INPUT_TYPE_START ||
 			current_pad1_input == INPUT_TYPE_A || 
@@ -2706,12 +2713,6 @@ void credits()
 
 void update_game()
 {
-	// while (playGame) {
-	// 	playGame = title();
-	// 	if (playGame==3) play();
-	// 	if (playGame==2) showHighscores();
-	// 	if (playGame==1) instructions();
-	// }
 	// shutdown();
 	if (action_counter == 0)
 		jo_disable_all_screen_color_filter(); // need to clear at start of game loop for smoother transitions
@@ -2719,7 +2720,7 @@ void update_game()
 	if (action_counter < MAX_ACTION_CYCLES)
 		action_counter++;
 
-	switch (game_mode)
+	switch (current_game_mode)
 	{
 		case MODE_INTRO:
 			intro();
