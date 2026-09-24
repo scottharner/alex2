@@ -97,6 +97,7 @@ int thinking;				// cpu moves counter
 
 static mode current_game_mode;
 static fade_state current_fade_state;
+static pause_option current_pause_option;
 static game_type current_game_type;
 static mode load_game_mode;
 static void (*load_action)(void);
@@ -149,6 +150,7 @@ static int tglup_sprite_id;
 static int tgluph_sprite_id;
 static int tgldn_sprite_id;
 static int tgldnh_sprite_id;
+static int select_sprite_id;
 static int action_counter;
 static int fade_brightness;
 static int fade_cooldown;
@@ -486,6 +488,7 @@ void load_game_sprites()
 		endh_sprite_id = jo_sprite_add_tga(NULL, "ENDH.TGA", JO_COLOR_RGB(255,0,255));
 		tgluph_sprite_id = jo_sprite_add_tga(NULL, "TGLUPH.TGA", JO_COLOR_RGB(255,0,255));
 		tgldnh_sprite_id = jo_sprite_add_tga(NULL, "TGLDNH.TGA", JO_COLOR_RGB(255,0,255));
+		select_sprite_id = jo_sprite_add_tga(NULL, "SELECT.TGA", JO_COLOR_RGB(255, 0, 255));
 		game_sprites_loaded = true;
 
 		token_sprite_ids[0] = emptytkn_sprite_id;
@@ -1063,8 +1066,21 @@ void draw_game(int show_pointer)
 
 	if (is_paused)
 	{
-		jo_font_print_centered(game_black_font, -1, 1, 0.99f, "PAUSED");
-		jo_font_print_centered(game_white_font, 0, 0, 0.99f, "PAUSED");
+		jo_font_print_centered(game_black_font, -1, -10, 0.99f, "RESUME");
+		jo_font_print_centered(game_white_font, 0, -11, 0.99f, "RESUME");
+		if (current_pause_option == PAUSE_OPTION_RESUME)
+		{
+			jo_sprite_draw3D2(select_sprite_id, 100, 108, BACKGROUND_ZINDEX);
+			jo_sprite_draw3D2(select_sprite_id, 204, 108, BACKGROUND_ZINDEX);
+		}
+
+		jo_font_print_centered(game_black_font, -1, 10, 0.99f, "QUIT");
+		jo_font_print_centered(game_white_font, 0, 9, 0.99f, "QUIT");
+		if (current_pause_option == PAUSE_OPTION_QUIT)
+		{
+			jo_sprite_draw3D2(select_sprite_id, 100, 128, BACKGROUND_ZINDEX);
+			jo_sprite_draw3D2(select_sprite_id, 204, 128, BACKGROUND_ZINDEX);
+		}
 	}
 }
 
@@ -1480,6 +1496,7 @@ void start_new_game() {
 	locked_col = locked_row = -1;
 	hint = 0;
 	is_paused = false;
+	current_pause_option = PAUSE_OPTION_RESUME;
 
 	ply[1] = ply[2] = reset_player;
 
@@ -2260,11 +2277,13 @@ void play()
 		{
 			is_paused = true;
 			pausing_pad = 1;
+			current_pause_option = PAUSE_OPTION_RESUME;
 		}
 		else if (!is_paused && current_pad2_input == INPUT_TYPE_START && current_game_type == GAME_TYPE_HVH)
 		{
 			is_paused = true;
 			pausing_pad = 2;
+			current_pause_option = PAUSE_OPTION_RESUME;
 		}
 		else
 		{

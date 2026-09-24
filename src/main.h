@@ -63,6 +63,11 @@ typedef enum
 	FADE_STATE_DONE
 }fade_state;
 
+typedef enum
+{
+	PAUSE_OPTION_RESUME = 0,
+	PAUSE_OPTION_QUIT
+}pause_option;
 
 typedef enum
 {
