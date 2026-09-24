@@ -43,7 +43,8 @@ typedef struct {
 typedef enum
 {
 	MODE_NONE = 0, 
-	MODE_INTRO, 
+	MODE_INTRO_GRAPHIC, 
+	MODE_INTRO_TEXT,
 	MODE_TITLE,
 	MODE_INSTRUCTIONS,
 	MODE_CREDITS,

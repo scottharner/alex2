@@ -163,7 +163,6 @@ static bool intro_mode_started = false;
 static bool intro_graphic_scaled = false;
 static bool intro_graphic_shown = false;
 static bool intro_graphic_faded = false;
-static bool intro_text_shown = false;
 static bool is_instructions_selected = false;
 static bool is_credits_selected = false;
 static bool is_high_scores_selected = false;
@@ -191,6 +190,8 @@ static int hof_score = 0;
 static int hof_selected_index = 0;
 static bool game_sprites_loaded = false;
 static bool did_play_game = false;
+static bool is_showing_text = false;
+static int showing_text_counter = 0;
 
 static const char hof_chars[] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','.',' ',};
 
@@ -522,7 +523,7 @@ void reset_game()
 {
 	action_counter = 0;
 	current_game_mode = MODE_LOAD;
-	load_game_mode = MODE_INTRO;
+	load_game_mode = MODE_INTRO_GRAPHIC;
 	load_action = load_pregame_assets;
 }
 
@@ -682,7 +683,8 @@ input_type get_pad_input_type(mode game_mode, int pad)
 		update_pad_input_states(pad);
 		switch(game_mode)
 		{
-			case MODE_INTRO:
+			case MODE_INTRO_GRAPHIC:
+			case MODE_INTRO_TEXT:
 
 				if (pad_input_pressed(pad, INPUT_TYPE_START)) current_pad_input = INPUT_TYPE_START;
 				else if (pad_input_pressed(pad, INPUT_TYPE_A)) current_pad_input = INPUT_TYPE_A;
@@ -2397,91 +2399,35 @@ static void draw_tile(int x, int y, int sprite_id, int z, int angle)
 #endif
 }
 
-static void process_intro_text_display()
-{
-	if (action_counter < INTRO_FADE_TEXT_TIME)
-	{
-		if (action_counter <= 1)
-		{
-			fade_brightness = 0;
-		}
-		else if (action_counter % 4 == 0 && fade_brightness <= JO_DEFAULT_BRIGHTNESS)
-			fade_brightness++;
-
-		if (fade_brightness <= JO_DEFAULT_BRIGHTNESS)
-		{
-			jo_sprite_enable_gouraud_shading();
-			jo_set_gouraud_shading_brightness(fade_brightness);
-			jo_font_print_centered(game_white_font, 0, 0, 0.99f, intro_text[current_intro_text_index]);
-			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
-			jo_sprite_disable_gouraud_shading();
-#if JO_DEBUG
-			jo_printf_with_color(0, 2, JO_COLOR_INDEX_White, "fade %d", fade_counter);
-#endif
-		}
-	}
-	else if (action_counter < (INTRO_FADE_TEXT_TIME + INTRO_STILL_TEXT_TIME))
-	{
-		jo_font_print_centered(game_white_font, 0, 0, 0.99f, intro_text[current_intro_text_index]);
-	}
-	else if (action_counter < (INTRO_FADE_TEXT_TIME + INTRO_STILL_TEXT_TIME + INTRO_FADE_TEXT_TIME))
-	{
-		if (action_counter == (INTRO_FADE_TEXT_TIME + INTRO_STILL_TEXT_TIME))
-		{
-			fade_brightness = JO_DEFAULT_BRIGHTNESS;
-		}
-		else if (action_counter % 4 == 0 && fade_brightness >= 0)
-			fade_brightness--;
-
-		if (fade_brightness >= 0)
-		{
-			jo_sprite_enable_gouraud_shading();
-			jo_set_gouraud_shading_brightness(fade_brightness);
-			jo_font_print_centered(game_white_font, 0, 0, 0.99f, intro_text[current_intro_text_index]);
-			jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
-			jo_sprite_disable_gouraud_shading();
-#if JO_DEBUG
-			jo_printf_with_color(0, 2, JO_COLOR_INDEX_White, "fade %d", fade_counter);
-#endif
-		}
-	}
-	else if (action_counter > (INTRO_FADE_TEXT_TIME + INTRO_STILL_TEXT_TIME + INTRO_FADE_TEXT_TIME + INTRO_BLANK_TEXT_TIME))
-	{
-		action_counter = 0;
-		current_intro_text_index++;
-		if (current_intro_text_index == INTRO_TEXT_COUNT)
-		{
-			intro_text_shown = true;
-			current_game_mode = MODE_TITLE;
-		}
-	}
-}
-
 static void process_intro_graphic_fade()
 {
 	if (action_counter <= 1)
 	{
-		fade_brightness = JO_DEFAULT_BRIGHTNESS;
+		// initialization
+		fade_brightness = 0;
+		fade_cooldown = MAX_COOLDOWN_COUNT;
 	}
-	else if (action_counter % 4 == 0 && fade_brightness >= 0)
-		fade_brightness--;
-
-	if (fade_brightness >= 0)
+	else if (fade_brightness > -255)
 	{
-		jo_sprite_enable_gouraud_shading();
-		jo_set_gouraud_shading_brightness(fade_brightness);
-		jo_sprite_draw3D2(shlogo_sprite_id, 0, 0, BACKGROUND_ZINDEX);
-		jo_set_gouraud_shading_brightness(JO_DEFAULT_BRIGHTNESS);
-		jo_sprite_disable_gouraud_shading();
-#if JO_DEBUG
-		jo_printf_with_color(0, 2, JO_COLOR_INDEX_White, "fade %d", fade_counter);
-#endif
-	}
+		// fading out
+		fade_brightness-=FADE_INTERVAL;
 
-	if (action_counter == INTRO_FADE_GRAPHIC_TIME)
+		if (fade_brightness < -255)
+			fade_brightness = -255;
+
+		jo_set_screen_color_filter_a(JO_ALL_SCROLL_SCREEN, fade_brightness, fade_brightness, fade_brightness);
+		jo_sprite_draw3D2(shlogo_sprite_id, 0, 0, BACKGROUND_ZINDEX);
+	}
+	else if (fade_cooldown > 0)
+	{
+		// cooldown
+		fade_cooldown--;
+	}
+	else
 	{
 		action_counter = 0;
 		intro_graphic_faded = true;
+		current_game_mode = MODE_INTRO_TEXT;
 	}
 }
 
@@ -2537,7 +2483,7 @@ void load()
 	}
 }
 
-void intro() 
+void intro_graphic() 
 {
 	if (!intro_mode_started)
 	{
@@ -2553,7 +2499,6 @@ void intro()
 	{
 		// user wants to skip to title
 		action_counter = 0;
-		intro_text_shown = true;
 		current_game_mode = MODE_TITLE;
 	}
 
@@ -2576,9 +2521,56 @@ void intro()
 	{
 		process_intro_graphic_fade();
 	}
-	else if (!intro_text_shown)
+}
+
+void draw_intro_text()
+{
+	jo_font_print_centered(game_white_font, 0, 0, 0.99f, intro_text[current_intro_text_index]);
+}
+
+void end_intro_text()
+{
+	action_counter = 0;
+	current_intro_text_index++;
+	if (current_intro_text_index == INTRO_TEXT_COUNT)
 	{
-		process_intro_text_display();
+		current_game_mode = MODE_TITLE;
+	}
+}
+
+void run_intro_text()
+{
+	if (action_counter <= 1)
+	{
+		jo_clear_screen();
+		jo_set_default_background_color(JO_COLOR_Black);
+		reset_fade();
+		is_showing_text = false;
+		showing_text_counter = 0;
+	}
+
+	process_fade(draw_intro_text, end_intro_text);
+
+	input_type current_pad1_input = get_pad_input_type(current_game_mode, 1);
+
+	if (current_pad1_input == INPUT_TYPE_START || 
+		current_pad1_input == INPUT_TYPE_A || 
+		current_pad1_input == INPUT_TYPE_C)
+	{
+		// user wants to skip to title
+		action_counter = 0;
+		current_game_mode = MODE_TITLE;
+	}
+
+	if (current_fade_state == FADE_STATE_NONE)
+	{
+		if (!is_showing_text)
+			is_showing_text = true;
+
+		showing_text_counter++;
+
+		if (showing_text_counter == INTRO_STILL_TEXT_TIME)
+			current_fade_state = FADE_STATE_OUT;
 	}
 }
 
@@ -2724,8 +2716,12 @@ void update_game()
 
 	switch (current_game_mode)
 	{
-		case MODE_INTRO:
-			intro();
+		case MODE_INTRO_GRAPHIC:
+			intro_graphic();
+			break;
+
+		case MODE_INTRO_TEXT:
+			run_intro_text();
 			break;
 
 		case MODE_TITLE:
