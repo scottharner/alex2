@@ -2176,8 +2176,6 @@ void play()
 		if (ply[1].anim) ply[1].anim--;
 		if (ply[2].anim) ply[2].anim--;
 
-		if (hint && !jo_is_pad1_key_pressed(JO_KEY_Z)) hint--; // hold hint steady if z is held
-
 		if (scrolling) if (--scrolling==0) {
 			playing=1;
 			check_board(player);
@@ -2208,6 +2206,16 @@ void play()
 			}
 		}
 
+		if (hint && player != cpu)
+		{
+			if ((player == 1 && !jo_is_pad1_key_pressed(JO_KEY_Z)) || 
+				(player == 2 && current_game_type == GAME_TYPE_CVH && !jo_is_pad1_key_pressed(JO_KEY_Z)) || 
+				(player == 2 && current_game_type == GAME_TYPE_HVH && !jo_is_input_key_pressed(6,JO_KEY_Z)))
+			{
+				hint--; // hold hint steady if z is held
+			}
+		} 
+		
 		if (cpu==player && playing && !thinking) thinking = 30;
 		if (cpu==player && thinking) thinking--;
 		if (thinking==1) 

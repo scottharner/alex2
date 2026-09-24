@@ -48,16 +48,16 @@ general
 
 todo
 ----
+- allow quitting game
+- clean up hof screen
+- cleanup black font
 - make opening animation ending smoother
+- improve load times?
 - put input methods into separate file
 - move instructions text to separate file
 - build up ss utils file
-- improve load times?
-- cleanup black font
-- clean up hof screen
-- remove unneeded commented code
 - enable all hint logic (hint method and play game method)
-- allow quitting game
+- remove unneeded commented code
 - screenshots
 - output to bin/cue format
 - test on real hardware

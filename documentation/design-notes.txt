@@ -4,3 +4,9 @@ hof
 - support p1 + p2 hof
 - move to high score after and then title - done
 - update display to underline selected letter and end with a checkbox the style of the x
+
+pause menu
+----------
+- paused (100%)
+- resume (80%)?
+- quit (80%)?
