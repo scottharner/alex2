@@ -1112,7 +1112,7 @@ void process_fade(void (*draw)(void), void (*end)(void))
 	}
 }
 
-void draw_title(int x, int y, int m, int menu_x, int menu_y) 
+void draw_title(int x, int y, int menu_x, int menu_y) 
 {
 	if (action_counter <= 1)
 	{
@@ -1284,8 +1284,6 @@ void process_game_option_select(game_type selected_game_type)
 
 void title() {
 	int x=320, y=10;
-// 	int done=0;
-	int mode=0;  // 0=menu, 1=player-menu
 
 	if (action_counter <= 1)
 	{
@@ -1314,7 +1312,7 @@ void title() {
 	if (is_showing_start_game_options && title_menu_y<JO_TV_HEIGHT) title_menu_y+=4;
 	if (is_showing_start_game_options && title_menu_x < 40) title_menu_x+= 4;
 
-	draw_title(x,y,mode,title_menu_x,title_menu_y);
+	draw_title(x,y,title_menu_x,title_menu_y);
 
 // 	while(!done) {
 // 		mx = mouse_x;
@@ -2113,7 +2111,7 @@ void play() {
 		jo_set_default_background_color(JO_COLOR_INDEX_Black);
 		if (!game_sprites_loaded)
 			jo_font_print_centered(game_white_font, 0, 0, 0.99f, "LOADING...");
-			
+
 		return; // give the screen a chance to clear before we do sprite loading
 	}
 	else if (action_counter == 2)
