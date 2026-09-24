@@ -52,7 +52,6 @@ todo
   - game play load
   - game play
   - intro
-  - flashing in between two
 - move instructions text to separate file
 - shutdown + cleanup mallocs
   - hisc malloc table
