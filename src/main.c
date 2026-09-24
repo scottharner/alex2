@@ -189,6 +189,8 @@ static bool game_sprites_loaded = false;
 static bool did_play_game = false;
 static bool is_showing_text = false;
 static int showing_text_counter = 0;
+static byte pausing_pad;
+static bool is_paused = false;
 
 static const char hof_chars[] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','.',' ',};
 
@@ -772,11 +774,14 @@ void draw_particles() {
 	for(i=0;i<MAX_PARTICLES;i++)
 		if (dust[i].exist) {
 			jo_sprite_draw3D2(dust_sprite_ids[dust[i].image], jo_fixed2int(dust[i].x)-2, jo_fixed2int(dust[i].y)-2, BACKGROUND_ZINDEX);
-			dust[i].x += dust[i].dx;
-			dust[i].y += dust[i].dy;
-			dust[i].dy += jo_fixed_sin(get_radian_angle(jo_int2fixed(2)));
-			y = jo_fixed2int(dust[i].y);
-			if (y > 240) dust[i].exist = 0;
+			if (!is_paused)
+			{
+				dust[i].x += dust[i].dx;
+				dust[i].y += dust[i].dy;
+				dust[i].dy += jo_fixed_sin(get_radian_angle(jo_int2fixed(2)));
+				y = jo_fixed2int(dust[i].y);
+				if (y > 240) dust[i].exist = 0;
+			}
 		}
 }
 
@@ -873,7 +878,8 @@ void set_pointer_position(int pad, input_type current_pad_input)
 	}
 }
 
-void draw_game(int show_pointer) {
+void draw_game(int show_pointer) 
+{
 	int x,y;
 	int anim_col = -1;
 	int anim_row = -1;
@@ -1016,9 +1022,9 @@ void draw_game(int show_pointer) {
 		jo_font_print(game_white_font, 245, 188, 0.5f, score_string);
 	}
 
-		if (show_pointer) draw_particles();
+	if (show_pointer) draw_particles();
 
-	if (show_pointer)
+	if (show_pointer && !is_paused)
 	{
 		int mx = pointer1_x;
 		int my = pointer1_y;
@@ -1053,6 +1059,12 @@ void draw_game(int show_pointer) {
 			if (!is_player_turn)
 				jo_sprite_disable_half_transparency();
 		}
+	}
+
+	if (is_paused)
+	{
+		jo_font_print_centered(game_black_font, -1, 1, 0.99f, "PAUSED");
+		jo_font_print_centered(game_white_font, 0, 0, 0.99f, "PAUSED");
 	}
 }
 
@@ -1467,6 +1479,7 @@ void start_new_game() {
 	winner_presses = 0;
 	locked_col = locked_row = -1;
 	hint = 0;
+	is_paused = false;
 
 	ply[1] = ply[2] = reset_player;
 
@@ -2137,7 +2150,7 @@ void play()
 	else if (action_counter == 2)
 	{
 		thinking = 0;
-		
+
 		int song_choice = get_random(4);
 		switch (song_choice)
 		{
@@ -2163,15 +2176,18 @@ void play()
 	input_type current_pad1_input = get_pad_input_type(current_game_mode, 1);
 	input_type current_pad2_input = get_pad_input_type(current_game_mode, 2);
 
-	set_pointer_position(1, current_pad1_input);
-	if (current_game_type == GAME_TYPE_HVH)
+	if (!is_paused)
 	{
-		set_pointer_position(2, current_pad2_input);
+		set_pointer_position(1, current_pad1_input);
+		if (current_game_type == GAME_TYPE_HVH)
+		{
+			set_pointer_position(2, current_pad2_input);
+		}
 	}
 
 	draw_game(1);
 
-	if (!done && !winner)
+	if (!done && !winner && !is_paused)
 	{
 		if (ply[1].anim) ply[1].anim--;
 		if (ply[2].anim) ply[2].anim--;
@@ -2240,66 +2256,92 @@ void play()
 // 			}
 		}
 
-		// check if the user simulated a mouse click
-		if (player != cpu)
+		if (!is_paused && current_pad1_input == INPUT_TYPE_START)
 		{
-			if ((player == 1 && current_pad1_input == INPUT_TYPE_A) || // non cpu player 1 is always pad1
-				(player == 1 && current_pad1_input == INPUT_TYPE_C) || 
-				(player == 2 && current_game_type == GAME_TYPE_CVH && current_pad1_input == INPUT_TYPE_A) || // player 2 is pad1 in cvh
-				(player == 2 && current_game_type == GAME_TYPE_CVH && current_pad1_input == INPUT_TYPE_C) ||
-				(player == 2 && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_A) || // player 2 is pad2 in hvh
-				(player == 2 && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_C))
+			is_paused = true;
+			pausing_pad = 1;
+		}
+		else if (!is_paused && current_pad2_input == INPUT_TYPE_START && current_game_type == GAME_TYPE_HVH)
+		{
+			is_paused = true;
+			pausing_pad = 2;
+		}
+		else
+		{
+			// check if the user simulated a mouse click
+			if (player != cpu)
 			{
-				mx = ((player == 1 || current_game_type == GAME_TYPE_CVH) ? pointer1_x : pointer2_x);
-				my = ((player == 1 || current_game_type == GAME_TYPE_CVH) ? pointer1_y : pointer2_y);
-				if (playing)
+				if ((player == 1 && current_pad1_input == INPUT_TYPE_A) || // non cpu player 1 is always pad1
+					(player == 1 && current_pad1_input == INPUT_TYPE_C) || 
+					(player == 2 && current_game_type == GAME_TYPE_CVH && current_pad1_input == INPUT_TYPE_A) || // player 2 is pad1 in cvh
+					(player == 2 && current_game_type == GAME_TYPE_CVH && current_pad1_input == INPUT_TYPE_C) ||
+					(player == 2 && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_A) || // player 2 is pad2 in hvh
+					(player == 2 && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_C))
 				{
-					// check board
-					for(x=0;x<8;x++)
-						for(y=0;y<8;y++)
-							if (mx>21+x*24 && mx<44+x*24 && my>21+y*24 && my<44+y*24) 
-							{
-								if (anim_place_token(x,y,(ply[player].carry?3:player))) 
+					mx = ((player == 1 || current_game_type == GAME_TYPE_CVH) ? pointer1_x : pointer2_x);
+					my = ((player == 1 || current_game_type == GAME_TYPE_CVH) ? pointer1_y : pointer2_y);
+					if (playing)
+					{
+						// check board
+						for(x=0;x<8;x++)
+							for(y=0;y<8;y++)
+								if (mx>21+x*24 && mx<44+x*24 && my>21+y*24 && my<44+y*24) 
 								{
-									locked_col = locked_row = -1;
-									ply[player].carry = 0;
+									if (anim_place_token(x,y,(ply[player].carry?3:player))) 
+									{
+										locked_col = locked_row = -1;
+										ply[player].carry = 0;
+									}
 								}
+
+						// check arrows
+						if (!ply[player].carry) 
+							for(x=0;x<8;x++) {
+								int moved = 0;
+								if (mx>27+x*24 && mx<37+x*24 && my>6 && my<16 && locked_col!=x) moved = anim_rotate_column(x, 1);
+								if (mx>27+x*24 && mx<37+x*24 && my>216 && my<226 && locked_col!=x) moved = anim_rotate_column(x, 0);
+								if (mx>6 && mx<16 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 1);
+								if (mx>216 && mx<226 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 0);
 							}
 
-					// check arrows
-					if (!ply[player].carry) 
-						for(x=0;x<8;x++) {
-							int moved = 0;
-							if (mx>27+x*24 && mx<37+x*24 && my>6 && my<16 && locked_col!=x) moved = anim_rotate_column(x, 1);
-							if (mx>27+x*24 && mx<37+x*24 && my>216 && my<226 && locked_col!=x) moved = anim_rotate_column(x, 0);
-							if (mx>6 && mx<16 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 1);
-							if (mx>216 && mx<226 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 0);
+						// check other (multi)
+						if (ply[player].multi && !ply[player].carry) {
+							if (mx>245 && mx<268 && my>73+112*(player-1) && my<96+112*(player-1)) {
+								ply[player].multi--;
+								ply[player].carry = 1;
+							}
 						}
-
-					// check other (multi)
-					if (ply[player].multi && !ply[player].carry) {
-						if (mx>245 && mx<268 && my>73+112*(player-1) && my<96+112*(player-1)) {
-							ply[player].multi--;
-							ply[player].carry = 1;
-						}
-					}
-					else if (ply[player].carry) {
-						if (mx>245 && mx<268 && my>73+112*(player-1) && my<96+112*(player-1)) {
-							ply[player].multi ++;
-							ply[player].carry = 0;
+						else if (ply[player].carry) {
+							if (mx>245 && mx<268 && my>73+112*(player-1) && my<96+112*(player-1)) {
+								ply[player].multi ++;
+								ply[player].carry = 0;
+							}
 						}
 					}
 				}
-			}
-			else if ((player == 1 && current_pad1_input == INPUT_TYPE_Z) || 
-				(player == 2 && current_game_type == GAME_TYPE_CVH && current_pad1_input == INPUT_TYPE_Z) || 
-				(player == 2 && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_Z))
-			{
-				get_hint(player,3);
+				else if ((player == 1 && current_pad1_input == INPUT_TYPE_Z) || 
+					(player == 2 && current_game_type == GAME_TYPE_CVH && current_pad1_input == INPUT_TYPE_Z) || 
+					(player == 2 && current_game_type == GAME_TYPE_HVH && current_pad2_input == INPUT_TYPE_Z))
+				{
+					get_hint(player,3);
+				}
 			}
 		}
 
 // 		if (key[KEY_ESC]) done = confirm("Really quit? (Y/N)");
+	}
+	else if (is_paused)
+	{
+		if (current_pad1_input == INPUT_TYPE_START)
+		{
+			is_paused = false;
+			pausing_pad = 0;
+		}
+		else if (current_pad2_input == INPUT_TYPE_START && current_game_type == GAME_TYPE_HVH)
+		{
+			is_paused = false;
+			pausing_pad = 0;
+		}
 	}
 
 	if (winner) 
