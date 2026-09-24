@@ -33,6 +33,8 @@ saturn
 - use jo_set_screen_color_filter_a for fade in and fade out
   - range of values from black to normal is -255 to 0
   - if we want to go white to normal it would be 255 to 0
+- there is no shutdown call for jo engine
+- it sounds like i should only worry about freeing memory if it is something that wont be used further in the game
 
 general
 -------
@@ -48,24 +50,17 @@ todo
 ----
 - make opening animation ending smoother
 - put input methods into separate file
-- screen fades
-  - intro
 - move instructions text to separate file
-- shutdown + cleanup mallocs
-  - hisc malloc table
-  - do other string structures need malloc?
-- output to bin/cue format
 - build up ss utils file
 - improve load times?
 - cleanup black font
-- screen transitioning code cleanup
-- next player should wait until sound is done?
 - clean up hof screen
 - remove unneeded commented code
-- enable all hint logic (hint method and play game mehthod)
+- enable all hint logic (hint method and play game method)
 - allow quitting game
-- test on real hardware
 - screenshots
+- output to bin/cue format
+- test on real hardware
 - publish to sega retro
 - publish to sega xtreme
 - update jo engine faqs

@@ -27,11 +27,8 @@
 */
 
 #include <jo/jo.h>
-// #include <stdio.h>
-// #include "allegro.h"
 #include "main.h"
 #include "hisc.h"
-// #include "../assets/data.h"	
 #include "pcmsys.h"
 
 /*
@@ -775,7 +772,6 @@ void draw_particles() {
 	for(i=0;i<MAX_PARTICLES;i++)
 		if (dust[i].exist) {
 			jo_sprite_draw3D2(dust_sprite_ids[dust[i].image], jo_fixed2int(dust[i].x)-2, jo_fixed2int(dust[i].y)-2, BACKGROUND_ZINDEX);
-			// draw_sprite(swap_screen, data[DUST000+dust[i].image].dat, jo_fixed2int(dust[i].x)-2, jo_fixed2int(dust[i].y)-2);
 			dust[i].x += dust[i].dx;
 			dust[i].y += dust[i].dy;
 			dust[i].dy += jo_fixed_sin(get_radian_angle(jo_int2fixed(2)));
@@ -1361,7 +1357,6 @@ void title()
 		pointer1_y=JO_TV_HEIGHT_2; 
 		pointer2_x=JO_TV_WIDTH_2;
 		pointer2_y=JO_TV_HEIGHT_2;
-		//clicked;
 		reset_particles();
 		reset_fade();
 	}
@@ -1468,7 +1463,6 @@ void start_new_game() {
 
 	playing = 1;
 	player = 1;
-	// scrolling = 0;
 	winner = 0;
 	winner_presses = 0;
 	locked_col = locked_row = -1;
@@ -2176,9 +2170,7 @@ void play()
 	}
 
 	draw_game(1);
-// 	fade_in(data[GAMEPAL].dat,4);
 
-// 	while (!done && !winner) {
 	if (!done && !winner)
 	{
 		if (ply[1].anim) ply[1].anim--;
@@ -2353,7 +2345,6 @@ void play()
 			}
 
 		}
-// 		fade_out(4);
 
 		if (done)
 		{
@@ -2370,21 +2361,7 @@ void play()
 			}
 		}
 	}
-
-// 	fade_out(4);
 }
-
-// int fadeText(char *txt, int msecs) {
-// 	int i;
-// 	set_palette(black_palette);
-// 	clear(screen);
-// 	textout_centre(screen,data[MYFONT].dat,txt,160,100,-1);
-// 	fade_in(data[GAMEPAL].dat,8);
-// 	i = myRest(msecs);
-// 	fade_out(8);
-// 	clear(screen);
-// 	return i;
-// }
 
 static void draw_tile(int x, int y, int sprite_id, int z, int angle)
 {
@@ -2574,12 +2551,6 @@ void run_intro_text()
 	}
 }
 
-// void shutdown() {
-// 	saveTable(hisc,"hiscores.sav");
-// 	saveSoundCFG();
-// 	allegro_exit();
-// }
-
 void draw_instructions()
 {
 	jo_sprite_draw3D2(title_sprite_id, 0, 16, TEXT_ZINDEX);
@@ -2707,7 +2678,6 @@ void credits()
 
 void update_game()
 {
-	// shutdown();
 	if (action_counter == 0)
 		jo_disable_all_screen_color_filter(); // need to clear at start of game loop for smoother transitions
 	
