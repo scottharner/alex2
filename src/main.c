@@ -162,6 +162,12 @@ static bool intro_graphic_scaled = false;
 static bool intro_graphic_shown = false;
 static bool intro_graphic_faded = false;
 static bool intro_text_shown = false;
+static bool is_instructions_selected = false;
+static bool is_credits_selected = false;
+static bool is_high_scores_selected = false;
+static bool is_hvc_selected = false;
+static bool is_cvh_selected = false;
+static bool is_hvh_selected = false;
 static int aa2_x;
 static int pointer1_x;
 static int pointer1_y;
@@ -384,6 +390,12 @@ void reset_title_props()
 	current_game_type = GAME_TYPE_HVC;
 	title_menu_x=-200, title_menu_y=144;
 	is_showing_start_game_options = false;
+	is_instructions_selected = false;
+	is_credits_selected = false;
+	is_high_scores_selected = false;
+	is_hvc_selected = false;
+	is_cvh_selected = false;
+	is_hvh_selected = false;
 }
 
 void reset_game()
@@ -1112,7 +1124,7 @@ void process_fade(void (*draw)(void), void (*end)(void))
 	}
 }
 
-void draw_title(int x, int y, int menu_x, int menu_y) 
+void draw_title() 
 {
 	if (action_counter <= 1)
 	{
@@ -1134,30 +1146,30 @@ void draw_title(int x, int y, int menu_x, int menu_y)
 	jo_sprite_draw3D2(aalogo_sprite_id, 64, 48, LOGO_ZINDEX);
 
 	// title menu options
-	if (is_showing_main_menu_options || menu_y < JO_TV_HEIGHT)
+	if (is_showing_main_menu_options || title_menu_y < JO_TV_HEIGHT)
 	{
-		jo_font_print(game_black_font, 39, menu_y + 1, 0.99f, "START GAME");
-		jo_font_print(game_white_font, 40, menu_y, 0.99f, "START GAME");
-		jo_font_print(game_black_font, 39, menu_y + 21, 0.99f, "HIGH SCORES");
-		jo_font_print(game_white_font, 40, menu_y + 20, 0.99f, "HIGH SCORES");
-		jo_font_print(game_black_font, 39, menu_y + 41, 0.99f, "INSTRUCTIONS");
-		jo_font_print(game_white_font, 40, menu_y + 40, 0.99f, "INSTRUCTIONS");
-		jo_font_print(game_black_font, 39, menu_y + 61, 0.99f, "CREDITS");
-		jo_font_print(game_white_font, 40, menu_y + 60, 0.99f, "CREDITS");
+		jo_font_print(game_black_font, 39, title_menu_y + 1, 0.99f, "START GAME");
+		jo_font_print(game_white_font, 40, title_menu_y, 0.99f, "START GAME");
+		jo_font_print(game_black_font, 39, title_menu_y + 21, 0.99f, "HIGH SCORES");
+		jo_font_print(game_white_font, 40, title_menu_y + 20, 0.99f, "HIGH SCORES");
+		jo_font_print(game_black_font, 39, title_menu_y + 41, 0.99f, "INSTRUCTIONS");
+		jo_font_print(game_white_font, 40, title_menu_y + 40, 0.99f, "INSTRUCTIONS");
+		jo_font_print(game_black_font, 39, title_menu_y + 61, 0.99f, "CREDITS");
+		jo_font_print(game_white_font, 40, title_menu_y + 60, 0.99f, "CREDITS");
 	}
 	
 	if (is_showing_start_game_options)
 	{
-		jo_font_print(game_black_font, menu_x-1, 144 + 1, 0.99f, "HUMAN VS AARON");
-		jo_font_print(game_black_font, menu_x-1, 164 + 1, 0.99f, "ALEX VS HUMAN");
-		jo_font_print(game_white_font, menu_x, 144, 0.99f, "HUMAN VS AARON");
-		jo_font_print(game_white_font, menu_x, 164, 0.99f, "ALEX VS HUMAN");
+		jo_font_print(game_black_font, title_menu_x-1, 144 + 1, 0.99f, "HUMAN VS AARON");
+		jo_font_print(game_black_font, title_menu_x-1, 164 + 1, 0.99f, "ALEX VS HUMAN");
+		jo_font_print(game_white_font, title_menu_x, 144, 0.99f, "HUMAN VS AARON");
+		jo_font_print(game_white_font, title_menu_x, 164, 0.99f, "ALEX VS HUMAN");
 		
 		if (!is_pad2_available)
 			jo_sprite_enable_half_transparency();
 		
-		jo_font_print(game_black_font, menu_x-1, 184 + 1, 0.99f, "HUMAN VS HUMAN");
-		jo_font_print(game_white_font, menu_x, 184, 0.99f, "HUMAN VS HUMAN");
+		jo_font_print(game_black_font, title_menu_x-1, 184 + 1, 0.99f, "HUMAN VS HUMAN");
+		jo_font_print(game_white_font, title_menu_x, 184, 0.99f, "HUMAN VS HUMAN");
 		
 		if (!is_pad2_available)
 			jo_sprite_disable_half_transparency();
@@ -1168,6 +1180,9 @@ void draw_title(int x, int y, int menu_x, int menu_y)
 	jo_sprite_draw3D2(vol3_sprite_id, 304, 152, TEXT_ZINDEX);
 	jo_sprite_draw3D2(vol1_sprite_id, 276, 197-(sound_vol*7), TEXT_ZINDEX);
 	jo_sprite_draw3D2(vol2_sprite_id, 300, 197-(music_vol*7), TEXT_ZINDEX);
+
+	draw_donkeys();
+	jo_sprite_draw3D2(pointer_sprite_id, pointer1_x, pointer1_y, POINTER_ZINDEX);
 }
 
 void draw_donkeys() 
@@ -1266,7 +1281,7 @@ bool pointer_on_music_vol()
 	return (pointer1_x>295 && pointer1_x<310 && pointer1_y>149 && pointer1_y<201);
 }
 
-void process_game_option_select(game_type selected_game_type)
+void process_game_option_select()
 {
 	pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
 	
@@ -1276,13 +1291,44 @@ void process_game_option_select(game_type selected_game_type)
 		jo_random_seed = action_counter;
 		title_did_set_seed = true;
 	}
-	
-	action_counter = 0;
-	game_mode = MODE_GAME;
-	current_game_type = selected_game_type;
+
+	current_fade_state = FADE_STATE_OUT;
 }
 
-void title() {
+void end_title()
+{
+	action_counter = 0;
+	if (is_instructions_selected)
+	{
+		game_mode = MODE_INSTRUCTIONS;
+	}
+	else if (is_credits_selected)
+	{
+		game_mode = MODE_CREDITS;
+	}
+	else if (is_high_scores_selected)
+	{
+		game_mode = MODE_HIGH_SCORES;
+	}
+	else if (is_hvc_selected)
+	{
+		game_mode = MODE_GAME;
+		current_game_type = GAME_TYPE_HVC;
+	}
+	else if (is_cvh_selected)
+	{
+		game_mode = MODE_GAME;
+		current_game_type = GAME_TYPE_CVH;
+	}
+	else if (is_hvh_selected)
+	{
+		game_mode = MODE_GAME;
+		current_game_type = GAME_TYPE_HVH;
+	}
+}
+
+void title() 
+{
 	int x=320, y=10;
 
 	if (action_counter <= 1)
@@ -1303,128 +1349,95 @@ void title() {
 		pointer2_y=JO_TV_HEIGHT_2;
 		//clicked;
 		reset_particles();
+		reset_fade();
 	}
 
-	is_pad2_available = is_pad_available(2);
-	input_type current_pad1_input = get_pad_input_type(game_mode, 1);
-	set_pointer_position(1, current_pad1_input);
-
-	if (is_showing_start_game_options && title_menu_y<JO_TV_HEIGHT) title_menu_y+=4;
-	if (is_showing_start_game_options && title_menu_x < 40) title_menu_x+= 4;
-
-	draw_title(x,y,title_menu_x,title_menu_y);
-
-// 	while(!done) {
-// 		mx = mouse_x;
-// 		my = mouse_y;
-// 		if (x != 250) x-=2;
-// 		clear_to_color(swap_screen,34);
-	draw_donkeys();
-// 		draw_title(swap_screen,x,y,mode,menuX,menuY);
-	jo_sprite_draw3D2(pointer_sprite_id, pointer1_x, pointer1_y, POINTER_ZINDEX);
-
-	if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
-// 		if (mode && menuX<40) menuX+=4;
-// 		if (mode && menuY<400) menuY+=4;
-
-// 		if (!mouse_b) clicked=0;
-// 		// check sound setup
-// 		if (mouse_b) {
-// 			int sv=soundvol, mv=musicvol;
-// 			if (mx>275 && mx<290 && my>149 && my<201) soundvol=250 - (my-150)*5;	// fx
-// 			if (mx>295 && mx<310 && my>149 && my<201) musicvol=250 - (my-150)*5;	// music
-// 			if (mv!=musicvol || soundvol!=sv) {
-// 				set_volume(-1,musicvol);
-// 				if (sv!=soundvol) play_sample(data[PLACE1].dat,soundvol,128,800+rand()%400,0);
-// 			}
-// 		}
-// 		if (mouse_b==1 && !mode && !clicked) {   // check menu
-// 			if (mx>40 && mx<166 && my>149 && my<165) { 		// start game
-// 				mode = 1;	// switch to game selection
-// 				menuX=-200; 
-// 				play_sample(data[PLACE1].dat,soundvol,128,800+rand()%400,0);
-// 			}
-// 			if (mx>40 && mx<166 && my>169 && my<185) done = 3;						// high scores
-// 			if (mx>40 && mx<166 && my>189 && my<205) done = 2;						// instructions
-// 			if (mx>40 && mx<89 && my>209 && my<225) done = 1;						// quit
-// 			clicked=1;
-// 		}
-// 	}
-// 	play_sample(data[PLACE1].dat,soundvol,128,800+rand()%400,0);
-// 	fade_out(4);
-// 	while(mouse_b);		// wait out mouse
-
-// 	return done-1;
-
-	// check if instructions was selected
-	// check if a, c, or start was pressed and the pointer is on instructions
-	if ((current_pad1_input == INPUT_TYPE_START || 
-		current_pad1_input == INPUT_TYPE_A || 
-		current_pad1_input == INPUT_TYPE_C))
+	process_fade(draw_title, end_title);
+	
+	if (current_fade_state == FADE_STATE_NONE)
 	{
-		if (pointer_on_sound_vol())
+		is_pad2_available = is_pad_available(2);
+		input_type current_pad1_input = get_pad_input_type(game_mode, 1);
+		set_pointer_position(1, current_pad1_input);
+
+		if (is_showing_start_game_options && title_menu_y<JO_TV_HEIGHT) title_menu_y+=4;
+		if (is_showing_start_game_options && title_menu_x < 40) title_menu_x+= 4;
+
+		if ((get_random(500)-1)<5) create_donkey(-40,(get_random(220)-1)+20,get_random(4)-1);
+
+		// check if a, c, or start was pressed and the pointer is on key location
+		if ((current_pad1_input == INPUT_TYPE_START || 
+			current_pad1_input == INPUT_TYPE_A || 
+			current_pad1_input == INPUT_TYPE_C))
 		{
-			int sv=sound_vol;
-			sound_vol=(pointer1_y >= 197) ? 0 : (int)((197 - pointer1_y) / 7);	// fx
-			if (sound_vol!=sv) 
+			if (pointer_on_sound_vol())
 			{
-				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+				int sv=sound_vol;
+				sound_vol=(pointer1_y >= 197) ? 0 : (int)((197 - pointer1_y) / 7);	// fx
+				if (sound_vol!=sv) 
+				{
+					pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+				}
 			}
-		}
-		else if (pointer_on_music_vol())
-		{
-			int mv=music_vol;
-			music_vol=(pointer1_y >= 197) ? 0 : (int)((197 - pointer1_y) / 7);	// music
-			if (mv!=music_vol) {
-				CDDA_SetVolume(music_vol);
-			}
-		}
-		else if (is_showing_main_menu_options)
-		{
-			if (pointer_on_start_game_option(title_menu_y))
+			else if (pointer_on_music_vol())
 			{
-				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
-				is_showing_start_game_options = true;
-				is_showing_main_menu_options = false;
+				int mv=music_vol;
+				music_vol=(pointer1_y >= 197) ? 0 : (int)((197 - pointer1_y) / 7);	// music
+				if (mv!=music_vol) {
+					CDDA_SetVolume(music_vol);
+				}
 			}
-			else if (pointer_on_instructions_option(title_menu_y))
+			else if (is_showing_main_menu_options)
 			{
-				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
-				action_counter = 0;
-				game_mode = MODE_INSTRUCTIONS;
+				if (pointer_on_start_game_option(title_menu_y))
+				{
+					pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+					is_showing_start_game_options = true;
+					is_showing_main_menu_options = false;
+				}
+				else if (pointer_on_instructions_option(title_menu_y))
+				{
+					pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+					current_fade_state = FADE_STATE_OUT;
+					is_instructions_selected = true;
+				}
+				else if (pointer_on_credits_option(title_menu_y))
+				{
+					pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+					current_fade_state = FADE_STATE_OUT;
+					is_credits_selected = true;
+				}
+				else if (pointer_on_high_scores_option(title_menu_y))
+				{
+					pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
+					current_fade_state = FADE_STATE_OUT;
+					is_high_scores_selected = true;
+				}
 			}
-			else if (pointer_on_credits_option(title_menu_y))
+			else if (is_showing_start_game_options)
 			{
-				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
-				action_counter = 0;
-				game_mode = MODE_CREDITS;
-			}
-			else if (pointer_on_high_scores_option(title_menu_y))
-			{
-				pcm_play(select_sound_id, PCM_PROTECTED, sound_vol);
-				action_counter = 0;
-				game_mode = MODE_HIGH_SCORES;
-			}
-		}
-		else if (is_showing_start_game_options)
-		{
-			if (pointer_on_hvc_game_option(title_menu_y))
-			{
-				process_game_option_select(GAME_TYPE_HVC);
-				cpu = 2;
-			}
-			else if (pointer_on_cvh_game_option(title_menu_y))
-			{
-				process_game_option_select(GAME_TYPE_CVH);
-				cpu = 1;
-			}
-			else if (pointer_on_hvh_game_option(title_menu_y) && is_pad2_available)
-			{
-				process_game_option_select(GAME_TYPE_HVH);
-				cpu = 0;
+				if (pointer_on_hvc_game_option(title_menu_y))
+				{
+					process_game_option_select();
+					is_hvc_selected = true;
+					cpu = 2;
+				}
+				else if (pointer_on_cvh_game_option(title_menu_y))
+				{
+					process_game_option_select();
+					is_cvh_selected = true;
+					cpu = 1;
+				}
+				else if (pointer_on_hvh_game_option(title_menu_y) && is_pad2_available)
+				{
+					process_game_option_select();
+					is_hvh_selected = true;
+					cpu = 0;
+				}
 			}
 		}
 	}
+
 }
 
 void start_new_game() {

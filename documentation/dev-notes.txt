@@ -50,8 +50,9 @@ todo
 - put input methods into separate file
 - screen fades
   - game play load
-  - title
   - game play
+  - intro
+  - flashing in between two
 - move instructions text to separate file
 - shutdown + cleanup mallocs
   - hisc malloc table
