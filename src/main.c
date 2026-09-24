@@ -75,7 +75,7 @@
 #define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
 #define HOF_MAX_INDEX 3
 #define HOF_CHARS_COUNT 28
-#define MAX_COOLDOWN_COUNT 10
+#define MAX_COOLDOWN_COUNT 20
 #define FADE_INTERVAL 3
 
 Thisc *hisc;						// a hiscore table
@@ -1111,7 +1111,6 @@ void process_fade(void (*draw)(void), void (*end)(void))
 			else
 			{
 				current_fade_state = FADE_STATE_DONE;
-				jo_disable_all_screen_color_filter();
 				(*end)();
 			}
 
@@ -2714,6 +2713,9 @@ void update_game()
 	// 	if (playGame==1) instructions();
 	// }
 	// shutdown();
+	if (action_counter == 0)
+		jo_disable_all_screen_color_filter(); // need to clear at start of game loop for smoother transitions
+	
 	if (action_counter < MAX_ACTION_CYCLES)
 		action_counter++;
 
