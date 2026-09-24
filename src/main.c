@@ -512,6 +512,12 @@ void load_game_sprites()
 	}
 }
 
+void manage_game_assets()
+{
+	unload_intro_sprites(); // dump the intro sprites to save on memory
+	load_game_sprites();
+}
+
 void reset_game()
 {
 	action_counter = 0;
@@ -1313,20 +1319,23 @@ void end_title()
 	{
 		current_game_mode = MODE_HIGH_SCORES;
 	}
-	else if (is_hvc_selected)
+	else if (is_hvc_selected || is_cvh_selected || is_hvh_selected)
 	{
-		current_game_mode = MODE_GAME;
-		current_game_type = GAME_TYPE_HVC;
-	}
-	else if (is_cvh_selected)
-	{
-		current_game_mode = MODE_GAME;
-		current_game_type = GAME_TYPE_CVH;
-	}
-	else if (is_hvh_selected)
-	{
-		current_game_mode = MODE_GAME;
-		current_game_type = GAME_TYPE_HVH;
+		if (!game_sprites_loaded)
+		{
+			current_game_mode = MODE_LOAD;
+			load_game_mode = MODE_GAME;
+			load_action = manage_game_assets;
+		}
+		else
+			current_game_mode = MODE_GAME;
+
+		if (is_hvc_selected)
+			current_game_type = GAME_TYPE_HVC;
+		else if (is_cvh_selected)
+			current_game_type = GAME_TYPE_CVH;
+		else if (is_hvh_selected)
+			current_game_type = GAME_TYPE_HVH;
 	}
 }
 
@@ -2114,7 +2123,8 @@ int get_hint(int player, int recurse)
 	return best_score;
 }
 
-void play() {
+void play() 
+{
 	int done = 0;
 	int x,y;
 	int mx,my;
@@ -2125,19 +2135,11 @@ void play() {
 		CDDA_Stop();
 		jo_clear_screen();
 		jo_set_default_background_color(JO_COLOR_INDEX_Black);
-		if (!game_sprites_loaded)
-			jo_font_print_centered(game_white_font, 0, 0, 0.99f, "LOADING...");
 
 		return; // give the screen a chance to clear before we do sprite loading
 	}
 	else if (action_counter == 2)
 	{
-		if (!game_sprites_loaded)
-		{
-			unload_intro_sprites(); // dump the intro sprites to save on memory
-			load_game_sprites();
-		}
-
 		thinking = 0;
 		
 		int song_choice = get_random(4);

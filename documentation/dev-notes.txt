@@ -49,8 +49,6 @@ todo
 - make opening animation ending smoother
 - put input methods into separate file
 - screen fades
-  - game play load
-  - game play
   - intro
 - move instructions text to separate file
 - shutdown + cleanup mallocs
