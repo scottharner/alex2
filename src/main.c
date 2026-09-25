@@ -144,13 +144,12 @@ static int donkey1_sprite_id;
 static int donkey2_sprite_id;
 static int donkey3_sprite_id;
 static int donkey4_sprite_id;
-static int end_sprite_id;
-static int endh_sprite_id;
 static int tglup_sprite_id;
 static int tgluph_sprite_id;
 static int tgldn_sprite_id;
 static int tgldnh_sprite_id;
 static int select_sprite_id;
+static int check_sprite_id;
 static int action_counter;
 static int fade_brightness;
 static int fade_cooldown;
@@ -482,13 +481,12 @@ void load_game_sprites()
 		dust003_sprite_id = jo_sprite_add_tga(NULL, "DUST003.TGA", JO_COLOR_White);
 		dust004_sprite_id = jo_sprite_add_tga(NULL, "DUST004.TGA", JO_COLOR_White);
 		hint_sprite_id = jo_sprite_add_tga(NULL, "HINT.TGA", JO_COLOR_Black);
-		end_sprite_id = jo_sprite_add_tga(NULL, "END.TGA", JO_COLOR_RGB(255,0,255));
 		tglup_sprite_id = jo_sprite_add_tga(NULL, "TGLUP.TGA", JO_COLOR_RGB(255,0,255));
 		tgldn_sprite_id = jo_sprite_add_tga(NULL, "TGLDN.TGA", JO_COLOR_RGB(255,0,255));
-		endh_sprite_id = jo_sprite_add_tga(NULL, "ENDH.TGA", JO_COLOR_RGB(255,0,255));
 		tgluph_sprite_id = jo_sprite_add_tga(NULL, "TGLUPH.TGA", JO_COLOR_RGB(255,0,255));
 		tgldnh_sprite_id = jo_sprite_add_tga(NULL, "TGLDNH.TGA", JO_COLOR_RGB(255,0,255));
 		select_sprite_id = jo_sprite_add_tga(NULL, "SELECT.TGA", JO_COLOR_RGB(255, 0, 255));
+		check_sprite_id = jo_sprite_add_tga(NULL, "CHECK.TGA", JO_COLOR_Transparent);
 		game_sprites_loaded = true;
 
 		token_sprite_ids[0] = emptytkn_sprite_id;
@@ -1855,21 +1853,17 @@ void draw_hof()
 	jo_font_print_centered(game_white_font, 0, -28, 0.50f, score_string);
 
 	int center_x_coord = get_center_aligned_x_coord(game_white_font, 0.99f, "AAAA");
-	jo_sprite_draw3D2(hof_selected_index == 0 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord, 104, TEXT_ZINDEX);
-	jo_sprite_draw3D2(hof_selected_index == 1 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord + 18, 104, TEXT_ZINDEX);
-	jo_sprite_draw3D2(hof_selected_index == 2 ? tgluph_sprite_id : tglup_sprite_id, center_x_coord + 36, 104, TEXT_ZINDEX);
 	jo_font_printf(game_black_font, center_x_coord-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[0]]);
 	jo_font_printf(game_white_font, center_x_coord, 116, 0.99f, "%c", hof_chars[hof_char_indexes[0]]);		
 	jo_font_printf(game_black_font, center_x_coord+18-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[1]]);
 	jo_font_printf(game_white_font, center_x_coord + 18, 116, 0.99f, "%c", hof_chars[hof_char_indexes[1]]);		
 	jo_font_printf(game_black_font, center_x_coord+36-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[2]]);
 	jo_font_printf(game_white_font, center_x_coord + 36, 116, 0.99f, "%c", hof_chars[hof_char_indexes[2]]);		
-	jo_sprite_change_sprite_scale_xy(0.50f, 0.50f);
-	jo_sprite_draw3D2(hof_selected_index == 3 ? endh_sprite_id : end_sprite_id, center_x_coord + 42, 110, TEXT_ZINDEX);
-	jo_sprite_restore_sprite_scale();
-	jo_sprite_draw3D2(hof_selected_index == 0 ? tgldnh_sprite_id : tgldn_sprite_id, center_x_coord, 140, TEXT_ZINDEX);
-	jo_sprite_draw3D2(hof_selected_index == 1 ? tgldnh_sprite_id : tgldn_sprite_id, center_x_coord + 18, 140, TEXT_ZINDEX);
-	jo_sprite_draw3D2(hof_selected_index == 2 ? tgldnh_sprite_id : tgldn_sprite_id, center_x_coord + 36, 140, TEXT_ZINDEX);
+	jo_sprite_draw3D2(check_sprite_id, center_x_coord + 52, 122, TEXT_ZINDEX);
+	if (hof_selected_index == 0) jo_sprite_draw3D2(select_sprite_id, center_x_coord, 142, TEXT_ZINDEX);
+	if (hof_selected_index == 1) jo_sprite_draw3D2(select_sprite_id, center_x_coord + 18, 142, TEXT_ZINDEX);
+	if (hof_selected_index == 2) jo_sprite_draw3D2(select_sprite_id, center_x_coord + 36, 142, TEXT_ZINDEX);
+	if (hof_selected_index == 3) jo_sprite_draw3D2(select_sprite_id, center_x_coord + 54, 142, TEXT_ZINDEX);
 }
 
 void end_hof()

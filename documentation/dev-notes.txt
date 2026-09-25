@@ -48,8 +48,6 @@ general
 
 todo
 ----
-- allow quitting game
-- clean up hof screen
 - cleanup black font
 - make opening animation ending smoother
 - improve load times?
