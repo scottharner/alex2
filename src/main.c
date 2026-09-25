@@ -367,7 +367,7 @@ void reset_scores(Thisc *table) {
 	strcpy(table[4].name, "HAVE YOU TRIED");
 	strcpy(table[5].name, "OUR DONKEY SPAM?");
 	strcpy(table[6].name, "IT'S THE BEST!");
-	strcpy(table[7].name, "ORDER NOW AT:");
+	strcpy(table[7].name, "ORDER NOW AT");
 	strcpy(table[8].name, "1-800-SPAM-R-US");
 	strcpy(table[9].name, "WE TAKE VISA.");
 }
@@ -1860,10 +1860,10 @@ void draw_hof()
 	jo_font_printf(game_black_font, center_x_coord+36-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[2]]);
 	jo_font_printf(game_white_font, center_x_coord + 36, 116, 0.99f, "%c", hof_chars[hof_char_indexes[2]]);		
 	jo_sprite_draw3D2(check_sprite_id, center_x_coord + 52, 122, TEXT_ZINDEX);
-	if (hof_selected_index == 0) jo_sprite_draw3D2(select_sprite_id, center_x_coord, 142, TEXT_ZINDEX);
-	if (hof_selected_index == 1) jo_sprite_draw3D2(select_sprite_id, center_x_coord + 18, 142, TEXT_ZINDEX);
-	if (hof_selected_index == 2) jo_sprite_draw3D2(select_sprite_id, center_x_coord + 36, 142, TEXT_ZINDEX);
-	if (hof_selected_index == 3) jo_sprite_draw3D2(select_sprite_id, center_x_coord + 54, 142, TEXT_ZINDEX);
+	if (hof_selected_index == 0) jo_sprite_draw3D2(select_sprite_id, center_x_coord, 144, TEXT_ZINDEX);
+	if (hof_selected_index == 1) jo_sprite_draw3D2(select_sprite_id, center_x_coord + 18, 144, TEXT_ZINDEX);
+	if (hof_selected_index == 2) jo_sprite_draw3D2(select_sprite_id, center_x_coord + 36, 144, TEXT_ZINDEX);
+	if (hof_selected_index == 3) jo_sprite_draw3D2(select_sprite_id, center_x_coord + 54, 144, TEXT_ZINDEX);
 }
 
 void end_hof()
