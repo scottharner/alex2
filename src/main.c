@@ -714,6 +714,33 @@ input_type get_pad_input_type(mode game_mode, int pad)
 
 				break;
 
+			case MODE_GAME:
+				if (is_paused)
+				{
+					if (pad_input_pressed(pad, INPUT_TYPE_START)) current_pad_input = INPUT_TYPE_START;  
+					else if (pad_input_pressed(pad, INPUT_TYPE_A)) current_pad_input = INPUT_TYPE_A;
+					else if (pad_input_pressed(pad, INPUT_TYPE_C)) current_pad_input = INPUT_TYPE_C;
+					else if (pad_input_pressed(pad, INPUT_TYPE_DOWN)) current_pad_input = INPUT_TYPE_DOWN;
+					else if (pad_input_pressed(pad, INPUT_TYPE_UP)) current_pad_input = INPUT_TYPE_UP;
+				}
+				else
+				{
+					if (pad_input_pressed(pad, INPUT_TYPE_START)) current_pad_input = INPUT_TYPE_START;  
+					else if (pad_input_pressed(pad, INPUT_TYPE_A)) current_pad_input = INPUT_TYPE_A;
+					else if (pad_input_pressed(pad, INPUT_TYPE_C)) current_pad_input = INPUT_TYPE_C;
+					else if (pad_input_pressed(pad, INPUT_TYPE_Z)) current_pad_input = INPUT_TYPE_Z;
+					else if (is_pad_key_pressed(pad, JO_KEY_UP) && is_pad_key_pressed(pad, JO_KEY_LEFT)) current_pad_input = INPUT_TYPE_UP_LEFT;
+					else if (is_pad_key_pressed(pad, JO_KEY_UP) && is_pad_key_pressed(pad, JO_KEY_RIGHT)) current_pad_input = INPUT_TYPE_UP_RIGHT;
+					else if (is_pad_key_pressed(pad, JO_KEY_DOWN) && is_pad_key_pressed(pad, JO_KEY_LEFT)) current_pad_input = INPUT_TYPE_DOWN_LEFT;
+					else if (is_pad_key_pressed(pad, JO_KEY_DOWN) && is_pad_key_pressed(pad, JO_KEY_RIGHT)) current_pad_input = INPUT_TYPE_DOWN_RIGHT;
+					else if (is_pad_key_pressed(pad, JO_KEY_DOWN)) current_pad_input = INPUT_TYPE_DOWN;
+					else if (is_pad_key_pressed(pad, JO_KEY_UP)) current_pad_input = INPUT_TYPE_UP;
+					else if (is_pad_key_pressed(pad, JO_KEY_LEFT)) current_pad_input = INPUT_TYPE_LEFT;
+					else if (is_pad_key_pressed(pad, JO_KEY_RIGHT)) current_pad_input = INPUT_TYPE_RIGHT;
+				}
+
+				break;
+			
 			default:
 
 				if (pad_input_pressed(pad, INPUT_TYPE_START)) current_pad_input = INPUT_TYPE_START;  
@@ -2351,15 +2378,29 @@ void play()
 	}
 	else if (is_paused)
 	{
-		if (current_pad1_input == INPUT_TYPE_START)
+		if ((pausing_pad == 1 && (current_pad1_input == INPUT_TYPE_START || current_pad1_input == INPUT_TYPE_A || current_pad1_input == INPUT_TYPE_C)) || 
+			(pausing_pad == 2 && current_game_type == GAME_TYPE_HVH && (current_pad2_input == INPUT_TYPE_START || current_pad2_input == INPUT_TYPE_A || current_pad2_input == INPUT_TYPE_C)))
 		{
 			is_paused = false;
 			pausing_pad = 0;
+			if (current_pause_option == PAUSE_OPTION_QUIT)
+			{
+				action_counter = 0;
+				current_game_mode = MODE_TITLE;
+			}
 		}
-		else if (current_pad2_input == INPUT_TYPE_START && current_game_type == GAME_TYPE_HVH)
+		else
 		{
-			is_paused = false;
-			pausing_pad = 0;
+			if ((pausing_pad == 1 && (current_pad1_input == INPUT_TYPE_DOWN || current_pad1_input == INPUT_TYPE_DOWN_LEFT || current_pad1_input == INPUT_TYPE_DOWN_RIGHT)) || 
+				(pausing_pad == 2 && (current_pad2_input == INPUT_TYPE_DOWN || current_pad2_input == INPUT_TYPE_DOWN_LEFT || current_pad2_input == INPUT_TYPE_DOWN_RIGHT)) || 
+				(pausing_pad == 1 && (current_pad1_input == INPUT_TYPE_UP || current_pad1_input == INPUT_TYPE_UP_LEFT || current_pad1_input == INPUT_TYPE_UP_RIGHT)) || 
+				(pausing_pad == 2 && (current_pad2_input == INPUT_TYPE_UP || current_pad2_input == INPUT_TYPE_UP_LEFT || current_pad2_input == INPUT_TYPE_UP_RIGHT)))
+			{
+				if (current_pause_option == PAUSE_OPTION_RESUME)
+					current_pause_option = PAUSE_OPTION_QUIT;
+				else
+					current_pause_option = PAUSE_OPTION_RESUME;
+			}
 		}
 	}
 
