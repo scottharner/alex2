@@ -349,6 +349,20 @@ static const char* instructions_lines[INSTRUCTIONS_PAGE_COUNT][INSTRUCTIONS_LINE
 	}
 };
 
+jo_tile     game_blk_tileset[] =
+{
+	{0, 0, 32, 32},
+	{32, 0, 32, 32},
+	{64, 0, 32, 32},
+	{96, 0, 32, 32},
+	{128, 0, 32, 32},
+	{160, 0, 32, 32},
+	{192, 0, 32, 32},
+	{224, 0, 32, 32}
+};
+
+#define GAME_BLK_TILE_COUNT JO_TILE_COUNT(game_blk_tileset)
+
 static int token_sprite_ids[5];
 static int p1_anim_sprite_ids[4];
 static int p2_anim_sprite_ids[4];
@@ -471,14 +485,6 @@ void load_game_sprites()
 		darrow2_sprite_id = jo_sprite_add_tga(NULL, "DARROW2.TGA", JO_COLOR_Black);
 		darrow3_sprite_id = jo_sprite_add_tga(NULL, "DARROW3.TGA", JO_COLOR_Black);
 		darrow4_sprite_id = jo_sprite_add_tga(NULL, "DARROW4.TGA", JO_COLOR_Black);
-		player11_sprite_id = jo_sprite_add_tga(NULL, "PLAYER11.TGA", JO_COLOR_Black);
-		player12_sprite_id = jo_sprite_add_tga(NULL, "PLAYER12.TGA", JO_COLOR_Black);
-		player13_sprite_id = jo_sprite_add_tga(NULL, "PLAYER13.TGA", JO_COLOR_Black);
-		player14_sprite_id = jo_sprite_add_tga(NULL, "PLAYER14.TGA", JO_COLOR_Black);
-		player21_sprite_id = jo_sprite_add_tga(NULL, "PLAYER21.TGA", JO_COLOR_Black);
-		player22_sprite_id = jo_sprite_add_tga(NULL, "PLAYER22.TGA", JO_COLOR_Black);
-		player23_sprite_id = jo_sprite_add_tga(NULL, "PLAYER23.TGA", JO_COLOR_Black);
-		player24_sprite_id = jo_sprite_add_tga(NULL, "PLAYER24.TGA", JO_COLOR_Black);
 		notkn_sprite_id = jo_sprite_add_tga(NULL, "NOTKN.TGA", JO_COLOR_Black);
 		dust000_sprite_id = jo_sprite_add_tga(NULL, "DUST000.TGA", JO_COLOR_White);
 		dust001_sprite_id = jo_sprite_add_tga(NULL, "DUST001.TGA", JO_COLOR_Transparent);
@@ -486,12 +492,16 @@ void load_game_sprites()
 		dust003_sprite_id = jo_sprite_add_tga(NULL, "DUST003.TGA", JO_COLOR_White);
 		dust004_sprite_id = jo_sprite_add_tga(NULL, "DUST004.TGA", JO_COLOR_White);
 		hint_sprite_id = jo_sprite_add_tga(NULL, "HINT.TGA", JO_COLOR_Black);
-		tglup_sprite_id = jo_sprite_add_tga(NULL, "TGLUP.TGA", JO_COLOR_RGB(255,0,255));
-		tgldn_sprite_id = jo_sprite_add_tga(NULL, "TGLDN.TGA", JO_COLOR_RGB(255,0,255));
-		tgluph_sprite_id = jo_sprite_add_tga(NULL, "TGLUPH.TGA", JO_COLOR_RGB(255,0,255));
-		tgldnh_sprite_id = jo_sprite_add_tga(NULL, "TGLDNH.TGA", JO_COLOR_RGB(255,0,255));
 		select_sprite_id = jo_sprite_add_tga(NULL, "SELECT.TGA", JO_COLOR_RGB(255, 0, 255));
 		check_sprite_id = jo_sprite_add_tga(NULL, "CHECK.TGA", JO_COLOR_Transparent);
+		player11_sprite_id = jo_sprite_add_tga_tileset(JO_ROOT_DIR, "GAMEBLK2.TGA", JO_COLOR_Black, game_blk_tileset, GAME_BLK_TILE_COUNT);
+		player12_sprite_id = player11_sprite_id + 1;
+		player13_sprite_id = player11_sprite_id + 2;
+		player14_sprite_id = player11_sprite_id + 3;
+		player21_sprite_id = player11_sprite_id + 4;
+		player22_sprite_id = player11_sprite_id + 5;
+		player23_sprite_id = player11_sprite_id + 6;
+		player24_sprite_id = player11_sprite_id + 7;
 		game_sprites_loaded = true;
 
 		token_sprite_ids[0] = emptytkn_sprite_id;
