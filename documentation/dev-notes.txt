@@ -48,8 +48,6 @@ general
 
 todo
 ----
-- cleanup black font
-- make opening animation ending smoother
 - improve load times?
 - put input methods into separate file
 - move instructions text to separate file

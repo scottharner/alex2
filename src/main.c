@@ -74,6 +74,7 @@
 #define HOF_CHARS_COUNT 28
 #define MAX_COOLDOWN_COUNT 20
 #define FADE_INTERVAL 3
+#define BAD_SCALES_COUNT 19
 
 Thisc *hisc;						// a hiscore table
 Ttoken board[8][8];					// the board
@@ -192,6 +193,9 @@ static bool is_showing_text = false;
 static int showing_text_counter = 0;
 static byte pausing_pad;
 static bool is_paused = false;
+static float intro_graphic_scale_y = 0.0f;
+
+static const float bad_scales[BAD_SCALES_COUNT] = {0.04f, 0.14f, 0.20f, 0.25f, 0.29f, 0.34f, 0.39f, 0.44f, 0.49f, 0.54f, 0.59f, 0.64f, 0.69f, 0.74f, 0.79f, 0.84f, 0.89f, 0.94f, 0.99f};
 
 static const char hof_chars[] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','.',' ',};
 
@@ -2512,15 +2516,38 @@ static void process_intro_graphic_fade()
 	}
 }
 
+bool bad_scales_contains(float target) 
+{
+    for (int i = 0; i < BAD_SCALES_COUNT; i++) {
+		if (JO_FABS(bad_scales[i] - target) < 0.01f) {
+			return true; // Element found
+        }
+    }
+    return false; // Element not found
+}
+
 static void process_intro_graphic_scale()
 {
-	float scale_y = (float)(action_counter << 1)/240.0f;
-	jo_sprite_change_sprite_scale_xy(1.0f, scale_y);
+	if (action_counter <=1)
+		intro_graphic_scale_y = 0.0f;
+
+	if (action_counter % 2 == 0)
+	{
+		intro_graphic_scale_y += 0.01f;
+
+		while(bad_scales_contains(intro_graphic_scale_y))
+			intro_graphic_scale_y += 0.01f;
+	}
+
+	if (intro_graphic_scale_y > 1.0f)
+		intro_graphic_scale_y = 1.0f;
+
+	jo_sprite_change_sprite_scale_xy(1.0f, intro_graphic_scale_y);
 	// it seems that draw3d2 uses centered coords only when scaling is applied!
-	jo_sprite_draw3D2(shlogo_sprite_id, 0, 0 - (action_counter/20), BACKGROUND_ZINDEX);
+	jo_sprite_draw3D2(shlogo_sprite_id, 0, 0, BACKGROUND_ZINDEX);
 	jo_sprite_restore_sprite_scale();
 
-	if (action_counter == INTRO_SCALE_GRAPHIC_TIME)
+	if (intro_graphic_scale_y == 1.0f)
 	{
 		action_counter = 0;
 		intro_graphic_scaled = true;
