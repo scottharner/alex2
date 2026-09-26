@@ -195,6 +195,7 @@ static byte pausing_pad;
 static bool is_paused = false;
 static float intro_graphic_scale_y = 0.0f;
 
+// im having problems with the jo engine scaling calls warping the graphic and am using a work-around of skipping known bad values
 static const float bad_scales[BAD_SCALES_COUNT] = {0.04f, 0.14f, 0.20f, 0.25f, 0.29f, 0.34f, 0.39f, 0.44f, 0.49f, 0.54f, 0.59f, 0.64f, 0.69f, 0.74f, 0.79f, 0.84f, 0.89f, 0.94f, 0.99f};
 
 static const char hof_chars[] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','.',' ',};
