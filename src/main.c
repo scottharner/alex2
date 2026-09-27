@@ -2542,13 +2542,10 @@ static void process_intro_graphic_scale()
 	if (action_counter <=1)
 		intro_graphic_scale_y = 0.0f;
 
-	if (action_counter % 2 == 0)
-	{
-		intro_graphic_scale_y += 0.01f;
+	intro_graphic_scale_y += 0.01f;
 
-		while(bad_scales_contains(intro_graphic_scale_y))
-			intro_graphic_scale_y += 0.01f;
-	}
+	while(bad_scales_contains(intro_graphic_scale_y))
+		intro_graphic_scale_y += 0.01f;
 
 	if (intro_graphic_scale_y > 1.0f)
 		intro_graphic_scale_y = 1.0f;

@@ -35,6 +35,9 @@ saturn
   - if we want to go white to normal it would be 255 to 0
 - there is no shutdown call for jo engine
 - it sounds like i should only worry about freeing memory if it is something that wont be used further in the game
+- i had very limited success with jo_sprite_add_tga_tileset
+  - it seems i can only load one tileset at a time
+  - it also seems that i cannot very the sprite size within
 
 general
 -------
@@ -48,7 +51,6 @@ general
 
 todo
 ----
-- improve load times?
 - put input methods into separate file
 - move instructions text to separate file
 - build up ss utils file
