@@ -358,14 +358,7 @@ jo_tile     game_blk_tileset[] =
 	{128, 0, 32, 32},
 	{160, 0, 32, 32},
 	{192, 0, 32, 32},
-	{224, 0, 32, 32},
-	{256, 0, 24, 24},
-	{280, 0, 24, 24},
-	{304, 0, 24, 24},
-	{328, 0, 24, 24},
-	{352, 0, 24, 24},
-	{376, 0, 24, 24},
-	{400, 0, 24, 24}
+	{224, 0, 32, 32}
 };
 
 #define GAME_BLK_TILE_COUNT JO_TILE_COUNT(game_blk_tileset)
@@ -476,6 +469,11 @@ void load_game_sprites()
 {
 	if (!game_sprites_loaded)
 	{
+		emptytkn_sprite_id = jo_sprite_add_tga(NULL, "EMPTYTKN.TGA", JO_COLOR_Black);
+		greentkn_sprite_id = jo_sprite_add_tga(NULL, "GREENTKN.TGA", JO_COLOR_Transparent);
+		bluetkn_sprite_id = jo_sprite_add_tga(NULL, "BLUETKN.TGA", JO_COLOR_Transparent);
+		multitkn_sprite_id = jo_sprite_add_tga(NULL, "MULTITKN.TGA", JO_COLOR_Black);
+		deadtkn_sprite_id = jo_sprite_add_tga(NULL, "DEADTKN.TGA", JO_COLOR_Black);
 		board_sprite_id = jo_sprite_add_tga(NULL, "BOARD.TGA", JO_COLOR_Transparent);
 		p1status_sprite_id = jo_sprite_add_tga(NULL, "P1STATUS.TGA", JO_COLOR_Transparent);
 		p2status_sprite_id = jo_sprite_add_tga(NULL, "P2STATUS.TGA", JO_COLOR_Transparent);
@@ -487,14 +485,16 @@ void load_game_sprites()
 		darrow2_sprite_id = jo_sprite_add_tga(NULL, "DARROW2.TGA", JO_COLOR_Black);
 		darrow3_sprite_id = jo_sprite_add_tga(NULL, "DARROW3.TGA", JO_COLOR_Black);
 		darrow4_sprite_id = jo_sprite_add_tga(NULL, "DARROW4.TGA", JO_COLOR_Black);
+		notkn_sprite_id = jo_sprite_add_tga(NULL, "NOTKN.TGA", JO_COLOR_Black);
 		dust000_sprite_id = jo_sprite_add_tga(NULL, "DUST000.TGA", JO_COLOR_White);
 		dust001_sprite_id = jo_sprite_add_tga(NULL, "DUST001.TGA", JO_COLOR_Transparent);
 		dust002_sprite_id = jo_sprite_add_tga(NULL, "DUST002.TGA", JO_COLOR_Transparent);
 		dust003_sprite_id = jo_sprite_add_tga(NULL, "DUST003.TGA", JO_COLOR_White);
 		dust004_sprite_id = jo_sprite_add_tga(NULL, "DUST004.TGA", JO_COLOR_White);
+		hint_sprite_id = jo_sprite_add_tga(NULL, "HINT.TGA", JO_COLOR_Black);
 		select_sprite_id = jo_sprite_add_tga(NULL, "SELECT.TGA", JO_COLOR_RGB(255, 0, 255));
 		check_sprite_id = jo_sprite_add_tga(NULL, "CHECK.TGA", JO_COLOR_Transparent);
-		player11_sprite_id = jo_sprite_add_tga_tileset(JO_ROOT_DIR, "GAMEBLK.TGA", JO_COLOR_Black, game_blk_tileset, GAME_BLK_TILE_COUNT);
+		player11_sprite_id = jo_sprite_add_tga_tileset(JO_ROOT_DIR, "GAMEBLK2.TGA", JO_COLOR_Black, game_blk_tileset, GAME_BLK_TILE_COUNT);
 		player12_sprite_id = player11_sprite_id + 1;
 		player13_sprite_id = player11_sprite_id + 2;
 		player14_sprite_id = player11_sprite_id + 3;
@@ -502,13 +502,6 @@ void load_game_sprites()
 		player22_sprite_id = player11_sprite_id + 5;
 		player23_sprite_id = player11_sprite_id + 6;
 		player24_sprite_id = player11_sprite_id + 7;
-		deadtkn_sprite_id = player11_sprite_id + 8;
-		emptytkn_sprite_id = player11_sprite_id + 9;
-		greentkn_sprite_id = player11_sprite_id + 10;
-		hint_sprite_id = player11_sprite_id + 11;
-		multitkn_sprite_id = player11_sprite_id + 12;
-		notkn_sprite_id = player11_sprite_id + 13;
-		bluetkn_sprite_id = player11_sprite_id + 14;
 		game_sprites_loaded = true;
 
 		token_sprite_ids[0] = emptytkn_sprite_id;
