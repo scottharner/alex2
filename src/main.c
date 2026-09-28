@@ -381,7 +381,8 @@ jo_tile     tile_tileset[] =
 	{72, 0, 24, 24},
 	{96, 0, 24, 24},
 	{120, 0, 24, 24},
-	{144, 0, 24, 24}
+	{144, 0, 24, 24},
+	{168, 0, 24, 24}
 };
 
 jo_tile     donkey_tileset[] =
@@ -525,7 +526,6 @@ void load_game_sprites()
 		p1status_sprite_id = jo_sprite_add_tga(NULL, "P1STATUS.TGA", JO_COLOR_Transparent);
 		p2status_sprite_id = jo_sprite_add_tga(NULL, "P2STATUS.TGA", JO_COLOR_Transparent);
 		select_sprite_id = jo_sprite_add_tga(NULL, "SELECT.TGA", JO_COLOR_RGB(255, 0, 255));
-		check_sprite_id = jo_sprite_add_tga(NULL, "CHECK.TGA", JO_COLOR_Transparent);
 		player11_sprite_id = jo_sprite_add_tga_tileset(JO_ROOT_DIR, "PLYRSET.TGA", JO_COLOR_Black, player_tileset, PLAYER_TILE_COUNT);
 		player12_sprite_id = player11_sprite_id + 1;
 		player13_sprite_id = player11_sprite_id + 2;
@@ -549,6 +549,7 @@ void load_game_sprites()
 		hint_sprite_id = bluetkn_sprite_id + 4;
 		multitkn_sprite_id = bluetkn_sprite_id + 5;
 		notkn_sprite_id = bluetkn_sprite_id + 6;
+		check_sprite_id = bluetkn_sprite_id + 7;
 		dust000_sprite_id = jo_sprite_add_tga_tileset(JO_ROOT_DIR, "DSTSET.TGA", JO_COLOR_Transparent, dust_tileset, DUST_TILE_COUNT);
 		dust001_sprite_id = dust000_sprite_id + 1;
 		dust002_sprite_id = dust000_sprite_id + 2;
