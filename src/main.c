@@ -392,10 +392,20 @@ jo_tile     donkey_tileset[] =
 	{144, 0, 48, 48}
 };
 
+jo_tile     dust_tileset[] =
+{
+	{0, 0, 8, 8},
+	{8, 0, 8, 8},
+	{16, 0, 8, 8},
+	{24, 0, 8, 8},
+	{32, 0, 8, 8}
+};
+
 #define PLAYER_TILE_COUNT JO_TILE_COUNT(player_tileset)
 #define ARROW_TILE_COUNT JO_TILE_COUNT(arrow_tileset)
 #define TILE_TILE_COUNT JO_TILE_COUNT(tile_tileset)
 #define DONKEY_TILE_COUNT JO_TILE_COUNT(donkey_tileset)
+#define DUST_TILE_COUNT JO_TILE_COUNT(dust_tileset)
 
 static int token_sprite_ids[5];
 static int p1_anim_sprite_ids[4];
@@ -506,11 +516,6 @@ void load_game_sprites()
 		board_sprite_id = jo_sprite_add_tga(NULL, "BOARD.TGA", JO_COLOR_Transparent);
 		p1status_sprite_id = jo_sprite_add_tga(NULL, "P1STATUS.TGA", JO_COLOR_Transparent);
 		p2status_sprite_id = jo_sprite_add_tga(NULL, "P2STATUS.TGA", JO_COLOR_Transparent);
-		dust000_sprite_id = jo_sprite_add_tga(NULL, "DUST000.TGA", JO_COLOR_White);
-		dust001_sprite_id = jo_sprite_add_tga(NULL, "DUST001.TGA", JO_COLOR_Transparent);
-		dust002_sprite_id = jo_sprite_add_tga(NULL, "DUST002.TGA", JO_COLOR_Transparent);
-		dust003_sprite_id = jo_sprite_add_tga(NULL, "DUST003.TGA", JO_COLOR_White);
-		dust004_sprite_id = jo_sprite_add_tga(NULL, "DUST004.TGA", JO_COLOR_White);
 		select_sprite_id = jo_sprite_add_tga(NULL, "SELECT.TGA", JO_COLOR_RGB(255, 0, 255));
 		check_sprite_id = jo_sprite_add_tga(NULL, "CHECK.TGA", JO_COLOR_Transparent);
 		player11_sprite_id = jo_sprite_add_tga_tileset(JO_ROOT_DIR, "PLYRSET.TGA", JO_COLOR_Black, player_tileset, PLAYER_TILE_COUNT);
@@ -536,6 +541,11 @@ void load_game_sprites()
 		hint_sprite_id = bluetkn_sprite_id + 4;
 		multitkn_sprite_id = bluetkn_sprite_id + 5;
 		notkn_sprite_id = bluetkn_sprite_id + 6;
+		dust000_sprite_id = jo_sprite_add_tga_tileset(JO_ROOT_DIR, "DSTSET.TGA", JO_COLOR_Transparent, dust_tileset, DUST_TILE_COUNT);
+		dust001_sprite_id = dust000_sprite_id + 1;
+		dust002_sprite_id = dust000_sprite_id + 2;
+		dust003_sprite_id = dust000_sprite_id + 3;
+		dust004_sprite_id = dust000_sprite_id + 4;
 		game_sprites_loaded = true;
 
 		token_sprite_ids[0] = emptytkn_sprite_id;
