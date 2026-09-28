@@ -401,11 +401,19 @@ jo_tile     dust_tileset[] =
 	{32, 0, 8, 8}
 };
 
+jo_tile		title_tileset[] = 
+{
+	{0, 0, 16, 16},
+	{16, 0, 16, 16},
+	{32, 0, 16, 16}
+};
+
 #define PLAYER_TILE_COUNT JO_TILE_COUNT(player_tileset)
 #define ARROW_TILE_COUNT JO_TILE_COUNT(arrow_tileset)
 #define TILE_TILE_COUNT JO_TILE_COUNT(tile_tileset)
 #define DONKEY_TILE_COUNT JO_TILE_COUNT(donkey_tileset)
 #define DUST_TILE_COUNT JO_TILE_COUNT(dust_tileset)
+#define TITLE_TILE_COUNT JO_TILE_COUNT(title_tileset)
 
 static int token_sprite_ids[5];
 static int p1_anim_sprite_ids[4];
@@ -494,14 +502,14 @@ void load_title_sprites()
 	title_sprite_id = jo_sprite_add_tga(NULL, "TITLE.TGA", JO_COLOR_Transparent);
 	aa2_sprite_id = jo_sprite_add_tga(NULL, "AA2.TGA", JO_COLOR_Black);
 	aalogo_sprite_id = jo_sprite_add_tga(NULL, "AALOGO.TGA", JO_COLOR_RGB(255,0,255));
-	vol1_sprite_id = jo_sprite_add_tga(NULL, "VOL1.TGA", JO_COLOR_Black);
-	vol2_sprite_id = jo_sprite_add_tga(NULL, "VOL2.TGA", JO_COLOR_Black);
 	vol3_sprite_id = jo_sprite_add_tga(NULL, "VOL3.TGA", JO_COLOR_Black);
-	pointer_sprite_id = jo_sprite_add_tga(NULL, "POINTER.TGA", JO_COLOR_Black);
 	donkey1_sprite_id = jo_sprite_add_tga_tileset(JO_ROOT_DIR, "DKYSET.TGA", JO_COLOR_Black, donkey_tileset, DONKEY_TILE_COUNT);
 	donkey2_sprite_id = donkey1_sprite_id + 1;
 	donkey3_sprite_id = donkey1_sprite_id + 2;
 	donkey4_sprite_id = donkey1_sprite_id + 3;
+	pointer_sprite_id = jo_sprite_add_tga_tileset(JO_ROOT_DIR, "TTLSET.TGA", JO_COLOR_Black, title_tileset, TITLE_TILE_COUNT);
+	vol1_sprite_id = pointer_sprite_id + 1;
+	vol2_sprite_id = pointer_sprite_id + 2;
 
 	donkey_sprite_ids[0] = donkey1_sprite_id;
 	donkey_sprite_ids[1] = donkey2_sprite_id;
