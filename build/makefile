@@ -23,7 +23,9 @@ JO_COMPILE_USING_SGL = 1
 SRCS = \
     ../src/main.c \
 	../src/pcmsys.c \
-	../src/hisc.c
+	../src/hisc.c \
+	../src/utils.c \
+	../src/input.c
 
 #
 # Adjust these paths for your installation

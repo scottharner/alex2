@@ -51,12 +51,6 @@ general
 
 todo
 ----
-- loading time tilesets
-  - add check to tileset.tga
-  - make a tileset with pointer, select, vol1, vol2
-- put input methods into separate file
-- move instructions text to separate file
-- build up ss utils file
 - enable all hint logic (hint method and play game method)
 - remove unneeded commented code
 - screenshots

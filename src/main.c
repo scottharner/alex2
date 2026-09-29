@@ -29,6 +29,8 @@
 #include <jo/jo.h>
 #include "main.h"
 #include "hisc.h"
+#include "input.h"
+#include "utils.h"
 #include "pcmsys.h"
 
 /*
@@ -423,11 +425,6 @@ static int hof_char_indexes[3];
 static int dust_sprite_ids[5];
 static int donkey_sprite_ids[4];
 
-// track button changes for better title menu input handling
-static bool current_pad1_input_states[INPUT_TYPE_COUNT];
-static bool previous_pad1_input_states[INPUT_TYPE_COUNT];
-static bool current_pad2_input_states[INPUT_TYPE_COUNT];
-static bool previous_pad2_input_states[INPUT_TYPE_COUNT];
 static bool is_pad2_available = false;
 
 void reset_scores(Thisc *table) {
@@ -442,12 +439,6 @@ void reset_scores(Thisc *table) {
 	strcpy(table[7].name, "ORDER NOW AT");
 	strcpy(table[8].name, "1-800-SPAM-R-US");
 	strcpy(table[9].name, "WE TAKE VISA.");
-}
-
-int get_random(int max)
-{
-    if (max <= 0) return 0;
-    return (jo_random(max)); // jo_random requires passing parm so we cant use modulo
 }
 
 void load_sound_config() 
@@ -595,12 +586,6 @@ void reset_game()
 	load_action = load_pregame_assets;
 }
 
-// some of the logic was written to work with allegro binary angles but we need radian angles for jo engine
-jo_fixed get_radian_angle(jo_fixed binary_angle)
-{
-    return binary_angle * ((2 * JO_PI) / 256);
-}
-
 void init() 
 {
 	jo_core_init(JO_COLOR_Black);
@@ -618,128 +603,6 @@ void init()
 	load_sound_config();
 
 	reset_game();
-}
-
-// check if input was newly pressed
-bool pad_input_pressed(int pad, input_type candidate_input)
-{
-    switch (pad)
-	{
-		case 2:
-			return current_pad2_input_states[candidate_input] && !previous_pad2_input_states[candidate_input];
-
-			break;
-
-		default:
-			return current_pad1_input_states[candidate_input] && !previous_pad1_input_states[candidate_input];
-		
-			break;
-	}
-}
-
-void reset_pad_input_states(int pad)
-{
-    switch (pad)
-	{
-		case 2:
-			for (int i = 0; i < INPUT_TYPE_COUNT; i++)
-			{
-				previous_pad2_input_states[i] = false;
-				current_pad2_input_states[i] = false;
-			}
-
-			break;
-
-		default:
-			for (int i = 0; i < INPUT_TYPE_COUNT; i++)
-			{
-				previous_pad1_input_states[i] = false;
-				current_pad1_input_states[i] = false;
-			}
-
-			break;
-	}
-}
-
-void save_previous_pad_inputstates(int pad)
-{
-    // save previous state
-	switch (pad)
-	{
-		case 2: 
-			for (int i = 0; i < INPUT_TYPE_COUNT; i++)
-				previous_pad2_input_states[i] = current_pad2_input_states[i];
-
-			break;
-
-		default:
-			for (int i = 0; i < INPUT_TYPE_COUNT; i++)
-				previous_pad1_input_states[i] = current_pad1_input_states[i];
-
-			break;
-	}
-}
-
-// track all current and previous input states so we can check on input presses
-static void update_pad_input_states(int pad)
-{
-    save_previous_pad_inputstates(pad);
-
-    // read current state
-    switch (pad)
-	{
-		case 2:
-			current_pad2_input_states[INPUT_TYPE_UP] = jo_is_input_key_pressed(6, JO_KEY_UP);
-			current_pad2_input_states[INPUT_TYPE_DOWN] = jo_is_input_key_pressed(6,JO_KEY_DOWN);
-			current_pad2_input_states[INPUT_TYPE_LEFT] = jo_is_input_key_pressed(6,JO_KEY_LEFT);
-			current_pad2_input_states[INPUT_TYPE_RIGHT] = jo_is_input_key_pressed(6,JO_KEY_RIGHT);
-			current_pad2_input_states[INPUT_TYPE_START] = jo_is_input_key_pressed(6,JO_KEY_START);    
-			current_pad2_input_states[INPUT_TYPE_A] = jo_is_input_key_pressed(6,JO_KEY_A);
-			current_pad2_input_states[INPUT_TYPE_C] = jo_is_input_key_pressed(6,JO_KEY_C);
-			current_pad2_input_states[INPUT_TYPE_Z] = jo_is_input_key_pressed(6,JO_KEY_Z);
-
-			break;
-
-		default:
-			current_pad1_input_states[INPUT_TYPE_UP] = jo_is_pad1_key_pressed(JO_KEY_UP);
-			current_pad1_input_states[INPUT_TYPE_DOWN] = jo_is_pad1_key_pressed(JO_KEY_DOWN);
-			current_pad1_input_states[INPUT_TYPE_LEFT] = jo_is_pad1_key_pressed(JO_KEY_LEFT);
-			current_pad1_input_states[INPUT_TYPE_RIGHT] = jo_is_pad1_key_pressed(JO_KEY_RIGHT);
-			current_pad1_input_states[INPUT_TYPE_START] = jo_is_pad1_key_pressed(JO_KEY_START);    
-			current_pad1_input_states[INPUT_TYPE_A] = jo_is_pad1_key_pressed(JO_KEY_A);
-			current_pad1_input_states[INPUT_TYPE_C] = jo_is_pad1_key_pressed(JO_KEY_C);
-			current_pad1_input_states[INPUT_TYPE_Z] = jo_is_pad1_key_pressed(JO_KEY_Z);
-
-			break;
-	}
-}
-
-bool is_pad_key_pressed(int pad, int key)
-{
-	switch(pad)
-	{
-		case 2:
-			return jo_is_input_key_pressed(6,key);
-			break;
-
-		default:
-			return jo_is_pad1_key_pressed(key);
-			break;
-	}
-}
-
-bool is_pad_available(int pad)
-{
-	switch (pad)
-	{
-		case 2:
-			return jo_is_input_available(6); // seems that port 1 is 0-5 and port 2 is probably 6-11
-			break;
-
-		default:
-			return jo_is_pad1_available();
-			break;
-	}
 }
 
 // retrieve the input type from the user
@@ -2439,8 +2302,6 @@ void play()
 				}
 			}
 		}
-
-// 		if (key[KEY_ESC]) done = confirm("Really quit? (Y/N)");
 	}
 	else if (is_paused)
 	{
@@ -2537,19 +2398,6 @@ void play()
 			}
 		}
 	}
-}
-
-static void draw_tile(int x, int y, int sprite_id, int z, int angle)
-{
-    if (angle == 0)
-        jo_sprite_draw3D2(sprite_id, x, y, z);
-    else
-        jo_sprite_draw3D_and_rotate2(sprite_id, x, y, z, angle);
-
-#if JO_DEBUG
-    jo_printf_with_color(0, 0, JO_COLOR_INDEX_White, "tile x: %d", x);
-    jo_printf_with_color(0, 1, JO_COLOR_INDEX_White, "tile y: %d", y);
-#endif
 }
 
 static void process_intro_graphic_fade()

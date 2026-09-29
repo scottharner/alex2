@@ -3,14 +3,14 @@
  * 2001 (c) Johan Peitz 
  */
 
-//#include "allegro.h"
 #include "hisc.h"
 #include <jo/jo.h>
 
 // /*
 //  *  Creates a table to work with
 //  */
-Thisc* make_table() {
+Thisc* make_table() 
+{
 	Thisc *tmp;
 
 	tmp = jo_malloc(MAX_SCORES*sizeof(Thisc));
@@ -72,7 +72,8 @@ void enter_table(Thisc *table, Thisc post)
 // /* 
 //  * Resets the table to the values specified
 //  */
-void reset_table(Thisc *table, char *name, int hi, int lo) {
+void reset_table(Thisc *table, char *name, int hi, int lo) 
+{
 	int i;
 	int d = (hi-lo)/MAX_SCORES;
 	int acc = hi;
@@ -83,28 +84,3 @@ void reset_table(Thisc *table, char *name, int hi, int lo) {
 		acc-=d;
 	}
 }
-
-// /* 
-//  * Loads table from disk, returns 1 on success
-//  */
-// int loadTable(Thisc *table, char *fname) {
-// 	PACKFILE *fp;
-
-// 	fp = pack_fopen(fname, "rp");
-// 	if (!fp) return 0;
-// 	pack_fread(table, MAX_SCORES*sizeof(Thisc), fp);
-// 	pack_fclose(fp);
-// 	return 1;
-// }
-
-// /* 
-//  * Saves table to disk
-//  */
-// void saveTable(Thisc *table, char *fname) {
-// 	PACKFILE *fp;
-
-// 	fp = pack_fopen(fname, "wp");
-// 	pack_fwrite(table, MAX_SCORES*sizeof(Thisc), fp);
-// 	pack_fclose(fp);
-// }
-

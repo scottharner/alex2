@@ -76,24 +76,6 @@ typedef enum
 	GAME_TYPE_HVH
 }game_type;
 
-typedef enum
-{
-	INPUT_TYPE_NOTHING = 0, 
-	INPUT_TYPE_LEFT, 
-	INPUT_TYPE_RIGHT, 
-	INPUT_TYPE_UP, 
-	INPUT_TYPE_DOWN, 
-	INPUT_TYPE_START, 
-	INPUT_TYPE_UP_LEFT, 
-	INPUT_TYPE_UP_RIGHT, 
-	INPUT_TYPE_DOWN_LEFT, 
-	INPUT_TYPE_DOWN_RIGHT, 
-	INPUT_TYPE_A,
-	INPUT_TYPE_C,
-	INPUT_TYPE_Z,
-	INPUT_TYPE_COUNT
-}input_type;
-
 Ttoken empty_square = { 0,		  	  0, 0 };
 Ttoken green_token  = { GREENTOKEN,   10, 0 };
 Ttoken blue_token   = { BLUETOKEN,	 10, 0 };
