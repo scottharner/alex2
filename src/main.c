@@ -217,11 +217,11 @@ static const char* credits_text[] =
 	"GAME ENGINEER - JOHAN PEITZ",
     "PORT ENGINEER - SCOTT HARNER",
     "QA TESTER - EVAN HARNER",
+    "QA TESTER - LOGAN HARNER",
     "AUDIO DRIVER ENGINEER - PONUT64",
     "ADVISOR - HASSMASCHINE",
     "ADVISOR - TREKKIESUNITE118",
     "ADVISOR - REYEME",
-	"",
 	"",
 	"POWERED BY - JO ENGINE"
 };
@@ -1952,72 +1952,81 @@ int get_hint(int player, int recurse)
 
 	hint = 60;
 
-// 	// check for good slide moves
-// 	for(x=0;x<8;x++) {
-// 		if (x!=locked_row) {
-// 			rotate_row(x,0);  // right slide
-// 			tmp_score = check_board_score(); 	// check possible score
-// 			tmp_score += loser_warning(player,tmp_score);   // add win warnings
-// 			rotate_row(x,1);	// reset board
-// 			if (tmp_score<0) { crisis=2; cx=x; cy=2; }
-// 			if (tmp_score > best_score) {
-// 				hint_x = 8;
-// 				hint_y = x;
-// 				best_score = tmp_score;
-// 				move = 1;
-// 				if (best_score>=100000) return 100000;
-// 			}
-// 			rotate_row(x,1); // left slide
-// 			tmp_score = check_board_score(); 	// check possible score
-// 			tmp_score += loser_warning(player,tmp_score);   // add win warnings
-// 			rotate_row(x,0);	// reset board
-// 			if (tmp_score<0) { crisis=2; cx=x; cy=4; }
-// 			if (tmp_score > best_score) {
-// 				hint_x = -1;
-// 				hint_y = x;
-// 				best_score = tmp_score;
-// 				move = 1;
-// 				if (best_score>=100000) return 100000;
-// 			}
-// 		}
-// 		if (x!=locked_col) {
-// 			rotate_column(x,0); // down slide
-// 			tmp_score = check_board_score(); 	// check possible score
-// 			tmp_score += loser_warning(player,tmp_score);   // add win warnings
-// 			rotate_column(x,1);	// reset board
-// 			if (tmp_score<0) { crisis=2; cx=x; cy=3; }
-// 			if (tmp_score > best_score) {
-// 				hint_x = x;
-// 				hint_y = 8;
-// 				best_score = tmp_score;
-// 				move = 1;
-// 				if (best_score>=100000) return 100000;
-// 			}
-// 			rotate_column(x,1);  // up slide
-// 			tmp_score = check_board_score(); 	// check possible score
-// 			tmp_score += loser_warning(player,tmp_score);   // add win warnings
-// 			rotate_column(x,0);	// reset board
-// 			if (tmp_score<0) { crisis=2; cx=x; cy=1; }
-// 			if (tmp_score > best_score) {
-// 				hint_x = x;
-// 				hint_y = -1;
-// 				best_score = tmp_score;
-// 				move = 1;
-// 				if (best_score>=100000) return 100000;
-// 			}
-// 		}
-// 	}
+	// check for good slide moves
+	for(x=0;x<8;x++) 
+	{
+		if (x!=locked_row) 
+		{
+			rotate_row(x,0);  // right slide
+			tmp_score = check_board_score(); 	// check possible score
+			tmp_score += loser_warning(player,tmp_score);   // add win warnings
+			rotate_row(x,1);	// reset board
+			if (tmp_score<0) { crisis=2; cx=x; cy=2; }
+			if (tmp_score > best_score) 
+			{
+				hint_x = 8;
+				hint_y = x;
+				best_score = tmp_score;
+				move = 1;
+				if (best_score>=100000) return 100000;
+			}
+			rotate_row(x,1); // left slide
+			tmp_score = check_board_score(); 	// check possible score
+			tmp_score += loser_warning(player,tmp_score);   // add win warnings
+			rotate_row(x,0);	// reset board
+			if (tmp_score<0) { crisis=2; cx=x; cy=4; }
+			if (tmp_score > best_score) 
+			{
+				hint_x = -1;
+				hint_y = x;
+				best_score = tmp_score;
+				move = 1;
+				if (best_score>=100000) return 100000;
+			}
+		}
+		if (x!=locked_col) 
+		{
+			rotate_column(x,0); // down slide
+			tmp_score = check_board_score(); 	// check possible score
+			tmp_score += loser_warning(player,tmp_score);   // add win warnings
+			rotate_column(x,1);	// reset board
+			if (tmp_score<0) { crisis=2; cx=x; cy=3; }
+			if (tmp_score > best_score) 
+			{
+				hint_x = x;
+				hint_y = 8;
+				best_score = tmp_score;
+				move = 1;
+				if (best_score>=100000) return 100000;
+			}
+			rotate_column(x,1);  // up slide
+			tmp_score = check_board_score(); 	// check possible score
+			tmp_score += loser_warning(player,tmp_score);   // add win warnings
+			rotate_column(x,0);	// reset board
+			if (tmp_score<0) { crisis=2; cx=x; cy=1; }
+			if (tmp_score > best_score) 
+			{
+				hint_x = x;
+				hint_y = -1;
+				best_score = tmp_score;
+				move = 1;
+				if (best_score>=100000) return 100000;
+			}
+		}
+	}
 
 	// check for good token positions
 	for(x=0;x<8;x++)
 		for(y=0;y<8;y++)
-			if (!board[x][y].token) {
+			if (!board[x][y].token) 
+			{
 				place_token(x,y,player);
 				tmp_score = check_board_score(); 	// check possible score
 				tmp_score += loser_warning(player,tmp_score);   // add win warnings
 				board[x][y] = empty_square;		// remove temporary token
 				if (tmp_score<0) { crisis=1; cx=x; cy=y; }
-				if (tmp_score > best_score) {
+				if (tmp_score > best_score) 
+				{
 					hint_x = x;
 					hint_y = y;
 					best_score = tmp_score;
@@ -2026,68 +2035,78 @@ int get_hint(int player, int recurse)
 				}
 			}
 
-// 	if (best_score==0 && !crisis) { // no good positions where found -> conglomerate
-// 		int numMoves=0;
-// 		for(x=0;x<8;x++)
-// 			for(y=0;y<8;y++)
-// 				if (!board[x][y].token) {  // empty slot, search surroundings
-// 					numMoves++;
-// 					tmp_score = 0;
-// 					for(i=MAX(x-1,0);i<MIN(8,x+2);i++)
-// 						for(j=MAX(y-1,0);j<MIN(8,y+2);j++) 
-// 							tmp_score += (x==i||y==j ? 2 : 1) * s_array[board[i][j].token];
-// 					place_token(x,y,player);
-// 					board[x][y] = empty_square;		// remove temporary token
-// 					if (tmp_score > best_score) {
-// 						hint_x = x;
-// 						hint_y = y;
-// 						best_score = tmp_score;
-// 						move = 3;
-// 						if (best_score>=100000) return 100000;
-// 					}
-// 				}
-// 		if (numMoves==0) crisis=3;
-// 	}
+	if (best_score==0 && !crisis) 
+	{ // no good positions where found -> conglomerate
+		int numMoves=0;
+		for(x=0;x<8;x++)
+			for(y=0;y<8;y++)
+				if (!board[x][y].token) 
+				{  // empty slot, search surroundings
+					numMoves++;
+					tmp_score = 0;
+					for(i=MAX(x-1,0);i<MIN(8,x+2);i++)
+						for(j=MAX(y-1,0);j<MIN(8,y+2);j++) 
+							tmp_score += (x==i||y==j ? 2 : 1) * s_array[board[i][j].token];
+					place_token(x,y,player);
+					board[x][y] = empty_square;		// remove temporary token
+					if (tmp_score > best_score) 
+					{
+						hint_x = x;
+						hint_y = y;
+						best_score = tmp_score;
+						move = 3;
+						if (best_score>=100000) return 100000;
+					}
+				}
+		if (numMoves==0) crisis=3;
+	}
 
 	
-	// // check if opponent can win next turn
-	// if (recurse && !crisis && move>1) {
-	// 	int ox,oy;
-	// 	ox = hint_x;	// backup own move
-	// 	oy = hint_y;  // backup own move
+	// check if opponent can win next turn
+	if (recurse && !crisis && move>1) 
+	{
+		int ox,oy;
+		ox = hint_x;	// backup own move
+		oy = hint_y;  // backup own move
 
-	// 	// do move (place)
-	// 	if (place_token(ox,oy,player)) {			// make move if available
-	// 		i = get_hint((player==1?2:1),0);		// no recurse!!!
-	// 		board[ox][oy] = empty_square;		// remove temporary token
-	// 		if (i < 10000) {					// opponent can't win next time, use own move
-	// 			hint_x = ox;	
-	// 			hint_y = oy;  
-	// 		}	
-	// 		else {  // opponent can win, stop him!
-	// 			crisis = 1;
-	// 		}
-	// 	}
-	// 	else 
-	// 		crisis = 3;   // can't find spot, make random slide
-	// }
+		// do move (place)
+		if (place_token(ox,oy,player)) 
+		{			// make move if available
+			i = get_hint((player==1?2:1),0);		// no recurse!!!
+			board[ox][oy] = empty_square;		// remove temporary token
+			if (i < 10000) 
+			{					// opponent can't win next time, use own move
+				hint_x = ox;	
+				hint_y = oy;  
+			}	
+			else 
+			{  // opponent can win, stop him!
+				crisis = 1;
+			}
+		}
+		else 
+			crisis = 3;   // can't find spot, make random slide
+	}
 
-// 	if (crisis==1) { // opponent can win by placing a token
-// 		get_hint((player==1?2:1),0); // find out where and put it there
-// 	}
-// 	if (crisis==2) {  // opponent can win by sliding -> must slide other way
-// 		if (cy==1) { hint_x = cx; hint_y = 8; }
-// 		if (cy==2) { hint_y = cx; hint_x = -1; }
-// 		if (cy==3) { hint_x = cx; hint_y = -1; }
-// 		if (cy==4) { hint_y = cx; hint_x = 8; }
-// 	}
-// 	if (crisis==3) {  // can't find good slide and board is full -> random slide
-// 		int r = rand()%100;
-// 		if (r>75) {	hint_x = rand()%8; hint_y = 8; }
-// 		else if (r>50) { hint_x = rand()%8; hint_y = -1; }
-// 		else if (r>25) { hint_y = rand()%8; hint_x = -1; }
-// 		else { hint_y = rand()%8; hint_x = 8; }
-// 	}
+	if (crisis==1) 
+	{ // opponent can win by placing a token
+		get_hint((player==1?2:1),0); // find out where and put it there
+	}
+	if (crisis==2) 
+	{  // opponent can win by sliding -> must slide other way
+		if (cy==1) { hint_x = cx; hint_y = 8; }
+		if (cy==2) { hint_y = cx; hint_x = -1; }
+		if (cy==3) { hint_x = cx; hint_y = -1; }
+		if (cy==4) { hint_y = cx; hint_x = 8; }
+	}
+	if (crisis==3) 
+	{  // can't find good slide and board is full -> random slide
+		int r = rand()%100;
+		if (r>75) {	hint_x = rand()%8; hint_y = 8; }
+		else if (r>50) { hint_x = rand()%8; hint_y = -1; }
+		else if (r>25) { hint_y = rand()%8; hint_x = -1; }
+		else { hint_y = rand()%8; hint_x = 8; }
+	}
 
 	// possible temporary fail safe to look for empty location
 	// we were sometimes seeing a hint on top of a block but some code was commented
@@ -2165,7 +2184,8 @@ void play()
 		if (ply[1].anim) ply[1].anim--;
 		if (ply[2].anim) ply[2].anim--;
 
-		if (scrolling) if (--scrolling==0) {
+		if (scrolling) if (--scrolling==0) 
+		{
 			playing=1;
 			check_board(player);
 			player = (player==1?2:1); // next player
@@ -2180,13 +2200,17 @@ void play()
 				check_board(player);
 				player = (player==1?2:1); // next player
 				token_count++;
-				if (token_count==10) {
+				if (token_count==10) 
+				{
 					token_count=0;
-					if (stone_count<10) {
-						if (!anim_place_token(get_random(8)-1,get_random(8)-1,4)) {  // can't place stone, try next time
+					if (stone_count<10) 
+					{
+						if (!anim_place_token(get_random(8)-1,get_random(8)-1,4)) 
+						{  // can't place stone, try next time
 							token_count = 9;
 						} 
-						else  {// stone placed
+						else  
+						{// stone placed
 							stone_count++;
 							player = (player==1?2:1); // adjust player
 						}
@@ -2211,13 +2235,15 @@ void play()
 		{
 			thinking=0;
 			get_hint(player,3);
-// 			if (hint_x>7 || hint_y>7 || hint_x<0 || hint_y<0) { // slide
-// 				if (hint_x<0) anim_rotate_row(hint_y, 1);
-// 				if (hint_x>7) anim_rotate_row(hint_y, 0);
-// 				if (hint_y<0) anim_rotate_column(hint_x, 1);
-// 				if (hint_y>7) anim_rotate_column(hint_x, 0);
-// 			}
-// 			else { // place
+			if (hint_x>7 || hint_y>7 || hint_x<0 || hint_y<0) 
+			{ // slide
+				if (hint_x<0) anim_rotate_row(hint_y, 1);
+				if (hint_x>7) anim_rotate_row(hint_y, 0);
+				if (hint_y<0) anim_rotate_column(hint_x, 1);
+				if (hint_y>7) anim_rotate_column(hint_x, 0);
+			}
+			else 
+			{ // place
 				if (ply[player].multi) 
 				{  // use multi if available
 					ply[player].multi--;
@@ -2226,7 +2252,7 @@ void play()
 				anim_place_token(hint_x,hint_y,(ply[player].carry?3:player));
 				locked_col = locked_row = -1;
 				ply[player].carry = 0;
-// 			}
+			}
 		}
 
 		if (!is_paused && current_pad1_input == INPUT_TYPE_START)
@@ -2434,8 +2460,10 @@ static void process_intro_graphic_fade()
 
 bool bad_scales_contains(float target) 
 {
-    for (int i = 0; i < BAD_SCALES_COUNT; i++) {
-		if (JO_FABS(bad_scales[i] - target) < 0.01f) {
+    for (int i = 0; i < BAD_SCALES_COUNT; i++) 
+	{
+		if (JO_FABS(bad_scales[i] - target) < 0.01f) 
+		{
 			return true; // Element found
         }
     }
