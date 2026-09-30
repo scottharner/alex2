@@ -51,8 +51,8 @@ general
 
 todo
 ----
-- enable all hint logic (hint method and play game method)
-- remove unneeded commented code
+- pointer on edge of game play
+- bigger slide arrows
 - screenshots
 - output to bin/cue format
 - test on real hardware

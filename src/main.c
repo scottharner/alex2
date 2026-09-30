@@ -2331,8 +2331,14 @@ void play()
 	}
 	else if (is_paused)
 	{
-		if ((pausing_pad == 1 && (current_pad1_input == INPUT_TYPE_START || current_pad1_input == INPUT_TYPE_A || current_pad1_input == INPUT_TYPE_C)) || 
-			(pausing_pad == 2 && current_game_type == GAME_TYPE_HVH && (current_pad2_input == INPUT_TYPE_START || current_pad2_input == INPUT_TYPE_A || current_pad2_input == INPUT_TYPE_C)))
+		if ((pausing_pad == 1 && current_pad1_input == INPUT_TYPE_START) || 
+			(pausing_pad == 2 && current_game_type == GAME_TYPE_HVH && (current_pad2_input == INPUT_TYPE_START)))
+		{
+			is_paused = false;
+			pausing_pad = 0;
+		}
+		else if ((pausing_pad == 1 && (current_pad1_input == INPUT_TYPE_A || current_pad1_input == INPUT_TYPE_C)) || 
+			(pausing_pad == 2 && current_game_type == GAME_TYPE_HVH && (current_pad2_input == INPUT_TYPE_A || current_pad2_input == INPUT_TYPE_C)))
 		{
 			is_paused = false;
 			pausing_pad = 0;
