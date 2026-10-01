@@ -52,7 +52,7 @@ general
 todo
 ----
 - pointer on edge of game play
-- bigger slide arrows
+- disabled font?
 - screenshots
 - output to bin/cue format
 - test on real hardware

@@ -365,14 +365,14 @@ jo_tile     player_tileset[] =
 
 jo_tile     arrow_tileset[] =
 {
-	{0, 0, 16, 16},
-	{16, 0, 16, 16},
-	{32, 0, 16, 16},
-	{48, 0, 16, 16},
-	{64, 0, 16, 16},
-	{80, 0, 16, 16},
-	{96, 0, 16, 16},
-	{112, 0, 16, 16}
+	{0, 0, 24, 24},
+	{24, 0, 24, 24},
+	{48, 0, 24, 24},
+	{72, 0, 24, 24},
+	{96, 0, 24, 24},
+	{120, 0, 24, 24},
+	{144, 0, 24, 24},
+	{168, 0, 24, 24}
 };
 
 jo_tile     tile_tileset[] =
@@ -707,10 +707,10 @@ void make_bg() {
 
 	// draw arrows
 	for(x=0;x<8;x++) {
-		jo_sprite_draw3D2(arrow1_sprite_id, 26+x*24, 6, BACKGROUND_ZINDEX);
-		jo_sprite_draw3D2(arrow3_sprite_id, 26+x*24, 213, BACKGROUND_ZINDEX);
-		jo_sprite_draw3D2(arrow2_sprite_id, 213, 26+x*24, BACKGROUND_ZINDEX);
-		jo_sprite_draw3D2(arrow4_sprite_id, 6, 26+x*24, BACKGROUND_ZINDEX);
+		jo_sprite_draw3D2(arrow1_sprite_id, 21+x*24, 0, BACKGROUND_ZINDEX);
+		jo_sprite_draw3D2(arrow3_sprite_id, 21+x*24, 211, BACKGROUND_ZINDEX);
+		jo_sprite_draw3D2(arrow2_sprite_id, 211, 22+x*24, BACKGROUND_ZINDEX);
+		jo_sprite_draw3D2(arrow4_sprite_id, 0, 22+x*24, BACKGROUND_ZINDEX);
 	}
 }
 
@@ -920,12 +920,12 @@ void draw_game(int show_pointer)
 	// draw arrows - replace if disabled
 	for(x=0;x<8;x++) {
 		if (x == locked_col) {
-			jo_sprite_draw3D2(darrow1_sprite_id, 26+x*24, 6, BACKGROUND_ZINDEX);
-			jo_sprite_draw3D2(darrow3_sprite_id, 26+x*24, 213, BACKGROUND_ZINDEX);
+			jo_sprite_draw3D2(darrow1_sprite_id, 21+x*24, 0, BACKGROUND_ZINDEX);
+			jo_sprite_draw3D2(darrow3_sprite_id, 21+x*24, 211, BACKGROUND_ZINDEX);
 		}
 		if (x == locked_row) {
-			jo_sprite_draw3D2(darrow2_sprite_id, 213, 26+x*24, BACKGROUND_ZINDEX);
-			jo_sprite_draw3D2(darrow4_sprite_id, 6, 26+x*24, BACKGROUND_ZINDEX);
+			jo_sprite_draw3D2(darrow2_sprite_id, 211, 22+x*24, BACKGROUND_ZINDEX);
+			jo_sprite_draw3D2(darrow4_sprite_id, 0, 22+x*24, BACKGROUND_ZINDEX);
 		}
 	}
 
@@ -2299,10 +2299,10 @@ void play()
 						if (!ply[player].carry) 
 							for(x=0;x<8;x++) {
 								int moved = 0;
-								if (mx>27+x*24 && mx<37+x*24 && my>6 && my<16 && locked_col!=x) moved = anim_rotate_column(x, 1);
-								if (mx>27+x*24 && mx<37+x*24 && my>216 && my<226 && locked_col!=x) moved = anim_rotate_column(x, 0);
-								if (mx>6 && mx<16 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 1);
-								if (mx>216 && mx<226 && my>27+x*24 && my<37+x*24 && locked_row!=x) moved = anim_rotate_row(x, 0);
+								if (mx>24+x*24 && mx<40+x*24 && my>4 && my<16 && locked_col!=x) moved = anim_rotate_column(x, 1);
+								if (mx>24+x*24 && mx<40+x*24 && my>215 && my<226 && locked_col!=x) moved = anim_rotate_column(x, 0);
+								if (mx>3 && mx<16 && my>25+x*24 && my<39+x*24 && locked_row!=x) moved = anim_rotate_row(x, 1);
+								if (mx>215 && mx<228 && my>25+x*24 && my<39+x*24 && locked_row!=x) moved = anim_rotate_row(x, 0);
 							}
 
 						// check other (multi)
