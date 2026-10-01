@@ -72,6 +72,7 @@
 #define GAME_FONT_WIDTH 16
 #define GAME_FONT_HEIGHT 32
 #define GAME_FONT_MAPPING "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!\"?=',.()*-/ "
+#define DISABLED_FONT_MAPPING "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define HOF_MAX_INDEX 3
 #define HOF_CHARS_COUNT 28
 #define MAX_COOLDOWN_COUNT 20
@@ -158,6 +159,7 @@ static int fade_brightness;
 static int fade_cooldown;
 static jo_font *game_white_font;
 static jo_font *game_black_font;
+static jo_font *game_disabled_font;
 static int current_intro_text_index = 0;
 static int current_instructions_page_index = 0;
 static bool intro_mode_started = false;
@@ -484,6 +486,9 @@ void load_pregame_assets()
 
 	game_black_font = jo_font_load(NULL, "GAMEBLK.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
 	game_black_font->z_index = TEXT_ZINDEX;
+
+	game_disabled_font = jo_font_load(NULL, "GAMEDSL.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, DISABLED_FONT_MAPPING);
+	game_disabled_font->z_index = TEXT_ZINDEX;
 
 	load_title_sprites();
 	load_intro_sprites(); // load last since we will unload these which frees memory after
@@ -1160,14 +1165,11 @@ void draw_title()
 		jo_font_print(game_white_font, title_menu_x, 144, 0.99f, "HUMAN VS AARON");
 		jo_font_print(game_white_font, title_menu_x, 164, 0.99f, "ALEX VS HUMAN");
 		
-		if (!is_pad2_available)
-			jo_sprite_enable_half_transparency();
-		
 		jo_font_print(game_black_font, title_menu_x-1, 184 + 1, 0.99f, "HUMAN VS HUMAN");
-		jo_font_print(game_white_font, title_menu_x, 184, 0.99f, "HUMAN VS HUMAN");
-		
-		if (!is_pad2_available)
-			jo_sprite_disable_half_transparency();
+		if (is_pad2_available)
+			jo_font_print(game_white_font, title_menu_x, 184, 0.99f, "HUMAN VS HUMAN");
+		else
+			jo_font_print(game_disabled_font, title_menu_x, 184, 0.99f, "HUMAN VS HUMAN");
 	}
 
 	// volume controls
