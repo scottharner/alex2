@@ -144,6 +144,7 @@ static int dust001_sprite_id;
 static int dust002_sprite_id;
 static int dust003_sprite_id;
 static int dust004_sprite_id;
+static int dust005_sprite_id;
 static int donkey1_sprite_id;
 static int donkey2_sprite_id;
 static int donkey3_sprite_id;
@@ -403,7 +404,8 @@ jo_tile     dust_tileset[] =
 	{8, 0, 8, 8},
 	{16, 0, 8, 8},
 	{24, 0, 8, 8},
-	{32, 0, 8, 8}
+	{32, 0, 8, 8},
+	{40, 0, 8, 8}
 };
 
 jo_tile		title_tileset[] = 
@@ -424,7 +426,7 @@ static int token_sprite_ids[5];
 static int p1_anim_sprite_ids[4];
 static int p2_anim_sprite_ids[4];
 static int hof_char_indexes[3];
-static int dust_sprite_ids[5];
+static int dust_sprite_ids[6];
 static int donkey_sprite_ids[4];
 
 static bool is_pad2_available = false;
@@ -551,6 +553,7 @@ void load_game_sprites()
 		dust002_sprite_id = dust000_sprite_id + 2;
 		dust003_sprite_id = dust000_sprite_id + 3;
 		dust004_sprite_id = dust000_sprite_id + 4;
+		dust005_sprite_id = dust000_sprite_id + 5;
 		game_sprites_loaded = true;
 
 		token_sprite_ids[0] = emptytkn_sprite_id;
@@ -574,6 +577,7 @@ void load_game_sprites()
 		dust_sprite_ids[2] = dust002_sprite_id;
 		dust_sprite_ids[3] = dust003_sprite_id;
 		dust_sprite_ids[4] = dust004_sprite_id;
+		dust_sprite_ids[5] = dust005_sprite_id;
 	}
 }
 
@@ -993,35 +997,32 @@ void draw_game(int show_pointer)
 		int mx = pointer1_x;
 		int my = pointer1_y;
 		bool is_player_turn = (player == 1 || (current_game_type == GAME_TYPE_CVH && player == 2));
-		if (!is_player_turn)
-			jo_sprite_enable_half_transparency();
 
 		if (ply[1].carry || 
 			(current_game_type == GAME_TYPE_CVH && ply[2].carry)) // pointer1 is 2nd player in this mode
 			jo_sprite_draw3D2(multitkn_sprite_id, mx-11, my-11, POINTER_ZINDEX);
 
 		jo_sprite_draw3D2(pointer_sprite_id, mx-1, my-1, POINTER_ZINDEX);
-		jo_sprite_draw3D2(current_game_type == GAME_TYPE_CVH ? dust002_sprite_id:dust001_sprite_id, mx+9, my+11, POINTER_ZINDEX);
-
 		if (!is_player_turn)
-			jo_sprite_disable_half_transparency();
+			jo_sprite_draw3D2(dust005_sprite_id, mx+9, my+11, POINTER_ZINDEX);
+		else
+			jo_sprite_draw3D2(current_game_type == GAME_TYPE_CVH ? dust002_sprite_id:dust001_sprite_id, mx+9, my+11, POINTER_ZINDEX);
 
 		if (current_game_type == GAME_TYPE_HVH)
 		{
 			is_player_turn = (player == 2);
 			mx = pointer2_x;
 			my = pointer2_y;
-			if (!is_player_turn)
-				jo_sprite_enable_half_transparency();
 
 			if (ply[2].carry)
 				jo_sprite_draw3D2(multitkn_sprite_id, mx-11, my-11, POINTER_ZINDEX);
 
 			jo_sprite_draw3D2(pointer_sprite_id, mx-1, my-1, POINTER_ZINDEX);
-			jo_sprite_draw3D2(dust002_sprite_id, mx+9, my+11, POINTER_ZINDEX);
 
 			if (!is_player_turn)
-				jo_sprite_disable_half_transparency();
+				jo_sprite_draw3D2(dust005_sprite_id, mx+9, my+11, POINTER_ZINDEX);
+			else
+				jo_sprite_draw3D2(dust002_sprite_id, mx+9, my+11, POINTER_ZINDEX);
 		}
 	}
 
