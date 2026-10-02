@@ -158,9 +158,9 @@ static int check_sprite_id;
 static int action_counter;
 static int fade_brightness;
 static int fade_cooldown;
-static jo_font *game_white_font;
-static jo_font *game_black_font;
-static jo_font *game_disabled_font;
+static jo_font *white_font;
+static jo_font *shadow_font;
+static jo_font *disabled_font;
 static int current_intro_text_index = 0;
 static int current_instructions_page_index = 0;
 static bool intro_mode_started = false;
@@ -486,11 +486,11 @@ void load_pregame_assets()
 	remove_sound_id = load_8bit_pcm((Sint8 *)"REMOVE.PCM", 15360);
 	rotate_sound_id = load_8bit_pcm((Sint8 *)"ROTATE.PCM", 15360);
 
-	game_black_font = jo_font_load(NULL, "GAMEBLK.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
-	game_black_font->z_index = TEXT_ZINDEX;
+	shadow_font = jo_font_load(NULL, "GAMESDW.TGA", JO_COLOR_Transparent,GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
+	shadow_font->z_index = TEXT_ZINDEX;
 
-	game_disabled_font = jo_font_load(NULL, "GAMEDSL.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, DISABLED_FONT_MAPPING);
-	game_disabled_font->z_index = TEXT_ZINDEX;
+	disabled_font = jo_font_load(NULL, "GAMEDSL.TGA", JO_COLOR_Transparent,GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, DISABLED_FONT_MAPPING);
+	disabled_font->z_index = TEXT_ZINDEX;
 
 	load_title_sprites();
 	load_intro_sprites(); // load last since we will unload these which frees memory after
@@ -604,8 +604,8 @@ void init()
 	CDDA_SetVolume(4);
 
 	// initialize fonts - load just what's needed for loading screen
-	game_white_font = jo_font_load(NULL, "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
-	game_white_font->z_index = TEXT_ZINDEX;
+	white_font = jo_font_load(NULL, "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
+	white_font->z_index = TEXT_ZINDEX;
 
 	hisc = make_table();
 	reset_scores(hisc);
@@ -946,13 +946,11 @@ void draw_game(int show_pointer)
 	// draw scores
 	char score_string[10];
 	sprintf(score_string, "%d", ply[1].score);
-	int right_aligned_x = get_right_aligned_x_coord(game_white_font, 314, 0.99f, score_string);
-	jo_font_print(game_black_font, right_aligned_x-1,20,0.99f, score_string);
-	jo_font_print(game_white_font, right_aligned_x,19,0.99f, score_string);
+	int right_aligned_x = get_right_aligned_x_coord(shadow_font, 314, 0.99f, score_string);
+	jo_font_print(shadow_font, right_aligned_x,19,0.99f, score_string);
 	sprintf(score_string, "%d", ply[2].score);
-	right_aligned_x = get_right_aligned_x_coord(game_white_font, 314, 0.99f, score_string);
-	jo_font_print(game_black_font, right_aligned_x-1,122,0.99f, score_string);
-	jo_font_print(game_white_font, right_aligned_x,121,0.99f, score_string);
+	right_aligned_x = get_right_aligned_x_coord(shadow_font, 314, 0.99f, score_string);
+	jo_font_print(shadow_font, right_aligned_x,121,0.99f, score_string);
 
 	// draw characters
 	if (ply[1].anim && !winner) 
@@ -981,13 +979,13 @@ void draw_game(int show_pointer)
 	if (ply[1].multi>1)
 	{
 		sprintf(score_string, "%d", ply[1].multi);
-		jo_font_print(game_white_font, 245, 76, 0.5f, score_string);
+		jo_font_print(white_font, 245, 76, 0.5f, score_string);
 	}
 
 	if (ply[2].multi>1)
 	{
 		sprintf(score_string, "%d", ply[2].multi);
-		jo_font_print(game_white_font, 245, 188, 0.5f, score_string);
+		jo_font_print(white_font, 245, 188, 0.5f, score_string);
 	}
 
 	if (show_pointer) draw_particles();
@@ -1028,16 +1026,14 @@ void draw_game(int show_pointer)
 
 	if (is_paused)
 	{
-		jo_font_print_centered(game_black_font, -1, -10, 0.99f, "RESUME");
-		jo_font_print_centered(game_white_font, 0, -11, 0.99f, "RESUME");
+		jo_font_print_centered(shadow_font, 0, -11, 0.99f, "RESUME");
 		if (current_pause_option == PAUSE_OPTION_RESUME)
 		{
 			jo_sprite_draw3D2(select_sprite_id, 100, 108, BACKGROUND_ZINDEX);
 			jo_sprite_draw3D2(select_sprite_id, 204, 108, BACKGROUND_ZINDEX);
 		}
 
-		jo_font_print_centered(game_black_font, -1, 10, 0.99f, "QUIT");
-		jo_font_print_centered(game_white_font, 0, 9, 0.99f, "QUIT");
+		jo_font_print_centered(shadow_font, 0, 9, 0.99f, "QUIT");
 		if (current_pause_option == PAUSE_OPTION_QUIT)
 		{
 			jo_sprite_draw3D2(select_sprite_id, 100, 128, BACKGROUND_ZINDEX);
@@ -1149,28 +1145,21 @@ void draw_title()
 	// title menu options
 	if (is_showing_main_menu_options || title_menu_y < JO_TV_HEIGHT)
 	{
-		jo_font_print(game_black_font, 39, title_menu_y + 1, 0.99f, "START GAME");
-		jo_font_print(game_white_font, 40, title_menu_y, 0.99f, "START GAME");
-		jo_font_print(game_black_font, 39, title_menu_y + 21, 0.99f, "HIGH SCORES");
-		jo_font_print(game_white_font, 40, title_menu_y + 20, 0.99f, "HIGH SCORES");
-		jo_font_print(game_black_font, 39, title_menu_y + 41, 0.99f, "INSTRUCTIONS");
-		jo_font_print(game_white_font, 40, title_menu_y + 40, 0.99f, "INSTRUCTIONS");
-		jo_font_print(game_black_font, 39, title_menu_y + 61, 0.99f, "CREDITS");
-		jo_font_print(game_white_font, 40, title_menu_y + 60, 0.99f, "CREDITS");
+		jo_font_print(shadow_font, 40, title_menu_y, 0.99f, "START GAME");
+		jo_font_print(shadow_font, 40, title_menu_y + 20, 0.99f, "HIGH SCORES");
+		jo_font_print(shadow_font, 40, title_menu_y + 40, 0.99f, "INSTRUCTIONS");
+		jo_font_print(shadow_font, 40, title_menu_y + 60, 0.99f, "CREDITS");
 	}
 	
 	if (is_showing_start_game_options)
 	{
-		jo_font_print(game_black_font, title_menu_x-1, 144 + 1, 0.99f, "HUMAN VS AARON");
-		jo_font_print(game_black_font, title_menu_x-1, 164 + 1, 0.99f, "ALEX VS HUMAN");
-		jo_font_print(game_white_font, title_menu_x, 144, 0.99f, "HUMAN VS AARON");
-		jo_font_print(game_white_font, title_menu_x, 164, 0.99f, "ALEX VS HUMAN");
+		jo_font_print(shadow_font, title_menu_x, 144, 0.99f, "HUMAN VS AARON");
+		jo_font_print(shadow_font, title_menu_x, 164, 0.99f, "ALEX VS HUMAN");
 		
-		jo_font_print(game_black_font, title_menu_x-1, 184 + 1, 0.99f, "HUMAN VS HUMAN");
 		if (is_pad2_available)
-			jo_font_print(game_white_font, title_menu_x, 184, 0.99f, "HUMAN VS HUMAN");
+			jo_font_print(shadow_font, title_menu_x, 184, 0.99f, "HUMAN VS HUMAN");
 		else
-			jo_font_print(game_disabled_font, title_menu_x, 184, 0.99f, "HUMAN VS HUMAN");
+			jo_font_print(disabled_font, title_menu_x, 184, 0.99f, "HUMAN VS HUMAN");
 	}
 
 	// volume controls
@@ -1704,17 +1693,14 @@ void draw_high_scores() {
 	jo_sprite_disable_half_transparency();
 
 	int title_y = -60;
-	jo_font_print_centered(game_black_font, -1, title_y+1, 0.99f, "ALL TIME HIGH");
-	jo_font_print_centered(game_white_font, 0, title_y, 0.99f, "ALL TIME HIGH");
+	jo_font_print_centered(shadow_font, 0, title_y, 0.99f, "ALL TIME HIGH");
 
 	char score_string[10];
 	for(i=0;i<MAX_SCORES;i++) {
-		jo_font_print(game_black_font, 3,66+i*16,0.5f, hisc[i].name);
-		jo_font_print(game_white_font, 4,65+i*16,0.5f, hisc[i].name);
+		jo_font_print(shadow_font, 4,65+i*16,0.5f, hisc[i].name);
 		sprintf(score_string, "%d", hisc[i].score);
-		int right_aligned_x = get_right_aligned_x_coord(game_white_font, 300, 0.5f, score_string);
-		jo_font_print(game_black_font, right_aligned_x-1,66+i*16,0.5f, score_string);
-		jo_font_print(game_white_font, right_aligned_x,65+i*16,0.5f, score_string);
+		int right_aligned_x = get_right_aligned_x_coord(shadow_font, 300, 0.5f, score_string);
+		jo_font_print(shadow_font, right_aligned_x,65+i*16,0.5f, score_string);
 	}
 	
 	draw_donkeys();
@@ -1780,23 +1766,18 @@ void draw_hof()
 	jo_sprite_disable_half_transparency();
 
 	int title_y = -60;
-	jo_font_print_centered(game_black_font, -1, title_y+1, 0.99f, "ALL TIME HIGH");
-	jo_font_print_centered(game_white_font, 0, title_y, 0.99f, "ALL TIME HIGH");
+	jo_font_print_centered(shadow_font, 0, title_y, 0.99f, "ALL TIME HIGH");
 
 	jo_sprite_draw3D2(token_sprite_ids[hof_p], 0, 80, TEXT_ZINDEX);
 	jo_sprite_draw3D2(token_sprite_ids[hof_p], 320-24, 80, TEXT_ZINDEX);
 	char score_string[35];
 	sprintf(score_string, "PLAYER %d, YOU GOT A HIGH SCORE!", hof_p);
-	jo_font_print_centered(game_black_font, -1, -28+1, 0.50f, score_string);
-	jo_font_print_centered(game_white_font, 0, -28, 0.50f, score_string);
+	jo_font_print_centered(shadow_font, 0, -28, 0.50f, score_string);
 
-	int center_x_coord = get_center_aligned_x_coord(game_white_font, 0.99f, "AAAA");
-	jo_font_printf(game_black_font, center_x_coord-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[0]]);
-	jo_font_printf(game_white_font, center_x_coord, 116, 0.99f, "%c", hof_chars[hof_char_indexes[0]]);		
-	jo_font_printf(game_black_font, center_x_coord+18-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[1]]);
-	jo_font_printf(game_white_font, center_x_coord + 18, 116, 0.99f, "%c", hof_chars[hof_char_indexes[1]]);		
-	jo_font_printf(game_black_font, center_x_coord+36-1, 117, 0.99f, "%c", hof_chars[hof_char_indexes[2]]);
-	jo_font_printf(game_white_font, center_x_coord + 36, 116, 0.99f, "%c", hof_chars[hof_char_indexes[2]]);		
+	int center_x_coord = get_center_aligned_x_coord(shadow_font, 0.99f, "AAAA");
+	jo_font_printf(shadow_font, center_x_coord, 116, 0.99f, "%c", hof_chars[hof_char_indexes[0]]);		
+	jo_font_printf(shadow_font, center_x_coord + 18, 116, 0.99f, "%c", hof_chars[hof_char_indexes[1]]);		
+	jo_font_printf(shadow_font, center_x_coord + 36, 116, 0.99f, "%c", hof_chars[hof_char_indexes[2]]);		
 	jo_sprite_draw3D2(check_sprite_id, center_x_coord + 52, 122, TEXT_ZINDEX);
 	if (hof_selected_index == 0) jo_sprite_draw3D2(select_sprite_id, center_x_coord, 144, TEXT_ZINDEX);
 	if (hof_selected_index == 1) jo_sprite_draw3D2(select_sprite_id, center_x_coord + 18, 144, TEXT_ZINDEX);
@@ -2389,20 +2370,17 @@ void play()
 		{
 			if (winner_presses==0) 
 			{
-				jo_font_print_centered(game_black_font, -1, 1, 0.99f, "BOARD CLEARED!");
-				jo_font_print_centered(game_white_font, 0, 0, 0.99f, "BOARD CLEARED!");
+				jo_font_print_centered(shadow_font, 0, 0, 0.99f, "BOARD CLEARED!");
 			}
 			if (winner_presses==1) 
 			{ 
 				if (winner<3) 
 				{
-					jo_font_print_centered(game_black_font, -1, 1, 0.90f, buf);
-					jo_font_print_centered(game_white_font, 0, 0, 0.90f, buf);
+					jo_font_print_centered(shadow_font, 0, 0, 0.90f, buf);
 				}
 				else 
 				{
-					jo_font_print_centered(game_black_font, -1, 1, 0.99f, "IT'S A DRAW!");
-					jo_font_print_centered(game_white_font, 0, 0, 0.99f, "IT'S A DRAW!");
+					jo_font_print_centered(shadow_font, 0, 0, 0.99f, "IT'S A DRAW!");
 				}
 			}
 			if (winner_presses==2) done = 1;
@@ -2511,7 +2489,7 @@ static void process_intro_graphic_scale()
 
 void draw_load()
 {
-	jo_font_print_centered(game_white_font, 0, 0, 0.99f, "LOADING...");
+	jo_font_print_centered(white_font, 0, 0, 0.99f, "LOADING...");
 }
 
 void end_load()
@@ -2583,7 +2561,7 @@ void intro_graphic()
 
 void draw_intro_text()
 {
-	jo_font_print_centered(game_white_font, 0, 0, 0.99f, intro_text[current_intro_text_index]);
+	jo_font_print_centered(white_font, 0, 0, 0.99f, intro_text[current_intro_text_index]);
 }
 
 void end_intro_text()
@@ -2642,14 +2620,12 @@ void draw_instructions()
 	int title_y = 50;
 	if (instructions_titles[current_instructions_page_index] != "")
 	{
-		jo_font_print(game_black_font, 5, title_y+1, 0.99f, instructions_titles[current_instructions_page_index]);
-		jo_font_print(game_white_font, 6, title_y, 0.99f, instructions_titles[current_instructions_page_index]);		
+		jo_font_print(shadow_font, 6, title_y, 0.99f, instructions_titles[current_instructions_page_index]);		
 	}
 
 	for (int i = 0; i < INSTRUCTIONS_LINE_COUNT; i++)
 	{
-		jo_font_print(game_black_font, 3, title_y+3+(16*(i+1)), 0.50f, instructions_lines[current_instructions_page_index][i]);
-		jo_font_print(game_white_font, 4, title_y+2+(16*(i+1)), 0.50f, instructions_lines[current_instructions_page_index][i]);		
+		jo_font_print(shadow_font, 4, title_y+2+(16*(i+1)), 0.50f, instructions_lines[current_instructions_page_index][i]);		
 	}
 
 	draw_donkeys();
@@ -2709,15 +2685,13 @@ void draw_credits()
 	jo_sprite_disable_half_transparency();
 
 	int title_y = -60;
-	jo_font_print_centered(game_black_font, -1, title_y+1, 0.99f, "CREDITS");
-	jo_font_print_centered(game_white_font, 0, title_y, 0.99f, "CREDITS");
+	jo_font_print_centered(shadow_font, 0, title_y, 0.99f, "CREDITS");
 
 	int credit_start_y = 65;
 
 	for (int i = 0; i < CREDITS_TEXT_COUNT; i++)
 	{
-		jo_font_print(game_black_font, 3, credit_start_y+1+i*16, 0.50f, credits_text[i]);
-		jo_font_print(game_white_font, 4, credit_start_y+i*16, 0.50f, credits_text[i]);		
+		jo_font_print(shadow_font, 4, credit_start_y+i*16, 0.50f, credits_text[i]);		
 	}
 
 	draw_donkeys();

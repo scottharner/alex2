@@ -58,6 +58,7 @@ general
 
 todo
 ----
+- missing sprite issue
 - screenshots
 - test on real hardware
 - publish to sega retro
