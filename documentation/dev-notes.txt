@@ -43,7 +43,9 @@ saturn
 - bin/cue creation
   - had to fix up my wav files by converting from midi as mentioned above
   - then i ran shntool which performs a fix (not sure if truly needed)
+    - shntool fix *.wav
   - then ran sega saturn patcher and selected my cue to output a bin cue
+
 general
 -------
 - we have one make file per platform now, so to make we need to

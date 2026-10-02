@@ -10,8 +10,8 @@ if not exist %MEDNAFEN_EXECUTABLE_PATH% (
 	exit
 )
 
-if exist "jo engine.cue" (
-"%MEDNAFEN_EXECUTABLE_PATH%" "%cd%\jo engine.cue" -sound.volume "150"
+if exist "alex2.cue" (
+"%MEDNAFEN_EXECUTABLE_PATH%" "%cd%\alex2.cue" -sound.volume "150"
 ) else (
 echo Please compile first !
 )
