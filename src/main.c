@@ -225,7 +225,7 @@ static const char* credits_text[] =
     "ADVISOR - HASSMASCHINE",
     "ADVISOR - TREKKIESUNITE118",
     "ADVISOR - REYEME",
-	"",
+	"ADVISOR - KNIGHTOFDRAGON",
 	"POWERED BY - JO ENGINE"
 };
 

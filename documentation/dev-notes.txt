@@ -13,6 +13,8 @@ saturn
   - i read that saturn can deal with seq/ton which you can convert to from midi but i dont know how ponesound deals with that
   - i am instead converting from midi to wav and will play with cd audio
   - had to use audacity to add 2.5 sec of silence so beginning of song is heard properly
+  - used an online tool at first for conversion but that didnt seem to work with conversion to bin/cue
+  - am now using direct midi to mp3 converter for the conversion
 - i ran into some palette issues loading some of these graphics and had to do the following
   - load graphic in mtpaint
   - load palette in mtpaint
@@ -38,7 +40,10 @@ saturn
 - i had very limited success with jo_sprite_add_tga_tileset at first
   - i finally got this to work and the only thing that i could guess was that my filename was too long
   - it also seemed that all the sprites had to be the same size
-
+- bin/cue creation
+  - had to fix up my wav files by converting from midi as mentioned above
+  - then i ran shntool which performs a fix (not sure if truly needed)
+  - then ran sega saturn patcher and selected my cue to output a bin cue
 general
 -------
 - we have one make file per platform now, so to make we need to
@@ -52,7 +57,6 @@ general
 todo
 ----
 - screenshots
-- output to bin/cue format
 - test on real hardware
 - publish to sega retro
 - publish to sega xtreme
