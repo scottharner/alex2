@@ -452,7 +452,7 @@ void load_sound_config()
 	// sound is 0-7
 	// music is 0-7
 	sound_vol=6;
- 	music_vol=6;
+ 	music_vol=5;
 }
 
 void reset_title_props()
