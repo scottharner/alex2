@@ -601,7 +601,6 @@ void init()
 
 	// initialize sound
 	load_drv(ADX_MASTER_2304);
-	CDDA_SetVolume(4);
 
 	// initialize fonts - load just what's needed for loading screen
 	white_font = jo_font_load(NULL, "GAMEWHT.TGA", JO_COLOR_RGB(255,0,255),GAME_FONT_WIDTH, GAME_FONT_HEIGHT, 0, GAME_FONT_MAPPING);
@@ -610,6 +609,7 @@ void init()
 	hisc = make_table();
 	reset_scores(hisc);
 	load_sound_config();
+	CDDA_SetVolume(music_vol);
 
 	reset_game();
 }
@@ -1260,12 +1260,12 @@ bool pointer_on_credits_option(int menu_y)
 
 bool pointer_on_sound_vol()
 {
-	return (pointer1_x>275 && pointer1_x<290 && pointer1_y>149 && pointer1_y<201);
+	return (pointer1_x>275 && pointer1_x<290 && pointer1_y>144 && pointer1_y<201);
 }
 
 bool pointer_on_music_vol()
 {
-	return (pointer1_x>295 && pointer1_x<310 && pointer1_y>149 && pointer1_y<201);
+	return (pointer1_x>295 && pointer1_x<310 && pointer1_y>144 && pointer1_y<201);
 }
 
 void process_game_option_select()
