@@ -1,5 +1,5 @@
 # alex2
-This is a Scott Harner port of Alex the Allegator 2 to the Sega Saturn. 
+This is a Scott Harner 2026 port of Alex the Allegator 2 to the Sega Saturn. 
 Alex the Allegator 2 is a 2001 game by Johan Peitz. It has a GPL2 license 
 and the original source code can be found at 
 https://sourceforge.net/projects/allegator/files/Alex2/.
@@ -9,6 +9,12 @@ built using Allegro 4. Since I had already gained that familiarity with
 Allegro, I was looking for another project that could leverage those skills. 
 As a result, I stumbled across the Alex the Allegator games and decided to 
 work on the second installment.
+
+![Alex 2 Title](documentation/screenshots/alex2-title.png)
+*Alex 2 Title*
+
+![Alex 2 Gameplay](documentation/screenshots/alex2-game.png)
+*Alex 2 Gameplay*
 
                            ************************
                            * ALEX THE ALLEGATOR 2 *

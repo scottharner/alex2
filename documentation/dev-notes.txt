@@ -58,9 +58,6 @@ general
 
 todo
 ----
-- missing sprite issue
-- screenshots
-- test on real hardware
 - publish to sega retro
 - publish to sega xtreme
 - update jo engine faqs
